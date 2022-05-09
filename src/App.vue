@@ -2,6 +2,7 @@
 import TheWelcome from "./components/TheWelcome.vue"
 import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
 import Checkerboard from "./components/basic-controls/Checkerboard.vue"
+import GroupBox from "./components/basic-controls/GroupBox.vue";
 </script>
 
 <template>
@@ -13,6 +14,10 @@ import Checkerboard from "./components/basic-controls/Checkerboard.vue"
       <div class="hint-area">Actors</div>
       <button>取消</button>
       <Checkerboard>内容图像</Checkerboard>
+      <GroupBox>
+        <template #title>标题</template>
+        内容
+      </GroupBox>
     </fieldset>
   </header>
 
@@ -313,7 +318,6 @@ import Checkerboard from "./components/basic-controls/Checkerboard.vue"
   margin: 0;
   border: 0;
   padding: 0;
-  position: relative;
   font-weight: normal;
 }
 
