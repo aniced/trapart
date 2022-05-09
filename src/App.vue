@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TheWelcome from "./components/TheWelcome.vue"
 import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
+import Checkerboard from "./components/basic-controls/Checkerboard.vue"
 </script>
 
 <template>
@@ -11,6 +12,7 @@ import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
       <DeluxeLabel>标题</DeluxeLabel>
       <div class="hint-area">Actors</div>
       <button>取消</button>
+      <Checkerboard>内容图像</Checkerboard>
     </fieldset>
   </header>
 
@@ -45,7 +47,8 @@ import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
   --selected-ed-text: var(--normal-text);
   --selected-ed-back: #bbddff;
   --disabled-text: #00000080;
-  --disabled-opacity: 0.5;
+  /* data.disabledOpacity is solely for double dimming of button labels. Hence we multiply the alpha components here. */
+  --disabled-button-text: #00000040;
   --hyperlink-text: #0000ff;
 
   --button1: #eef6fc;
@@ -133,7 +136,7 @@ import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
     --selected-ed-text: var(--normal-text);
     --selected-ed-back: #4b6eaf;
     --disabled-text: #777777;
-    --disabled-opacity: 0.5;
+    --disabled-button-text: #77777780;
     --hyperlink-text: #0099ff;
 
     --button1: #616668;
@@ -204,7 +207,7 @@ import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
     --selected-ed-text: #000000;
     --selected-ed-back: #1AEBFF;
     --disabled-text: #00FF00;
-    --disabled-opacity: 1;
+    --disabled-button-text: var(--disabled-text);
     --hyperlink-text: #00ffff;
 
     --button1: #000000;
@@ -275,7 +278,7 @@ import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
     --selected-ed-text: #FFFFFF;
     --selected-ed-back: #37006E;
     --disabled-text: #800000;
-    --disabled-opacity: 1;
+    --disabled-button-text: var(--disabled-text);
     --hyperlink-text: #0000ff;
 
     --button1: #FFFFFF;
@@ -338,6 +341,8 @@ button {
   background-clip: padding-box;
   background-image: var(--button);
   text-align: center;
+  /* anchors.verticalCenter: parent.verticalCenter */
+  line-height: calc(var(--control-height) - 4px);
   color: var(--normal-text);
   /* anchors.margins: 1; radius: 2.5 */
   border-radius: 3.5px;
@@ -367,17 +372,17 @@ button:enabled:active {
 }
 
 button:focus:hover {
-  background-image: var(--twinkling-btn),var(--hot-button);
+  background-image: var(--twinkling-btn), var(--hot-button);
 }
 
 button:focus:active {
-  background-image: var(--twinkling-btn),var(--pressed-button);
+  background-image: var(--twinkling-btn), var(--pressed-button);
 }
 
 button:disabled {
   background-color: var(--window2);
   background-image: none;
-  color: var(--disabled-text);
+  color: var(--disabled-button-text);
 }
 
 :focus {
