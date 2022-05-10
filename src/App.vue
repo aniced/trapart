@@ -5,6 +5,9 @@ import Checkerboard from "./components/basic-controls/Checkerboard.vue"
 import GroupBox from "./components/basic-controls/GroupBox.vue";
 import RoundFrame from "./components/basic-controls/RoundFrame.vue";
 import ThickFrame from "./components/basic-controls/ThickFrame.vue";
+import SpinBox from "./components/basic-controls/SpinBox.vue";
+import { ref } from 'vue'
+const x = ref(114)
 </script>
 
 <template>
@@ -31,7 +34,9 @@ import ThickFrame from "./components/basic-controls/ThickFrame.vue";
     <RoundFrame>
       <ThickFrame></ThickFrame>
     </RoundFrame>
-    
+
+    <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
+
     <TheWelcome />
   </main>
 </template>
@@ -553,6 +558,5 @@ button:disabled {
 
 :focus {
   outline: 2px solid var(--focus-frame);
-  outline-offset: -2px;
 }
 </style>
