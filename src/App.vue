@@ -3,6 +3,8 @@ import TheWelcome from "./components/TheWelcome.vue"
 import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
 import Checkerboard from "./components/basic-controls/Checkerboard.vue"
 import GroupBox from "./components/basic-controls/GroupBox.vue";
+import RoundFrame from "./components/basic-controls/RoundFrame.vue";
+import ThickFrame from "./components/basic-controls/ThickFrame.vue";
 </script>
 
 <template>
@@ -26,6 +28,10 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
   </header>
 
   <main>
+    <RoundFrame>
+      <ThickFrame></ThickFrame>
+    </RoundFrame>
+    
     <TheWelcome />
   </main>
 </template>
