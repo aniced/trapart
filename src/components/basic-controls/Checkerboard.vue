@@ -26,13 +26,9 @@ const darkColor = computed(() => {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: var(--light-color);
-	background-image:
-		linear-gradient(45deg, var(--dark-color) 25%, transparent 25%),
-		linear-gradient(-45deg, var(--dark-color) 25%, transparent 25%),
-		linear-gradient(45deg, transparent 75%, var(--dark-color) 75%),
-		linear-gradient(-45deg, transparent 75%, var(--dark-color) 75%);
-	background-size: 32px 32px;
-	background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
+	background:
+		linear-gradient(135deg, var(--dark-color) 25%, transparent 0 75%, var(--dark-color) 0) 0 0 / 32px 32px,
+		linear-gradient(135deg, var(--dark-color) 25%, transparent 0 75%, var(--dark-color) 0) 16px 16px / 32px 32px,
+		var(--light-color);
 }
 </style>
