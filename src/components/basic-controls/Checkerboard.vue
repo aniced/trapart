@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
-const red = ref(255), green = ref(255), blue = ref(255)
+const props = defineProps({
+	red: { type: Number, default: 255 },
+	green: { type: Number, default: 255 },
+	blue: { type: Number, default: 255 },
+})
 
-const lightColor = computed(() => `rgb(${red.value}, ${green.value}, ${blue.value})`)
+const lightColor = computed(() => `rgb(${props.red}, ${props.green}, ${props.blue})`)
 const darkColor = computed(() => {
-	return `rgb(${
-		(red.value - 0.138 * 255 - Math.min(Math.max(0, 0.888 * 255 - red.value), 0.112 * 255))
-	}, ${
-		(green.value - 0.138 * 255 - Math.min(Math.max(0, 0.888 * 255 - green.value), 0.112 * 255))
-	}, ${
-		(blue.value - 0.138 * 255 - Math.min(Math.max(0, 0.888 * 255 - blue.value), 0.112 * 255))
-	})`
+	return `rgb(${(props.red - 0.138 * 255 - Math.min(Math.max(0, 0.888 * 255 - props.red), 0.112 * 255))
+		}, ${(props.green - 0.138 * 255 - Math.min(Math.max(0, 0.888 * 255 - props.green), 0.112 * 255))
+		}, ${(props.blue - 0.138 * 255 - Math.min(Math.max(0, 0.888 * 255 - props.blue), 0.112 * 255))
+		})`
 })
 </script>
 

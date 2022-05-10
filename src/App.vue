@@ -15,7 +15,7 @@ import ThickFrame from "./components/basic-controls/ThickFrame.vue";
       <DeluxeLabel>标题</DeluxeLabel>
       <div class="hint-area">Actors</div>
       <button>取消</button>
-      <Checkerboard>内容图像</Checkerboard>
+      <Checkerboard :red="0" :green="0" :blue="128">内容图像</Checkerboard>
       <GroupBox>
         <template #title>标题</template>
         内容
