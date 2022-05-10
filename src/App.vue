@@ -18,6 +18,10 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
         <template #title>标题</template>
         内容
       </GroupBox>
+      <div style="width:164px;height:100px;overflow:scroll;border:1px solid green">
+        longllllllllllllllllllllllllllllllllll long Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
+        aut perferendis dolores ab facere mollitia modi aliquid ipsa autem sed laborum illo repudiandae sit, id maxime
+        possimus eos laboriosam. Eius?</div>
     </fieldset>
   </header>
 
@@ -28,6 +32,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
 
 <style>
 :root {
+  color-scheme: light;
+
   --window2: #d0dbe8;
   /* Qt.lighter(data.window2, 1.1) */
   --window1: #e5f1ff;
@@ -42,6 +48,10 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
   /* Qt.darker(data.window2, 1.1) */
   --scrollbar1: #bdc7d3;
   --scrollbar2: var(--window2);
+  /* Annoying: this value should be rgb(from var(--scrollbar1) r g b / 70%) but that's way in the future (CSS Color 5). */
+  --pressed-scrollbar1: #bdc7d3b3;
+  /* This is var(--control-frame) / 70% blended on var(--scrollbar2). */
+  --pressed-scrollbar-control-frame: #949ba5;
   --focus-frame: #648cb4;
 
   --normal-text: #000000;
@@ -87,7 +97,11 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
   --drop-target: #ffee60;
   --progress-bar: #4499dd;
 
-  --arrow: black;
+  /* The PNG resources are solid. To mitigate difficulties in scrollbar styling, the opacity is baked into the following SVG data. An opacity: 0.7 multiplied with fill-opacity='0.7' will approximately give the desired opacity of 0.5 in disabled cases. */
+  --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='black' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='black' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-up-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 3.5 0 l 3.5 3.5 h -7 z' fill='black' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-down-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 0 0 h 7 l -3.5 3.5 z' fill='black' fill-opacity='0.7' /%3E%3C/svg%3E");
 
   --exp-curve-color1: #13920D;
   --exp-curve-color2: #DE5C2F;
@@ -123,6 +137,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
 
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
+
     --window1: #474b4d;
     --window2: #2f3335;
     --outside-area: #181819;
@@ -131,6 +147,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
     --control-frame: #111618;
     --scrollbar1: #515658;
     --scrollbar2: #616668;
+    --pressed-scrollbar1: #515658b3;
+    --pressed-scrollbar-control-frame: #292e30;
     --focus-frame: #4e78a1;
 
     --normal-text: #cccccc;
@@ -167,7 +185,10 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
     --drop-target: #456ea6;
     --progress-bar: #4499dd;
 
-    --arrow: white;
+    --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
+    --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
+    --arrow-up-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 3.5 0 l 3.5 3.5 h -7 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
+    --arrow-down-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 0 0 h 7 l -3.5 3.5 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
 
     --exp-curve-color1: #1AC011;
     --exp-curve-color2: #ECA188;
@@ -194,6 +215,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
 
 @media screen and (-ms-high-contrast: white-on-black) {
   :root {
+    color-scheme: light;
+
     --window1: #000000;
     --window2: #000000;
     --outside-area: #000000;
@@ -202,6 +225,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
     --control-frame: #ffffff;
     --scrollbar1: #000000;
     --scrollbar2: #000000;
+    --pressed-scrollbar1: #000000b3;
+    --pressed-scrollbar-control-frame: #ffffffb3;
     --focus-frame: #ffff00;
 
     --normal-text: #ffffff;
@@ -238,7 +263,10 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
     --drop-target: #1AEBFF;
     --progress-bar: #1AEBFF;
 
-    --arrow: white;
+    --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
+    --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
+    --arrow-up-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 3.5 0 l 3.5 3.5 h -7 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
+    --arrow-down-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 0 0 h 7 l -3.5 3.5 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
 
     --exp-curve-color1: #00FF00;
     --exp-curve-color2: #FF8000;
@@ -265,6 +293,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
 
 @media screen and (-ms-high-contrast: black-on-white) {
   :root {
+    color-scheme: dark;
+
     --window1: #FFFFFF;
     --window2: #FFFFFF;
     --outside-area: #FFFFFF;
@@ -273,6 +303,8 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
     --control-frame: #000000;
     --scrollbar1: #FFFFFF;
     --scrollbar2: #FFFFFF;
+    --pressed-scrollbar1: #FFFFFFB3;
+    --pressed-scrollbar-control-frame: #000000B3;
     --focus-frame: #00009F;
 
     --normal-text: #000000;
@@ -333,6 +365,130 @@ body {
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track:horizontal {
+  border-top: 1px solid var(--control-frame);
+}
+
+::-webkit-scrollbar-track:vertical {
+  border-left: 1px solid var(--control-frame);
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--scrollbar2);
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  border-width: 2px 1px 1px 1px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  border-width: 1px 1px 1px 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-style: solid;
+  border-color: transparent;
+  box-shadow:
+    inset 0 0 0 1px var(--control-frame),
+    inset 0 0 0 8px var(--scrollbar1);
+}
+
+::-webkit-scrollbar-thumb:active {
+  box-shadow:
+    inset 0 0 0 1px var(--pressed-scrollbar-control-frame),
+    inset 0 0 0 8px var(--pressed-scrollbar1);
+}
+
+::-webkit-scrollbar-button:horizontal:start {
+  border-left-width: 0;
+}
+
+::-webkit-scrollbar-button:vertical:start {
+  border-top-width: 0;
+}
+
+::-webkit-scrollbar-button:horizontal,
+::-webkit-scrollbar-button:vertical:end {
+  border-bottom-width: 0;
+}
+
+::-webkit-scrollbar-button:vertical,
+::-webkit-scrollbar-button:horizontal:end {
+  border-right-width: 0;
+}
+
+::-webkit-scrollbar-button {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--control-frame);
+  box-shadow: inset 0 0 0 1px var(--highlight);
+}
+
+::-webkit-scrollbar-button:horizontal:decrement {
+  background:
+    var(--arrow-left-image) center no-repeat,
+    linear-gradient(var(--button1), var(--button2));
+}
+
+::-webkit-scrollbar-button:horizontal:decrement:active {
+  background:
+    var(--arrow-left-image) center no-repeat,
+    linear-gradient(var(--pressed-button1), var(--pressed-button2));
+}
+
+::-webkit-scrollbar-button:horizontal:increment {
+  background:
+    var(--arrow-right-image) center no-repeat,
+    linear-gradient(var(--button1), var(--button2));
+}
+
+::-webkit-scrollbar-button:horizontal:increment:active {
+  background:
+    var(--arrow-right-image) center no-repeat,
+    linear-gradient(var(--pressed-button1), var(--pressed-button2));
+}
+
+::-webkit-scrollbar-button:vertical:decrement {
+  background:
+    var(--arrow-up-image) center no-repeat,
+    linear-gradient(var(--button1), var(--button2));
+}
+
+::-webkit-scrollbar-button:vertical:decrement:active {
+  background:
+    var(--arrow-up-image) center no-repeat,
+    linear-gradient(var(--pressed-button1), var(--pressed-button2));
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+  background:
+    var(--arrow-down-image) center no-repeat,
+    linear-gradient(var(--button1), var(--button2));
+}
+
+::-webkit-scrollbar-button:vertical:increment:active {
+  background:
+    var(--arrow-down-image) center no-repeat,
+    linear-gradient(var(--pressed-button1), var(--pressed-button2));
+}
+
+::-webkit-scrollbar-button:active {
+  background-image: linear-gradient(var(--pressed-button1), var(--pressed-button2));
+}
+
+::-webkit-scrollbar-corner {
+  border: solid var(--control-frame);
+  border-width: 1px 0 0 1px;
+  background-color: var(--outside-area);
+}
+
 
 button {
   width: 90px;
