@@ -6,6 +6,7 @@ import GroupBox from "./components/basic-controls/GroupBox.vue";
 import RoundFrame from "./components/basic-controls/RoundFrame.vue";
 import ThickFrame from "./components/basic-controls/ThickFrame.vue";
 import SpinBox from "./components/basic-controls/SpinBox.vue";
+import ProgressBar from "./components/basic-controls/ProgressBar.vue";
 import { ref } from 'vue'
 const x = ref(114)
 </script>
@@ -36,6 +37,7 @@ const x = ref(114)
     </RoundFrame>
 
     <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
+    <ProgressBar :value="37" :max="100"></ProgressBar>
 
     <TheWelcome />
   </main>
@@ -107,6 +109,10 @@ const x = ref(114)
   --check-mark: #4466aa;
   --drop-target: #ffee60;
   --progress-bar: #4499dd;
+  /* GradientStop {color: Qt.lighter(root.color, 1.3); position: 0} */
+  --progress-bar1: #6fbfff;
+  /* border.color: Qt.darker(root.color, 1.2) */
+  --progress-bar-frame: #387fb8;
 
   /* The PNG resources are solid. To mitigate difficulties in scrollbar styling, the opacity is baked into the following SVG data. An opacity: 0.7 multiplied with fill-opacity='0.7' will approximately give the desired opacity of 0.5 in disabled cases. */
   --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='black' fill-opacity='0.7' /%3E%3C/svg%3E");
@@ -366,12 +372,12 @@ const x = ref(114)
 
 body {
   min-height: 100vh;
-  color: var(--normal-text);
   background: linear-gradient(var(--window1), var(--window2));
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
-  font-family: system-ui;
-  font-size: 15px;
+  color: var(--normal-text);
+  font-family: var(--normal-font);
+  font-size: var(--font-size);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
