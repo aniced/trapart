@@ -200,7 +200,6 @@ const x = ref(114)
     --work-area: #224488;
     --check-mark: #aaaaaa;
     --drop-target: #456ea6;
-    --progress-bar: #4499dd;
 
     --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
     --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
@@ -279,6 +278,8 @@ const x = ref(114)
     --check-mark: #FFFFFF;
     --drop-target: #1AEBFF;
     --progress-bar: #1AEBFF;
+    --progress-bar1: #66F1FF;
+    --progress-bar-frame: #15C3D4;
 
     --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
     --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='white' fill-opacity='0.7' /%3E%3C/svg%3E");
@@ -357,6 +358,8 @@ const x = ref(114)
     --check-mark: #000000;
     --drop-target: #37006E;
     --progress-bar: #37006E;
+    --progress-bar1:#47008F;
+    --progress-bar-frame: #2D005B;
   }
 }
 
@@ -373,8 +376,7 @@ const x = ref(114)
 body {
   min-height: 100vh;
   background: linear-gradient(var(--window1), var(--window2));
-  transition: color 0.5s, background-color 0.5s;
-  line-height: 1.6;
+  line-height: 1.2;
   color: var(--normal-text);
   font-family: var(--normal-font);
   font-size: var(--font-size);

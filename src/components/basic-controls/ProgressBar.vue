@@ -8,7 +8,7 @@ defineProps({
 <template>
 	<div class="container">
 		<div class="background">
-		<div class="value" :style="{ width: (value ?? 0) / (max ?? 1) * 100 + '%' }"></div>
+			<div class="value" :style="{ width: (value ?? 0) / (max ?? 1) * 100 + '%' }"></div>
 		</div>
 	</div>
 </template>
@@ -27,7 +27,7 @@ defineProps({
 	overflow: hidden;
 }
 
-.value{
+.value {
 	border-radius: 2px;
 	height: 100%;
 	background-image: linear-gradient(var(--progress-bar1), var(--progress-bar) 140%);
