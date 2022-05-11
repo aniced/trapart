@@ -7,8 +7,10 @@ import RoundFrame from "./components/basic-controls/RoundFrame.vue";
 import ThickFrame from "./components/basic-controls/ThickFrame.vue";
 import SpinBox from "./components/basic-controls/SpinBox.vue";
 import ProgressBar from "./components/basic-controls/ProgressBar.vue";
+import TabView from "./components/basic-controls/TabView.vue";
 import { ref } from 'vue'
 const x = ref(114)
+const y = ref(0)
 </script>
 
 <template>
@@ -28,6 +30,7 @@ const x = ref(114)
         longllllllllllllllllllllllllllllllllll long Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
         aut perferendis dolores ab facere mollitia modi aliquid ipsa autem sed laborum illo repudiandae sit, id maxime
         possimus eos laboriosam. Eius?</div>
+      <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" style="height:514px" v-model="y" tab-position="left"></TabView>
     </fieldset>
   </header>
 
@@ -358,7 +361,7 @@ const x = ref(114)
     --check-mark: #000000;
     --drop-target: #37006E;
     --progress-bar: #37006E;
-    --progress-bar1:#47008F;
+    --progress-bar1: #47008F;
     --progress-bar-frame: #2D005B;
   }
 }
@@ -509,6 +512,8 @@ body {
 }
 
 
+/* The transparent border is for correct sizing, which in turn gives correct hit test areas. */
+/* Non-interactive components, on the other hand, may find having a container element being a more natural approach. */
 button {
   width: 90px;
   height: var(--control-height);
