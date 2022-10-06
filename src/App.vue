@@ -16,8 +16,8 @@ const y = ref(0)
 <template>
   <header>
     <fieldset></fieldset>
+    <button class="ellipsis">确定</button>
     <fieldset disabled>
-      <button>确定</button>
       <DeluxeLabel>标题</DeluxeLabel>
       <div class="hint-area">Actors</div>
       <button>取消</button>
@@ -30,7 +30,8 @@ const y = ref(0)
         longllllllllllllllllllllllllllllllllll long Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
         aut perferendis dolores ab facere mollitia modi aliquid ipsa autem sed laborum illo repudiandae sit, id maxime
         possimus eos laboriosam. Eius?</div>
-      <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" style="height:514px" v-model="y" tab-position="left"></TabView>
+      <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" style="height:514px" v-model="y"
+        tab-position="left"></TabView>
     </fieldset>
   </header>
 
@@ -71,6 +72,8 @@ const y = ref(0)
   --focus-frame: #648cb4;
 
   --normal-text: #000000;
+  --normal-text-70: #000000b3;
+  --normal-text-50: #00000080;
   --normal-back1: #ffffff;
   --normal-back2: #e4ecf2;
   --selected-text: #ffffff;
@@ -84,21 +87,21 @@ const y = ref(0)
 
   --button1: #eef6fc;
   --button2: #aeb6bc;
-  --button: linear-gradient(var(--button1), var(--button2));
+  --button: padding-box linear-gradient(var(--button1), var(--button2));
   --pressed-button1: var(--button2);
   --pressed-button2: var(--button1);
-  --pressed-button: linear-gradient(var(--pressed-button1), var(--pressed-button2));
+  --pressed-button: padding-box linear-gradient(var(--pressed-button1), var(--pressed-button2));
   --pressed-button-text: var(--normal-text);
   --hot-button1: #ffffff;
   --hot-button2: #c0e0ff;
-  --hot-button: linear-gradient(var(--hot-button1), var(--hot-button2));
+  --hot-button: padding-box linear-gradient(var(--hot-button1), var(--hot-button2));
   --hot-button-text: var(--normal-text);
   /* twinklingBtn1 and twinklingBtn2 are only applied to the default button, where the opacity of the Rectangle is 0.5. Hence we include the alpha component here. */
   /* Qt.lighter("#38d", 1.8) */
   --twinkling-btn1: #cae4ff80;
   /* Qt.lighter("#38d", 1.5) */
   --twinkling-btn2: #87c3ff80;
-  --twinkling-btn: linear-gradient(var(--twinkling-btn1), var(--twinkling-btn2));
+  --twinkling-btn: padding-box linear-gradient(var(--twinkling-btn1), var(--twinkling-btn2));
   --group-box1: #90b0d060;
   --group-box2: #7090b060;
   --group-box-frame: #ffffff;
@@ -172,6 +175,8 @@ const y = ref(0)
     --focus-frame: #4e78a1;
 
     --normal-text: #cccccc;
+    --normal-text-70: #ccccccb3;
+    --normal-text-50: #cccccc80;
     --normal-back1: #25282a;
     --normal-back2: #2c2f31;
     --selected-text: #cccccc;
@@ -249,6 +254,8 @@ const y = ref(0)
     --focus-frame: #ffff00;
 
     --normal-text: #ffffff;
+    --normal-text-70: #ffffffb3;
+    --normal-text-50: #ffffff80;
     --normal-back1: #000000;
     --normal-back2: #000000;
     --selected-text: #000000;
@@ -329,6 +336,8 @@ const y = ref(0)
     --focus-frame: #00009F;
 
     --normal-text: #000000;
+    --normal-text-70: #000000b3;
+    --normal-text-50: #00000080;
     --normal-back1: #FFFFFF;
     --normal-back2: #FFFFFF;
     --selected-text: #FFFFFF;
@@ -522,8 +531,9 @@ button {
   border: 2px solid transparent;
   outline: 1px solid var(--control-frame);
   outline-offset: -2px;
-  background-clip: padding-box;
-  background-image: var(--button);
+  background: var(--arrow-image), var(--button);
+  --arrow-image: none;
+  --arrow-image-color: var(--normal-text-70);
   text-align: center;
   /* anchors.verticalCenter: parent.verticalCenter */
   line-height: calc(var(--control-height) - 4px);
@@ -539,34 +549,38 @@ button>img:first-child {
 }
 
 button:focus {
-  background-image: var(--twinkling-btn), var(--button);
+  background: var(--arrow-image), var(--twinkling-btn), var(--button);
   /* Subtlety. Only the focus ring should get a radius of 2px, not the button itself. Does not make much difference, though. */
   /* To compensate for the button border, which should still be (barely) visible under the focus ring, another pixel of rounded corners is added. */
   border-radius: 3px;
 }
 
 button:enabled:hover {
-  background-image: var(--hot-button);
+  background: var(--arrow-image), var(--hot-button);
   color: var(--hot-button-text);
 }
 
 button:enabled:active {
-  background-image: var(--pressed-button);
+  background: var(--arrow-image), var(--pressed-button);
   color: var(--pressed-button-text);
 }
 
 button:focus:hover {
-  background-image: var(--twinkling-btn), var(--hot-button);
+  background: var(--arrow-image), var(--twinkling-btn), var(--hot-button);
 }
 
 button:focus:active {
-  background-image: var(--twinkling-btn), var(--pressed-button);
+  background: var(--arrow-image), var(--twinkling-btn), var(--pressed-button);
 }
 
 button:disabled {
-  background-color: var(--window2);
-  background-image: none;
+  background: var(--arrow-image), padding-box var(--window2);
   color: var(--disabled-button-text);
+  --arrow-image-color: var(--normal-text-50);
+}
+
+button.ellipsis {
+  --arrow-image: right 6px center / 10px 2px no-repeat repeating-linear-gradient(to right, var(--arrow-image-color) 0 2px, transparent 0 4px);
 }
 
 :focus {
