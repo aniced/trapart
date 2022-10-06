@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const props = defineProps({
 	modelValue: { type: Number, default: 0 },
@@ -7,25 +7,48 @@ const props = defineProps({
 	tabPosition: { type: String, default: "top" },
 	itemHeight: { type: Number, default: 32 },
 })
-defineEmits(["update:modelValue"])
+const emit = defineEmits(["update:modelValue"])
 const container = ref<HTMLDivElement | null>(null)
+const containerHeight = ref(0)
 
 function tabStyle(index: number) {
 	return {
 		height: `${props.itemHeight}px`,
-		backgroundImage: `linear-gradient(var(--tab1) -${index}00%, var(--tab2) ${((container.value?.clientHeight ?? 0) / props.itemHeight - index) * 100}%)`,
+		backgroundImage: `linear-gradient(var(--tab1) -${index}00%, var(--tab2) ${(containerHeight.value / props.itemHeight - index) * 100}%)`,
 		lineHeight: `${props.itemHeight - 4}px`,
 	}
 }
+
+const resizeObserver = new ResizeObserver(entries => {
+	containerHeight.value = entries[0].contentRect.height
+})
+
+onMounted(() => {
+	resizeObserver.observe(container.value!)
+})
+
+function increment(by: number) {
+	if (props.pages === undefined) return
+	by += props.modelValue
+	if (by >= 0 && by < props.pages.length) {
+		emit("update:modelValue", by)
+	}
+}
+
+// Frequent page changes in the database dialog are suppressed by the following function in RPG Maker MV to avoid crashes. We don't crash.
+// function canChangePage() { return Math.abs(Date.now() - lastChangedTime) > 400; }
 </script>
 
 <template>
-	<div :class="tabPosition" ref="container">
+	<div :class="tabPosition" ref="container" @keydown.ctrl.page-up.stop.prevent="increment(-1)"
+		@keydown.ctrl.page-down.stop.prevent="increment(1)" @keydown.alt.page-up.stop.prevent="increment(-1)"
+		@keydown.alt.page-down.stop.prevent="increment(1)">
 		<div class="tab-bar">
 			<div :class="{ tab: true, active: modelValue == index }" :style="tabStyle(index)" v-for="(page, index) in pages"
-				@click="$emit('update:modelValue', index)" @pointerdown="$emit('update:modelValue', index)">
+				@pointerdown="$emit('update:modelValue', index)">
 				<div>
-					<div tabindex="0">{{ page }}</div>
+					<div tabindex="0" @click="$emit('update:modelValue', index)" @keydown.arrow-up.prevent="increment(-1)"
+						@keydown.arrow-down.prevent="increment(1)">{{ page }}</div>
 				</div>
 			</div>
 		</div>
@@ -35,7 +58,7 @@ function tabStyle(index: number) {
 	</div>
 </template>
 
-<style scoped>
+<style scoped lang="postcss">
 .top,
 .left {
 	position: relative;
