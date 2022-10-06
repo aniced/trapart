@@ -16,7 +16,7 @@ const y = ref(0)
 <template>
   <header>
     <fieldset></fieldset>
-    <button class="ellipsis">确定</button>
+    <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
     <fieldset disabled>
       <DeluxeLabel>标题</DeluxeLabel>
       <div class="hint-area">Actors</div>
@@ -581,7 +581,20 @@ button:disabled {
 
 button.ellipsis {
   --arrow-image: right 6px center / 10px 2px no-repeat repeating-linear-gradient(to right, var(--arrow-image-color) 0 2px, transparent 0 4px);
+  text-align: left;
+  padding-left: 4px;
+  padding-right: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: var(--fixed-font);
 }
+
+button.ellipsis:disabled {
+  color: transparent;
+}
+
+/* EllipsisBox and LabeledEllipsisBox emit mouse wheel events but no code actually handles them. */
 
 :focus {
   outline: 2px solid var(--focus-frame);
