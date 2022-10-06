@@ -28,8 +28,7 @@ const darkColor = computed(() => {
 	justify-content: center;
 	align-items: center;
 	background:
-		linear-gradient(135deg, var(--dark-color) 25%, transparent 0 75%, var(--dark-color) 0) 0 0 / 32px 32px,
-		linear-gradient(135deg, var(--dark-color) 25%, transparent 0 75%, var(--dark-color) 0) 16px 16px / 32px 32px,
-		var(--light-color);
+		repeating-conic-gradient(var(--light-color) 0 .25turn, transparent 0 .5turn) 0 0 / 32px 32px,
+		var(--dark-color);
 }
 </style>
