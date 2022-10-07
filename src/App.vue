@@ -8,7 +8,8 @@ import ThickFrame from "./components/basic-controls/ThickFrame.vue";
 import SpinBox from "./components/basic-controls/SpinBox.vue";
 import ProgressBar from "./components/basic-controls/ProgressBar.vue";
 import TabView from "./components/basic-controls/TabView.vue";
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
+import HintArea from './components/basic-controls/HintArea.vue'
 const x = ref(114)
 const y = ref(0)
 </script>
@@ -18,8 +19,14 @@ const y = ref(0)
     <fieldset></fieldset>
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
     <fieldset disabled>
+      <HintArea title="哼哼">
       <DeluxeLabel>标题</DeluxeLabel>
-      <div class="hint-area">Actors</div>
+        <template v-slot:hint>
+          这是关于标题的说明。
+          <hr>
+          这在分割线以下。
+        </template>
+      </HintArea>
       <button>取消</button>
       <Checkerboard :red="0" :green="0" :blue="128">内容图像</Checkerboard>
       <GroupBox>
@@ -383,6 +390,7 @@ const y = ref(0)
   border: 0;
   padding: 0;
   font-weight: normal;
+  cursor: default;
 }
 
 body {
@@ -395,6 +403,13 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* <hr> models the separator between the text and the component in a ToolTip, seen in e.g., the damage formula input in the database (atk, def, …) and help for message control characters (\V[n], \N[n], …). */
+hr {
+  height: 1px;
+  margin: 6px auto;
+  background-color: var(--control-frame);
 }
 
 
