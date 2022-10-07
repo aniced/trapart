@@ -78,11 +78,6 @@ function increment(by: number) {
 	}
 }
 
-function keyEvent(e: KeyboardEvent) {
-	if (e.key == "ArrowUp") increment(1)
-	if (e.key == "ArrowDown") increment(-1)
-}
-
 function selectValue() {
 	input.value?.select()
 }
@@ -90,7 +85,7 @@ function selectValue() {
 
 <template>
 	<div>
-		<input ref="input" v-model="value" v-bind="$attrs" @focus="selectValue" @keydown="keyEvent"
+		<input ref="input" v-model="value" v-bind="$attrs" @focus="selectValue" @keydown.arrow-up="increment(1)" @keydown.arrow-down="increment(-1)"
 			@keyup="adjustCursorPosition" @click="adjustCursorPosition" @dblclick="adjustCursorPosition"
 			@select="adjustCursorPosition">
 		<span class="up" @click="input?.focus()" @pointerdown="increment(1)"></span>
