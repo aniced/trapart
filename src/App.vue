@@ -10,6 +10,7 @@ import ProgressBar from "./components/basic-controls/ProgressBar.vue";
 import TabView from "./components/basic-controls/TabView.vue";
 import { ref, watchEffect } from 'vue'
 import HintArea from './components/basic-controls/HintArea.vue'
+import TextEditControl from './components/basic-controls/TextEditControl.vue'
 const x = ref(114)
 const y = ref(0)
 //const gamedataURL = ref("https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
@@ -31,6 +32,8 @@ watchEffect(async () => {
     <input type="radio" name="a">
     <input type="checkbox">
     <input type="checkbox">
+    <TextEditControl></TextEditControl>
+    <TextEditControl :maximum-line-count="3"></TextEditControl>
     <fieldset disabled>
       <HintArea title="哼哼">
         <DeluxeLabel>标题</DeluxeLabel>
@@ -428,6 +431,11 @@ hr {
   border-bottom: 1px solid var(--highlight);
 }
 
+
+::selection {
+  background-color: var(--selected-ed-back);
+  color: var(--selected-ed-text);
+}
 
 ::-webkit-scrollbar {
   width: 16px;

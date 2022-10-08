@@ -122,11 +122,6 @@ input:disabled {
 	background-color: var(--window2);
 }
 
-input::selection {
-	background-color: var(--selected-ed-back);
-	color: var(--selected-ed-text);
-}
-
 .up,
 .down {
 	position: absolute;

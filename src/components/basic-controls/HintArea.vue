@@ -23,9 +23,9 @@ watch(toolTipVisible, async (newToolTipVisible, oldToolTipVisible) => {
         let x = mouseX.value + 2
         let y = mouseY.value + 16
         // if (info.cursorShape === Qt.IBeamCursor) y -= 6;
-        if (cursorShape.value == 'text') y -= 6
+        if (cursorShape.value === 'text' || cursorShape.value === 'auto') y -= 6
         // if (info.cursorShape === Qt.ArrowCursor && Qt.platform.os === "windows") y += 4;
-        if (cursorShape.value == 'default' && navigator.platform == 'Win32') y += 4
+        if (cursorShape.value === 'default' && navigator.platform === 'Win32') y += 4
         return {
           x,
           y,
