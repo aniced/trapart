@@ -4,7 +4,7 @@ import { ref, watch } from 'vue';
 import ToolTip from './ToolTip.vue'
 
 defineProps<{
-  title: String,
+  title: string,
 }>()
 
 const container = ref<HTMLDivElement | null>(null)
@@ -39,6 +39,7 @@ watch(toolTipVisible, async (newToolTipVisible, oldToolTipVisible) => {
       }
     }, toolTip.value!, {
       placement: 'bottom-start',
+      // var screen = TkoolAPI.desktopAvailableGeometryAtPoint(Qt.point(x, y));
       middleware: [shift({ mainAxis: true, crossAxis: true })],
     })
     toolTip.value!.style.left = `${x}px`
