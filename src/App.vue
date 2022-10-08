@@ -12,6 +12,15 @@ import { ref, watchEffect } from 'vue'
 import HintArea from './components/basic-controls/HintArea.vue'
 const x = ref(114)
 const y = ref(0)
+//const gamedataURL = ref("https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
+const gamedataURL = ref("https://raw.fastgit.org/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
+//const gamedataURL = ref("https://raw.githubusercontents.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
+const gamedata = ref({ "excel/chapter_table.json": undefined })
+
+watchEffect(async () => {
+  gamedata.value["excel/chapter_table.json"] = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/chapter_table.json"), { referrerPolicy: "no-referrer" })).json()
+})
+
 </script>
 
 <template>
@@ -24,7 +33,7 @@ const y = ref(0)
     <input type="checkbox">
     <fieldset disabled>
       <HintArea title="哼哼">
-      <DeluxeLabel>标题</DeluxeLabel>
+        <DeluxeLabel>标题</DeluxeLabel>
         <template v-slot:hint>
           这是关于标题的说明。
           <hr>
@@ -43,7 +52,9 @@ const y = ref(0)
         aut perferendis dolores ab facere mollitia modi aliquid ipsa autem sed laborum illo repudiandae sit, id maxime
         possimus eos laboriosam. Eius?</div>
       <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" style="height:514px" v-model="y"
-        tab-position="left"></TabView>
+        tab-position="left">
+        {{ gamedata["excel/chapter_table.json"] }}
+      </TabView>
     </fieldset>
   </header>
 

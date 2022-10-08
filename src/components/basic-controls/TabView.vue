@@ -52,9 +52,9 @@ function increment(by: number) {
 				</div>
 			</div>
 		</div>
-		<template v-for="(page, index) in pages">
-			<div class="frame" v-show="modelValue == index">{{ page }} contents</div>
-		</template>
+		<div class="frame">
+			<slot></slot>
+		</div>
 	</div>
 </template>
 
