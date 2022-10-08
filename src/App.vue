@@ -18,6 +18,10 @@ const y = ref(0)
   <header>
     <fieldset></fieldset>
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
+    <input type="radio" name="a">
+    <input type="radio" name="a">
+    <input type="checkbox">
+    <input type="checkbox">
     <fieldset disabled>
       <HintArea title="哼哼">
       <DeluxeLabel>标题</DeluxeLabel>
@@ -610,6 +614,73 @@ button.ellipsis:disabled {
 }
 
 /* EllipsisBox and LabeledEllipsisBox emit mouse wheel events but no code actually handles them. */
+
+input[type="radio" i],
+input[type="checkbox" i] {
+  appearance: none;
+  vertical-align: middle;
+  box-shadow: inset 0 0 0 1px var(--normal-back1);
+  border: 1px solid var(--control-frame);
+  outline-offset: -1px;
+  background: linear-gradient(var(--normal-back2), var(--normal-back1));
+}
+
+input[type="radio" i] {
+  width: 18px;
+  height: 18px;
+  transform: translate(-.5px, -.5px);
+  border-radius: 50%;
+}
+
+input[type="checkbox" i] {
+  width: 17px;
+  height: 17px;
+  margin: 0 1px 1px 0;
+  border-radius: 2px;
+}
+
+input[type="radio" i]::after {
+  content: "";
+  display: block;
+  margin: 3px;
+  background-color: var(--check-mark);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+input[type="checkbox" i]::after {
+  display: block;
+  /* anchors.centerIn: parent */
+  text-align: center;
+  /* anchors.verticalCenterOffset: 1 */
+  line-height: 13px;
+  /* text: "\u2714"  // HEAVY CHECK MARK */
+  content: "\2714";
+  font-family: var(--symbol-font);
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--check-mark);
+  opacity: 0;
+}
+
+input[type="radio" i]:checked::after,
+input[type="checkbox" i]:checked::after {
+  opacity: 1;
+}
+
+input[type="radio" i]:disabled:checked::after,
+input[type="radio" i]:enabled:active::after,
+input[type="checkbox" i]:disabled:checked::after,
+input[type="checkbox" i]:enabled:active::after {
+  opacity: .5;
+}
+
+input[type="radio" i]:disabled,
+input[type="checkbox" i]:disabled {
+  background: var(--window2);
+}
 
 :focus {
   outline: 2px solid var(--focus-frame);
