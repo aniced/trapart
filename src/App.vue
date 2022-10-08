@@ -13,6 +13,7 @@ import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 const x = ref(114)
 const y = ref(0)
+const z = ref("data")
 //const gamedataURL = ref("https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
 const gamedataURL = ref("https://raw.fastgit.org/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
 //const gamedataURL = ref("https://raw.githubusercontents.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
@@ -32,8 +33,9 @@ watchEffect(async () => {
     <input type="radio" name="a">
     <input type="checkbox">
     <input type="checkbox">
-    <TextEditControl></TextEditControl>
-    <TextEditControl :maximum-line-count="3"></TextEditControl>
+    {{ z }}
+    <TextEditControl v-model="z"></TextEditControl>
+    <TextEditControl :maximum-line-count="y" v-model="z"></TextEditControl>
     <fieldset disabled>
       <HintArea title="哼哼">
         <DeluxeLabel>标题</DeluxeLabel>
