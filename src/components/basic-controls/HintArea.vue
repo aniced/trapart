@@ -52,7 +52,9 @@ watch(toolTipVisible, async (newToolTipVisible, oldToolTipVisible) => {
 function timer1() {
   if (Number.isNaN(nextTime)) return
   if (Date.now() >= nextTime) {
-    toolTipVisible.value = true
+    if (!container.value!.closest(":disabled")) {
+      toolTipVisible.value = true
+    }
   } else {
     setTimeout(timer1, 100)
   }

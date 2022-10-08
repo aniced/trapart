@@ -36,6 +36,7 @@ const y = ref(0)
       <GroupBox>
         <template #title>标题</template>
         内容
+        <hr>
       </GroupBox>
       <div style="width:164px;height:100px;overflow:scroll;border:1px solid green">
         longllllllllllllllllllllllllllllllllll long Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
@@ -409,11 +410,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* <hr> models the separator between the text and the component in a ToolTip, seen in e.g., the damage formula input in the database (atk, def, …) and help for message control characters (\V[n], \N[n], …). */
+/* <hr> models DialogSeparator. */
 hr {
-  height: 1px;
-  margin: 6px auto;
-  background-color: var(--control-frame);
+  margin: 8px auto;
+  border-top: 1px solid #00000040;
+  border-bottom: 1px solid var(--highlight);
 }
 
 

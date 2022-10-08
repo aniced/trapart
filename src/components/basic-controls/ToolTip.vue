@@ -33,4 +33,12 @@ defineProps<{
 	margin: 0 -7px 4px;
 	background-color: var(--normal-back2);
 }
+
+/* <hr> models the separator between the text and the component in a ToolTip, seen in e.g., the damage formula input in the database (atk, def, …) and help for message control characters (\V[n], \N[n], …). */
+.tooltip :deep(hr) {
+  height: 1px;
+  margin: 6px auto;
+	border: 0;
+  background-color: var(--control-frame);
+}
 </style>
