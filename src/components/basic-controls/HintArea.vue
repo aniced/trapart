@@ -39,6 +39,7 @@ watch(toolTipVisible, async (newToolTipVisible, oldToolTipVisible) => {
       }
     }, toolTip.value!, {
       placement: 'bottom-start',
+      strategy: 'fixed',
       // var screen = TkoolAPI.desktopAvailableGeometryAtPoint(Qt.point(x, y));
       middleware: [shift({ mainAxis: true, crossAxis: true })],
     })
@@ -108,7 +109,7 @@ function hideToolTip(event: PointerEvent | MouseEvent) {
 
 <style scoped>
 .tooltip-container {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: 1;
