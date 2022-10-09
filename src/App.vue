@@ -11,6 +11,7 @@ import TabView from "./components/basic-controls/TabView.vue";
 import { ref, watchEffect } from 'vue'
 import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
+import StatusBar from './components/basic-controls/StatusBar.vue'
 const x = ref(114)
 const y = ref(0)
 const z = ref("data")
@@ -73,9 +74,15 @@ watchEffect(async () => {
 
     <TheWelcome />
   </main>
+
+  <StatusBar>
+    <div>114514</div>
+    <hr>
+    <div>1919810</div>
+  </StatusBar>
 </template>
 
-<style>
+<style lang="scss">
 :root {
   color-scheme: light;
 
@@ -404,8 +411,8 @@ watchEffect(async () => {
 }
 
 *,
-*::before,
-*::after {
+::before,
+::after {
   box-sizing: border-box;
   margin: 0;
   border: 0;
@@ -424,6 +431,7 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
+  user-select: none;
 }
 
 /* <hr> models DialogSeparator. */
