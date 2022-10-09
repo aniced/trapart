@@ -58,7 +58,7 @@ function increment(by: number) {
 	</div>
 </template>
 
-<style scoped lang="postcss">
+<style scoped lang="scss">
 .top,
 .left {
 	position: relative;
