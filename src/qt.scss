@@ -1,0 +1,24 @@
+@use "sass:math";
+@use "sass:color";
+
+@function lighter($color, $factor) {
+  $v: 100% - color.blackness($color);
+  $s: math.percentage(1 - math.div(color.whiteness($color), $v));
+
+  @if $s != $s {
+    $s: 0%;
+  }
+
+  $v: $v * $factor;
+  $s: $s - math.max(0%, $v - 100%);
+  $v: math.min(100%, $v);
+  @return color.hwb(color.hue($color),
+    math.clamp(0%, math.div(100% - $s, 100%) * $v, 100%),
+    100% - $v,
+    color.alpha($color),
+  );
+}
+
+@function darker($color, $factor) {
+  @return lighter($color, math.div(1, $factor));
+}

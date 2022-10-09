@@ -21,8 +21,7 @@
 	flex: 0;
 	margin: 2px 5px;
 	border: 0;
-	/* TODO: ToolBarSeparator with correct colors */
-	border-left: 1px solid var(--window2);
-	border-right: 1px solid var(--window1);
+	border-left: 1px solid var(--toolbar2-150);
+	border-right: 1px solid var(--toolbar1-150);
 }
 </style>
