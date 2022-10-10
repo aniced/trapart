@@ -38,3 +38,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
+使用的字体：M+ 1c、M+ 1p、M+ 1m。
+
+M+mini 1网页字体源自[Font Squirrel](https://www.fontsquirrel.com)生成，子集化了除了汉字以外的所有可用字符。

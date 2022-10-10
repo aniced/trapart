@@ -87,6 +87,30 @@ watchEffect(async () => {
 @use "sass:string";
 @use "qt";
 
+@font-face {
+  font-family: "M+mini 1c regular";
+  src: url("assets/mplusmini-1c-regular-webfont.woff2") format("woff2");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "M+mini 1p medium";
+  src: url("assets/mplusmini-1p-medium-webfont.woff2") format("woff2");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "M+mini 1p heavy";
+  src: url("assets/mplusmini-1p-heavy-webfont.woff2") format("woff2");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "M+mini 1m regular";
+  src: url("assets/mplusmini-1m-regular-webfont.woff2") format("woff2");
+  font-weight: normal;
+}
+
 @mixin theme($window1,
   $window2,
   $outside-area,
@@ -271,11 +295,12 @@ watchEffect(async () => {
   --event-navy: navy;
   --event-slategray: slategray;
 
-  --fixed-font: "M+ 1m regular";
-  --normal-font: "M+ 1c regular";
-  --medium-font: "M+ 1p medium";
-  --heavy-font: "M+ 1p heavy";
-  --symbol-font: "M+ 1p heavy"; // for CheckBox
+  --local-font: sans-serif;
+  --fixed-font: "M+mini 1m regular", "M+ 1m regular", var(--local-font);
+  --normal-font: "M+mini 1c regular", "M+ 1c regular", var(--local-font);
+  --medium-font: "M+mini 1p medium", "M+ 1p medium", var(--local-font);
+  --heavy-font: "M+mini 1p heavy", "M+ 1p heavy", var(--local-font);
+  --symbol-font: "M+mini 1p heavy"; // for CheckBox
   --font-size: 14px;
   --label-font-size: 13px;
   --control-height: 27px;
