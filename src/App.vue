@@ -111,6 +111,10 @@ watchEffect(async () => {
   font-weight: normal;
 }
 
+@function encode-color($color) {
+  @return "%23"+string.unquote(string.slice(color.ie-hex-str($color), 4));
+}
+
 @mixin theme($window1,
   $window2,
   $outside-area,
@@ -217,10 +221,10 @@ watchEffect(async () => {
   --progress-bar-frame: #{qt.darker($progress-bar, 1.2)};
 
   /* The PNG resources are solid. To mitigate difficulties in scrollbar styling, the opacity is baked into the following SVG data. An opacity: 0.7 multiplied with fill-opacity='0.7' will approximately give the desired opacity of 0.5 in disabled cases. */
-  --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='#{$arrow-color}' fill-opacity='0.7' /%3E%3C/svg%3E");
-  --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='#{$arrow-color}' fill-opacity='0.7' /%3E%3C/svg%3E");
-  --arrow-up-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 3.5 0 l 3.5 3.5 h -7 z' fill='#{$arrow-color}' fill-opacity='0.7' /%3E%3C/svg%3E");
-  --arrow-down-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 0 0 h 7 l -3.5 3.5 z' fill='#{$arrow-color}' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-up-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 3.5 0 l 3.5 3.5 h -7 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
+  --arrow-down-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 0 0 h 7 l -3.5 3.5 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
 
   color-scheme: if($is-dark-mode, dark, light);
 }
