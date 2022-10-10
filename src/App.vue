@@ -84,6 +84,7 @@ watchEffect(async () => {
 
 <style lang="scss">
 @use "sass:color";
+@use "sass:string";
 @use "qt";
 
 @mixin theme($window1,
@@ -142,7 +143,7 @@ watchEffect(async () => {
   --scrollbar1: #{$scrollbar1};
   --scrollbar2: #{$scrollbar2};
   --pressed-scrollbar1: #{color.scale($scrollbar1, $alpha: -30%)};
-  --pressed-scrollbar-control-frame: #{mix($scrollbar2, $control-frame, 30%)};
+  --pressed-scrollbar-control-frame: #{color.mix($scrollbar2, $control-frame, 30%)};
   --focus-frame: #{$focus-frame};
 
   --normal-text: #{$normal-text};
@@ -747,7 +748,7 @@ input[type="checkbox" i]::after {
   /* anchors.centerIn: parent */
   text-align: center;
   /* anchors.verticalCenterOffset: 1 */
-  line-height: 13px;
+  line-height: 17px;
   /* text: "\u2714"  // HEAVY CHECK MARK */
   content: "\2714";
   font-family: var(--symbol-font);

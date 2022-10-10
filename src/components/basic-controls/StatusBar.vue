@@ -6,13 +6,14 @@
 
 <style scoped>
 .toolbar {
-	height: 16px;
+	/* The real height is larger than the nominated 16px. */
+	height: 24px;
 	background: linear-gradient(var(--window1), var(--window2));
 	color: var(--normal-text);
 	font-family: var(--fixed-font);
 	font-size: var(--font-size);
 	display: flex;
-	line-height: 16px;
+	line-height: 24px;
 	/* The padding is measured; not sure where it comes from. */
 	padding: 0 3px;
 }
