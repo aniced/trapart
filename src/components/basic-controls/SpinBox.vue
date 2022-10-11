@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
   prefix: { type: String, default: "" },
@@ -32,6 +32,20 @@ const maxTextLength = computed(() =>
   )
 )
 
+// We update the DOM manually because Vue cannot easily handle the weirdness of contenteditable.
+function normalize() {
+  if (editable.value) {
+    if (!(editable.value.childElementCount === 1 && editable.value.firstElementChild instanceof HTMLSpanElement)) {
+      editable.value.replaceChildren(document.createElement("span"))
+    }
+    editable.value.firstElementChild!.textContent = props.modelValue.toString()
+  }
+}
+
+watch(() => props.modelValue, normalize)
+
+onMounted(normalize)
+
 function filterInput(event: Event) {
   if (event instanceof InputEvent) {
     if (event.inputType.startsWith("format")) {
@@ -42,39 +56,60 @@ function filterInput(event: Event) {
 }
 
 function onTextChanged() {
-  if (editable.value) {
-    let text = editable.value.textContent ?? ""
+  let text = editable.value?.textContent ?? ""
 
-    text = text.replace(/[^0-9\-\.]/g, "")
-    if (props.minimumValue >= 0) text = text.replace(/\-/, "")
-    if (props.decimals === 0) text = text.replace(/\./, "")
-    if (text.length > maxTextLength.value) text = text.slice(0, maxTextLength.value)
+  text = text.replace(/[^0-9\-\.]/g, "")
+  if (props.minimumValue >= 0) text = text.replace(/\-/, "")
+  if (props.decimals === 0) text = text.replace(/\./, "")
+  if (text.length > maxTextLength.value) text = text.slice(0, maxTextLength.value)
 
-    let newValue = +text
-    if (Number.isNaN(newValue)) newValue = 0
-    if (newValue < props.minimumValue) newValue = props.minimumValue;
-    if (newValue > props.maximumValue) newValue = props.maximumValue;
-    editable.value.textContent = newValue.toFixed(props.decimals)
-    emit("update:modelValue", newValue)
-  }
+  let newValue = +text
+  if (Number.isNaN(newValue)) newValue = 0
+  if (newValue < props.minimumValue) newValue = props.minimumValue;
+  if (newValue > props.maximumValue) newValue = props.maximumValue;
+
+  emit("update:modelValue", newValue)
+
   getSelection()?.removeAllRanges()
 }
 
 function increment(by: number) {
-  emit("update:modelValue", props.modelValue + by)
+  emit("update:modelValue", Math.min(Math.max(props.modelValue + by, props.minimumValue), props.maximumValue))
+}
+
+let timer = 0
+
+function clickAutoRepeat(by: number) {
+  // Note that clearInterval and clearTimeout are synonymous.
+  clearInterval(timer)
+  timer = 0
+  if (by) {
+    timer = setTimeout(() => {
+      increment(by)
+      timer = setInterval(() => {
+        increment(by)
+      }, 60) // measured, should be SH_SpinBox_ClickAutoRepeatRate
+    }, 400) // measured, should be SH_SpinBox_ClickAutoRepeatThreshold
+    addEventListener("pointerup", () => {
+      clickAutoRepeat(0)
+      increment(by)
+      nextTick(() => editable.value?.focus())
+    }, { once: true })
+  }
 }
 </script>
 
 <template>
-  <div class="spin-box-container">
+  <div class="spin-box-container" @pointercancel="clickAutoRepeat(0)">
     <div ref="editable" class="input" contenteditable inputmode="decimal" :data-prefix="prefix" :data-suffix="suffix"
-      @beforeinput="filterInput" @focus="selectValue" @blur="onTextChanged"
+      @beforeinput="filterInput" @focus="selectValue" @blur="onTextChanged(), $nextTick(normalize)"
       @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
-      @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)">{{
-      modelValue.toFixed(decimals)
-      }}</div>
-    <div class="up" @click="editable?.focus()" @pointerdown.left="increment(1)"></div>
-    <div class="down" @click="editable?.focus()" @pointerdown.left="increment(-1)"></div>
+      @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)"
+      @wheel.prevent="increment(Math.sign(-$event.deltaY))">
+      <span></span>
+    </div>
+    <div class="up" @click="editable?.focus()" @pointerdown.left="clickAutoRepeat(1)"></div>
+    <div class="down" @click="editable?.focus()" @pointerdown.left="clickAutoRepeat(-1)"></div>
   </div>
 </template>
 
@@ -153,6 +188,11 @@ function increment(by: number) {
 .spin-box-container:active {
   outline: 2px solid var(--focus-frame);
   border-radius: 2px;
+}
+
+.spin-box-container:active>.input:not(:focus)>* {
+  color: var(--selected-ed-text);
+  background-color: var(--selected-ed-back);
 }
 
 .input:focus {
