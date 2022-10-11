@@ -510,7 +510,7 @@ watchEffect(async () => {
   border: 0;
   padding: 0;
   font-weight: normal;
-  cursor: default;
+  cursor: inherit;
 }
 
 body {
@@ -524,6 +524,7 @@ body {
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
   user-select: none;
+  cursor: default;
 }
 
 /* <hr> models DialogSeparator. */

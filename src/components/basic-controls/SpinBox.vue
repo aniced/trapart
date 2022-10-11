@@ -1,22 +1,17 @@
-<script lang="ts">
-export default {
-	inheritAttrs: false,
-}
-</script>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
-const input = ref<HTMLInputElement | null>(null)
 const props = defineProps({
-	prefix: { type: String, default: "" },
-	modelValue: { type: Number },
-	minimumValue: { type: Number, default: -Infinity },
-	maximumValue: { type: Number, default: Infinity },
-	decimals: { type: Number, default: 0 },
-	suffix: { type: String, default: "" },
+  prefix: { type: String, default: "" },
+  modelValue: { type: Number, default: 0 },
+  minimumValue: { type: Number, default: -Infinity },
+  maximumValue: { type: Number, default: Infinity },
+  decimals: { type: Number, default: 0 },
+  suffix: { type: String, default: "" },
 })
 const emit = defineEmits(["update:modelValue"])
+
+const editable = ref<HTMLElement | null>(null)
 
 // Roll our own input field and spinner buttons.
 // It wouldn't be such a hassle if HTML <input> elements are more consistent and flexible.
@@ -24,145 +19,143 @@ const emit = defineEmits(["update:modelValue"])
 // Existing solutions (such as Bootstrap) put the string in another element, which doesn't move or scroll as the input value changes.
 // In Qt, there's a reliable onCursorPositionChanged event, in which the selection is intercepted and modified before it reaches the screen, but now we're facing the infamous DOM.
 
-function adjustCursorPosition(e: Event) {
-	const el = e.target
-	if (el instanceof HTMLInputElement) {
-		const a = props.prefix.length
-		const b = el.value.length - props.suffix.length
-		if (el.selectionStart !== null) {
-			const start = Math.min(Math.max(el.selectionStart, a), b)
-			if (el.selectionStart != start) el.selectionStart = start
-		}
-		if (el.selectionEnd !== null) {
-			const end = Math.min(Math.max(el.selectionEnd, a), b)
-			if (el.selectionEnd != end) el.selectionEnd = end
-		}
-	}
+function selectValue() {
+  if (editable.value) {
+    getSelection()?.selectAllChildren(editable.value)
+  }
 }
 
-const value = computed({
-	get() {
-		return props.prefix + props.modelValue?.toFixed(props.decimals) + props.suffix
-	},
-	set(value) {
-		if (typeof value == "string") {
-			let text: string = value
-			if (text.slice(0, props.prefix.length) == props.prefix) {
-				text = text.slice(props.prefix.length)
-			}
-			const suffixIndex = text.lastIndexOf(props.suffix)
-			if (suffixIndex >= 0) text = text.slice(0, suffixIndex)
+const maxTextLength = computed(() =>
+  Math.max(
+    props.minimumValue.toFixed(props.decimals).length,
+    props.maximumValue.toFixed(props.decimals).length
+  )
+)
 
-			const maxTextLength = Math.max(
-				props.minimumValue.toFixed(props.decimals).length,
-				props.maximumValue.toFixed(props.decimals).length
-			)
+function filterInput(event: Event) {
+  if (event instanceof InputEvent) {
+    if (event.inputType.startsWith("format")) {
+      event.preventDefault()
+      return
+    }
+  }
+}
 
-			text = text.replace(/[^0-9\-\.]/g, "")
-			if (props.minimumValue >= 0) text = text.replace(/\-/, "")
-			if (props.decimals == 0) text = text.replace(/\./, "")
-			if (text.length > maxTextLength) text = text.slice(0, maxTextLength)
+function onTextChanged() {
+  if (editable.value) {
+    let text = editable.value.textContent ?? ""
 
-			value = +text
-			// fall through
-		}
-		if (typeof value == "number") {
-			emit("update:modelValue", Math.min(Math.max(value, props.minimumValue), props.maximumValue))
-		}
-	},
-})
+    text = text.replace(/[^0-9\-\.]/g, "")
+    if (props.minimumValue >= 0) text = text.replace(/\-/, "")
+    if (props.decimals === 0) text = text.replace(/\./, "")
+    if (text.length > maxTextLength.value) text = text.slice(0, maxTextLength.value)
+
+    let newValue = +text
+    if (Number.isNaN(newValue)) newValue = 0
+    if (newValue < props.minimumValue) newValue = props.minimumValue;
+    if (newValue > props.maximumValue) newValue = props.maximumValue;
+    editable.value.textContent = newValue.toFixed(props.decimals)
+    emit("update:modelValue", newValue)
+  }
+  getSelection()?.removeAllRanges()
+}
 
 function increment(by: number) {
-	if (typeof props.modelValue == "number") {
-		value.value = props.modelValue + by
-	}
-}
-
-function selectValue() {
-	input.value?.select()
+  emit("update:modelValue", props.modelValue + by)
 }
 </script>
 
 <template>
-	<div>
-		<input ref="input" v-model="value" v-bind="$attrs" @focus="selectValue" @keydown.arrow-up="increment(1)" @keydown.arrow-down="increment(-1)"
-			@keyup="adjustCursorPosition" @click="adjustCursorPosition" @dblclick="adjustCursorPosition"
-			@select="adjustCursorPosition">
-		<span class="up" @click="input?.focus()" @pointerdown="increment(1)"></span>
-		<span class="down" @click="input?.focus()" @pointerdown="increment(-1)"></span>
-		<span class="focus-frame"></span>
-	</div>
+  <div class="spin-box-container">
+    <div ref="editable" class="input" contenteditable inputmode="decimal" :data-prefix="prefix" :data-suffix="suffix"
+      @beforeinput="filterInput" @focus="selectValue" @blur="onTextChanged"
+      @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
+      @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)">{{
+      modelValue.toFixed(decimals)
+      }}</div>
+    <div class="up" @click="editable?.focus()" @pointerdown.left="increment(1)"></div>
+    <div class="down" @click="editable?.focus()" @pointerdown.left="increment(-1)"></div>
+  </div>
 </template>
 
 <style scoped>
-div {
-	position: relative;
-	width: 80px;
-	height: var(--control-height);
+.spin-box-container {
+  position: relative;
+  width: 80px;
+  height: var(--control-height);
+  font-family: var(--normal-font);
+  font-size: var(--font-size);
+  cursor: text;
+  color: var(--normal-text);
+  border: 2px solid transparent;
+  background-color: var(--normal-back1);
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px var(--highlight);
+  outline: 1px solid var(--control-frame);
+  outline-offset: -2px;
 }
 
-input {
-	width: 100%;
-	height: 100%;
-	font-family: var(--normal-font);
-	font-size: var(--font-size);
-	/* padding { top: 0; left: 6; right: 20; bottom: 0 } */
-	padding: 0 18px 0 4px;
-	color: var(--normal-text);
-	border: 2px solid transparent;
-	background-color: var(--normal-back1);
-	background-clip: padding-box;
-	box-shadow: inset 0 0 0 1px var(--highlight);
-	outline: 1px solid var(--control-frame);
-	outline-offset: -2px;
+.input {
+  position: absolute;
+  inset: -2px;
+  border: solid transparent;
+  /* padding { top: 0; left: 6; right: 20; bottom: 0 } */
+  border-width: 4px 20px 4px 6px;
+  white-space: nowrap;
+  line-height: 19px;
+  overflow: hidden;
 }
 
-input:disabled {
-	color: transparent;
-	background-color: var(--window2);
+.input::before {
+  content: attr(data-prefix);
+}
+
+.input::after {
+  content: attr(data-suffix);
+}
+
+:disabled .spin-box-container {
+  color: transparent;
+  background-color: var(--window2);
 }
 
 .up,
 .down {
-	position: absolute;
-	right: 2px;
-	width: 18px;
+  position: absolute;
+  right: -2px;
+  width: 18px;
+  cursor: default;
 }
 
 .up:active,
 .down:active,
-:disabled~.up,
-:disabled~.down {
-	opacity: 0.7;
+:disabled .up,
+:disabled .down {
+  opacity: 0.7;
 }
 
 .up {
-	top: 0;
-	/* property rect upRect: Qt.rect(width - incrementControlLoader.implicitWidth, 0, incrementControlLoader.implicitWidth, height / 2 + 1) */
-	height: 14px;
-	background: var(--arrow-up-image) 6px 5.5px no-repeat;
+  top: -2px;
+  /* property rect upRect: Qt.rect(width - incrementControlLoader.implicitWidth, 0, incrementControlLoader.implicitWidth, height / 2 + 1) */
+  height: 14px;
+  background: var(--arrow-up-image) 4px 6.5px no-repeat;
 }
 
 .down {
-	bottom: 0;
-	/* property rect downRect: Qt.rect(width - decrementControlLoader.implicitWidth, height / 2, decrementControlLoader.implicitWidth, height / 2) */
-	height: 13px;
-	background: var(--arrow-down-image) 6px 3px no-repeat;
+  bottom: -2px;
+  /* property rect downRect: Qt.rect(width - decrementControlLoader.implicitWidth, height / 2, decrementControlLoader.implicitWidth, height / 2) */
+  height: 13px;
+  background: var(--arrow-down-image) 4px 3px no-repeat;
 }
 
 /* Pretend that the input is still in focus while the spinners are held down. */
-.focus-frame {
-	position: absolute;
-	inset: 0;
-	visibility: hidden;
-	border-radius: 2px;
-	border: 2px solid var(--focus-frame);
-	pointer-events: none;
+.spin-box-container:focus-within,
+.spin-box-container:active {
+  outline: 2px solid var(--focus-frame);
+  border-radius: 2px;
 }
 
-input:focus~.focus-frame,
-.up:active~.focus-frame,
-.down:active~.focus-frame {
-	visibility: visible;
+.input:focus {
+  outline: none;
 }
 </style>
