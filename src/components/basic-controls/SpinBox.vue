@@ -19,6 +19,8 @@ const editable = ref<HTMLElement | null>(null)
 // Existing solutions (such as Bootstrap) put the string in another element, which doesn't move or scroll as the input value changes.
 // In Qt, there's a reliable onCursorPositionChanged event, in which the selection is intercepted and modified before it reaches the screen, but now we're facing the infamous DOM.
 
+const disabled = ref(false)
+
 function selectValue() {
   if (editable.value) {
     getSelection()?.selectAllChildren(editable.value)
@@ -44,7 +46,16 @@ function normalize() {
 
 watch(() => props.modelValue, normalize)
 
-onMounted(normalize)
+function onEnabledChanged() {
+  if (editable.value) {
+    disabled.value = editable.value.matches(":disabled *")
+  }
+}
+
+onMounted(() => {
+  onEnabledChanged()
+  normalize()
+})
 
 function filterInput(event: Event) {
   if (event instanceof InputEvent) {
@@ -74,7 +85,9 @@ function onTextChanged() {
 }
 
 function increment(by: number) {
-  emit("update:modelValue", Math.min(Math.max(props.modelValue + by, props.minimumValue), props.maximumValue))
+  if (!disabled.value) {
+    emit("update:modelValue", Math.min(Math.max(props.modelValue + by, props.minimumValue), props.maximumValue))
+  }
 }
 
 let timer = 0
@@ -100,8 +113,8 @@ function clickAutoRepeat(by: number) {
 </script>
 
 <template>
-  <div class="spin-box-container" @pointercancel="clickAutoRepeat(0)">
-    <div ref="editable" class="input" contenteditable inputmode="decimal" :data-prefix="prefix" :data-suffix="suffix"
+  <div class="spin-box-container" @transitionrun="onEnabledChanged" @pointercancel="clickAutoRepeat(0)">
+    <div ref="editable" class="input" :contenteditable="!disabled" inputmode="decimal" :data-prefix="prefix" :data-suffix="suffix"
       @beforeinput="filterInput" @focus="selectValue" @blur="onTextChanged(), $nextTick(normalize)"
       @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
       @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)"
@@ -128,6 +141,9 @@ function clickAutoRepeat(by: number) {
   box-shadow: inset 0 0 0 1px var(--highlight);
   outline: 1px solid var(--control-frame);
   outline-offset: -2px;
+  /* This is a hack to listen to style changes. */
+  accent-color: lime;
+  transition: 1s accent-color;
 }
 
 .input {
@@ -152,6 +168,8 @@ function clickAutoRepeat(by: number) {
 :disabled .spin-box-container {
   color: transparent;
   background-color: var(--window2);
+  cursor: inherit;
+  accent-color: red;
 }
 
 .up,
@@ -185,12 +203,12 @@ function clickAutoRepeat(by: number) {
 
 /* Pretend that the input is still in focus while the spinners are held down. */
 .spin-box-container:focus-within,
-.spin-box-container:active {
+.spin-box-container:active:not(:disabled *) {
   outline: 2px solid var(--focus-frame);
   border-radius: 2px;
 }
 
-.spin-box-container:active>.input:not(:focus)>* {
+.spin-box-container:active:not(:disabled *)>.input:not(:focus)>* {
   color: var(--selected-ed-text);
   background-color: var(--selected-ed-back);
 }

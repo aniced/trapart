@@ -12,12 +12,14 @@ import { ref, watchEffect } from 'vue'
 import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
+const d = ref(false)
 const x = ref(114)
 const y = ref(0)
 const z = ref("data")
 //const gamedataURL = ref("https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
 const gamedataURL = ref("https://raw.fastgit.org/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
 //const gamedataURL = ref("https://raw.githubusercontents.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
+//const gamedataURL = ref("https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/%s")
 const gamedata = ref({ "excel/chapter_table.json": undefined })
 
 watchEffect(async () => {
@@ -32,12 +34,13 @@ watchEffect(async () => {
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
     <input type="radio" name="a">
     <input type="radio" name="a">
-    <input type="checkbox">
-    <input type="checkbox">
+    <input type="checkbox" v-model="d">
+    <input type="checkbox" v-model="d">
     {{ z }}
     <TextEditControl v-model="z"></TextEditControl>
     <TextEditControl :maximum-line-count="y" v-model="z"></TextEditControl>
-    <fieldset disabled>
+    <fieldset :disabled="d">
+      <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
       <HintArea title="哼哼">
         <DeluxeLabel>标题</DeluxeLabel>
         <template v-slot:hint>
@@ -69,7 +72,6 @@ watchEffect(async () => {
       <ThickFrame></ThickFrame>
     </RoundFrame>
 
-    <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
     <ProgressBar :value="37" :max="100"></ProgressBar>
 
     <TheWelcome />
