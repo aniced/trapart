@@ -13,6 +13,7 @@ import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
 const d = ref(false)
+const g = ref<HTMLDialogElement | null>(null)
 const x = ref(114)
 const y = ref(0)
 const z = ref("data")
@@ -75,6 +76,14 @@ watchEffect(async () => {
     <ProgressBar :value="37" :max="100"></ProgressBar>
 
     <TheWelcome />
+
+    <button @click="g?.showModal()">&lt;dialog&gt;</button>
+    <dialog ref="g">
+      <form method="dialog">
+        What is this?
+        <button>Close?</button>
+      </form>
+    </dialog>
   </main>
 
   <StatusBar>
@@ -805,6 +814,14 @@ input[type="checkbox" i]:enabled:active::after {
 input[type="radio" i]:disabled,
 input[type="checkbox" i]:disabled {
   background: var(--window2);
+}
+
+dialog {
+  background: linear-gradient(var(--window1), var(--window2));
+  border: 1px solid var(--control-frame);
+  color: var(--normal-text);
+  margin: auto;
+  user-select: auto;
 }
 
 :focus {
