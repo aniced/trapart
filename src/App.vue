@@ -12,6 +12,8 @@ import { ref, watchEffect } from 'vue'
 import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
+import { inferType } from "./infer";
+import { replacer } from "./json-map-set"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const x = ref(114)
@@ -24,9 +26,11 @@ const gamedataURL = ref("https://raw.fastgit.org/Kengxxiao/ArknightsGameData/mas
 const gamedata = ref({ "excel/chapter_table.json": undefined })
 
 watchEffect(async () => {
-  gamedata.value["excel/chapter_table.json"] = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/chapter_table.json"), { referrerPolicy: "no-referrer" })).json()
+  const chapterTable = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/chapter_table.json"), { referrerPolicy: "no-referrer" })).json()
+  const stageTable = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/stage_table.json"), { referrerPolicy: "no-referrer" })).json()
+  gamedata.value["excel/chapter_table.json"] = chapterTable
+  console.log(JSON.stringify(inferType(stageTable), replacer, 2))
 })
-
 </script>
 
 <template>
@@ -63,7 +67,7 @@ watchEffect(async () => {
         possimus eos laboriosam. Eius?</div>
       <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" v-model="y" tab-position="left">
         <div style="height: 514px;">
-        {{ gamedata["excel/chapter_table.json"] }}
+          {{ gamedata["excel/chapter_table.json"] }}
         </div>
       </TabView>
     </fieldset>
