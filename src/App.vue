@@ -61,9 +61,10 @@ watchEffect(async () => {
         longllllllllllllllllllllllllllllllllll long Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
         aut perferendis dolores ab facere mollitia modi aliquid ipsa autem sed laborum illo repudiandae sit, id maxime
         possimus eos laboriosam. Eius?</div>
-      <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" style="height:514px" v-model="y"
-        tab-position="left">
+      <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" v-model="y" tab-position="left">
+        <div style="height: 514px;">
         {{ gamedata["excel/chapter_table.json"] }}
+        </div>
       </TabView>
     </fieldset>
   </header>

@@ -71,6 +71,8 @@ function increment(by: number) {
 		top: 0;
 		bottom: 0;
 		width: 120px;
+		// The Qt implementation assumes that tabs never overflow. We can't.
+		overflow: hidden auto;
 	}
 
 	.tab {
