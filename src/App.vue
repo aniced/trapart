@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import { ref, watchEffect } from 'vue'
 import TheWelcome from "./components/TheWelcome.vue"
 import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
 import Checkerboard from "./components/basic-controls/Checkerboard.vue"
-import GroupBox from "./components/basic-controls/GroupBox.vue";
-import RoundFrame from "./components/basic-controls/RoundFrame.vue";
-import ThickFrame from "./components/basic-controls/ThickFrame.vue";
-import SpinBox from "./components/basic-controls/SpinBox.vue";
-import ProgressBar from "./components/basic-controls/ProgressBar.vue";
-import TabView from "./components/basic-controls/TabView.vue";
-import { ref, watchEffect } from 'vue'
+import GroupBox from "./components/basic-controls/GroupBox.vue"
+import RoundFrame from "./components/basic-controls/RoundFrame.vue"
+import ThickFrame from "./components/basic-controls/ThickFrame.vue"
+import SpinBox from "./components/basic-controls/SpinBox.vue"
+import ProgressBar from "./components/basic-controls/ProgressBar.vue"
+import TabView from "./components/basic-controls/TabView.vue"
 import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
-import { inferType } from "./infer";
+import { inferType } from "./infer"
 import { replacer } from "./json-map-set"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)

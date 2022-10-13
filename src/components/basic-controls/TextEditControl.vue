@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 // While TextEditControl covers both single- and multiline forms, its only use is to derive TextField and TextArea.
 

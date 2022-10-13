@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computePosition, shift } from '@floating-ui/dom';
-import { ref, watch } from 'vue';
+import { computePosition, shift } from '@floating-ui/dom'
+import { ref, watch } from 'vue'
 import ToolTip from './ToolTip.vue'
 
 defineProps<{
