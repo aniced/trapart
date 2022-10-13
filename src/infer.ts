@@ -2,7 +2,8 @@
 // Since we're given only the data — not any of the intended types — it's more like guesses rather than type inference in the traditional sense.
 
 // SchemaType is modelled loosely after JSON Schema.
-export type SchemaType = {
+type SchemaSomeType = {
+  // Maybe it's more elegant to treat null as optional<unknown>?
   type: "null" | "boolean" | "any" | "unknown",
 } | {
   type: "string",
@@ -15,12 +16,21 @@ export type SchemaType = {
   maximum: number,
   decimalPlaces: number,
 } | {
-  // undefined and null are not distinguished from each other.
-  type: "array" | "map" | "optional",
+  type: "array" | "map",
   items: SchemaType,
 } | {
   type: "object",
   properties: Map<string, SchemaType>,
+}
+
+export type SchemaType = SchemaSomeType | {
+  // undefined and null are not distinguished from each other.
+  type: "optional",
+  items: SchemaSomeType,
+}
+
+export function optional(type: SchemaType): SchemaType {
+  return type.type === "optional" ? type : { type: "optional", items: type }
 }
 
 export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
@@ -44,12 +54,15 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
         maximum: Math.max(a.maximum, b.maximum),
         decimalPlaces: Math.max(a.decimalPlaces, b.decimalPlaces),
       }
-    } else if (a.type === "array" || a.type === "map" || a.type === "optional") {
-      if (b.type !== "array" && b.type !== "map" && b.type !== "optional") throw new Error("impossible")
+    } else if (a.type === "array" || a.type === "map") {
+      if (b.type !== "array" && b.type !== "map") throw new Error("impossible")
       return {
         type: a.type,
         items: unifyType(a.items, b.items),
       }
+    } else if (a.type === "optional") {
+      if (b.type !== "optional") throw new Error("impossible")
+      return optional(unifyType(a.items, b.items))
     } else if (a.type === "object") {
       if (b.type !== "object") throw new Error("impossible")
       const properties = new Map<string, SchemaType>()
@@ -61,12 +74,12 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
           properties.set(key, unifiedType)
           if (unifiedType.type !== "any") numberOfCommonProperties++
         } else {
-          properties.set(key, { type: "optional", items: aType })
+          properties.set(key, optional(aType))
         }
       }
       for (const [key, type] of b.properties.entries()) {
         if (!properties.has(key)) {
-          properties.set(key, { type: "optional", items: type })
+          properties.set(key, optional(type))
         }
       }
       if (numberOfCommonProperties / Object.keys(properties).length < 3 / 4) {
@@ -86,8 +99,8 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
     if (b.type === "any") return b
     if (a.type === "unknown") return b
     if (b.type === "unknown") return a
-    if (a.type === "optional") return { type: "optional", items: unifyType(a.items, b) }
-    if (b.type === "optional") return { type: "optional", items: unifyType(a, b.items) }
+    if (a.type === "optional") return optional(unifyType(a.items, b))
+    if (b.type === "optional") return optional(unifyType(a, b.items))
     if (a.type === "null") return { type: "optional", items: b }
     if (b.type === "null") return { type: "optional", items: a }
     if (a.type === "map" && b.type === "object") {
