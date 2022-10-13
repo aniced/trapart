@@ -10,14 +10,19 @@ type SchemaSomeType = {
   minimumLength: number,
   maximumLength: number,
   format?: "url" | "regex" | "date" | "uuid",
+  possibleValues: Set<string>,
 } | {
   type: "number",
   minimum: number,
   maximum: number,
   decimalPlaces: number,
 } | {
-  type: "array" | "map",
+  type: "array",
   items: SchemaType,
+} | {
+  type: "map",
+  items: SchemaType,
+  possibleKeys: Set<string>,
 } | {
   type: "object",
   properties: Map<string, SchemaType>,
@@ -45,6 +50,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
         minimumLength: Math.min(a.minimumLength, b.minimumLength),
         maximumLength: Math.max(a.maximumLength, b.maximumLength),
         format: a.format === b.format ? a.format : undefined,
+        possibleValues: new Set([...a.possibleValues, ...b.possibleValues]),
       }
     } else if (a.type === "number") {
       if (b.type !== "number") throw new Error("impossible")
@@ -54,11 +60,18 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
         maximum: Math.max(a.maximum, b.maximum),
         decimalPlaces: Math.max(a.decimalPlaces, b.decimalPlaces),
       }
-    } else if (a.type === "array" || a.type === "map") {
-      if (b.type !== "array" && b.type !== "map") throw new Error("impossible")
+    } else if (a.type === "array") {
+      if (b.type !== "array") throw new Error("impossible")
       return {
-        type: a.type,
+        type: "array",
         items: unifyType(a.items, b.items),
+      }
+    } else if (a.type === "map") {
+      if (b.type !== "map") throw new Error("impossible")
+      return {
+        type: "map",
+        items: unifyType(a.items, b.items),
+        possibleKeys: new Set([...a.possibleKeys, ...b.possibleKeys]),
       }
     } else if (a.type === "optional") {
       if (b.type !== "optional") throw new Error("impossible")
@@ -116,6 +129,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
   }
 }
 
+// The input to this function must not have any circular reference.
 export function inferType(x: any): SchemaType {
   if (x === undefined || x === null) {
     return { type: "null" }
@@ -126,6 +140,7 @@ export function inferType(x: any): SchemaType {
       type: "string",
       minimumLength: x.length,
       maximumLength: x.length,
+      possibleValues: new Set([x]),
     }
     if (/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(x)) {
       type.format = "uuid"
@@ -173,6 +188,7 @@ export function inferType(x: any): SchemaType {
       return {
         type: "map",
         items: unifiedType,
+        possibleKeys: new Set(properties.keys()),
       }
     } else {
       return {
