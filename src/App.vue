@@ -15,6 +15,7 @@ import StatusBar from './components/basic-controls/StatusBar.vue'
 import { inferType } from "./infer"
 import { replacer } from "./json-map-set"
 import LabeledCheckBox from "./components/basic-layouts/LabeledCheckBox.vue"
+import LabeledRadioButton from "./components/basic-layouts/LabeledRadioButton.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const x = ref(114)
@@ -38,13 +39,13 @@ watchEffect(async () => {
   <header>
     <fieldset></fieldset>
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
-    <input type="radio" name="a">
-    <input type="radio" name="a">
     <LabeledCheckBox v-model="d">disable</LabeledCheckBox>
     {{ z }}
     <TextEditControl v-model="z"></TextEditControl>
     <TextEditControl :maximum-line-count="y" v-model="z"></TextEditControl>
     <fieldset :disabled="d">
+      <LabeledRadioButton v-model="z" value="data">The first</LabeledRadioButton>
+      <LabeledRadioButton v-model="z" value="changed">The second</LabeledRadioButton>
       <LabeledCheckBox v-model="d">Start disabled inside</LabeledCheckBox>
       <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
       <HintArea title="哼哼">

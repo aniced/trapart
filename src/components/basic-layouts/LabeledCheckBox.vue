@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// LabeledCheckBox is specific to this Web implementation, because CheckBox comes with a label in Qt.
+
 defineProps<{
   modelValue: boolean,
 }>()
