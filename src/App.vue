@@ -16,7 +16,7 @@ import { inferType } from "./infer"
 import { replacer } from "./json-map-set"
 import LabeledCheckBox from "./components/basic-layouts/LabeledCheckBox.vue"
 import LabeledRadioButton from "./components/basic-layouts/LabeledRadioButton.vue"
-import LabeledTextField from "./components/basic-layouts/LabeledTextField.vue"
+import Labeler from "./components/basic-layouts/Labeler.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const x = ref(114)
@@ -57,7 +57,10 @@ watchEffect(async () => {
           这在分割线以下。
         </template>
       </HintArea>
-      <LabeledTextField title="Labeled text field" v-model="z" />
+      <Labeler>
+        <template #title>Labeled text field</template>
+        <TextEditControl :maximum-line-count="1" v-model="z" />
+      </Labeler>
       <button>取消</button>
       <Checkerboard :red="0" :green="0" :blue="128">内容图像</Checkerboard>
       <GroupBox>
