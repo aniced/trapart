@@ -14,6 +14,7 @@ import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
 import { inferType } from "./infer"
 import { replacer } from "./json-map-set"
+import LabeledCheckBox from "./components/basic-layouts/LabeledCheckBox.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const x = ref(114)
@@ -39,12 +40,12 @@ watchEffect(async () => {
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
     <input type="radio" name="a">
     <input type="radio" name="a">
-    <input type="checkbox" v-model="d">
-    <input type="checkbox" v-model="d">
+    <LabeledCheckBox v-model="d">disable</LabeledCheckBox>
     {{ z }}
     <TextEditControl v-model="z"></TextEditControl>
     <TextEditControl :maximum-line-count="y" v-model="z"></TextEditControl>
     <fieldset :disabled="d">
+      <LabeledCheckBox v-model="d">Start disabled inside</LabeledCheckBox>
       <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
       <HintArea title="哼哼">
         <DeluxeLabel>标题</DeluxeLabel>
@@ -188,7 +189,7 @@ watchEffect(async () => {
   --scrollbar2: #{$scrollbar2};
   --pressed-scrollbar1: #{color.scale($scrollbar1, $alpha: -30%)};
   --pressed-scrollbar-control-frame: #{color.mix($scrollbar2, $control-frame, 30%)};
-  --focus-frame: #{$focus-frame};
+  --focus-frame: 2px solid #{$focus-frame};
 
   --normal-text: #{$normal-text};
   --normal-text-70: #{color.scale($normal-text, $alpha: -30%)};
@@ -556,6 +557,20 @@ hr {
   border-bottom: 1px solid var(--highlight);
 }
 
+label,
+// We don't want labels on buttons to delegate :hover, so here's a less semantic version of <label>.
+.label {
+  color: var(--normal-text);
+  font-family: var(--medium-font);
+  font-size: var(--label-font-size);
+  line-height: calc(var(--label-font-size) + 6px);
+  display: block;
+
+  :disabled & {
+    color: var(--normal-text-50);
+  }
+}
+
 
 ::selection {
   background-color: var(--selected-ed-back);
@@ -764,8 +779,30 @@ input[type="checkbox" i] {
   vertical-align: middle;
   box-shadow: inset 0 0 0 1px var(--normal-back1);
   border: 1px solid var(--control-frame);
-  outline-offset: -1px;
+  outline-offset: -2px;
   background: linear-gradient(var(--normal-back2), var(--normal-back1));
+
+  &:checked::after {
+    opacity: 1;
+  }
+
+  &:disabled:checked::after,
+  &:enabled:active::after {
+    opacity: .5;
+  }
+
+  &:disabled {
+    background: var(--window2);
+  }
+
+  label:active>&:enabled {
+    outline: var(--focus-frame);
+
+    // [Workaround] While the HTML spec says that :active <label> should trigger :active <input>, Chrome sometimes has problems with checkboxes and radios.
+    &::after {
+      opacity: .5;
+    }
+  }
 }
 
 input[type="radio" i] {
@@ -773,6 +810,17 @@ input[type="radio" i] {
   height: 18px;
   transform: translate(-.5px, -.5px);
   border-radius: 50%;
+
+  &::after {
+    content: "";
+    display: block;
+    margin: 3px;
+    background-color: var(--check-mark);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    opacity: 0;
+  }
 }
 
 input[type="checkbox" i] {
@@ -780,49 +828,21 @@ input[type="checkbox" i] {
   height: 17px;
   margin: 0 1px 1px 0;
   border-radius: 2px;
-}
 
-input[type="radio" i]::after {
-  content: "";
-  display: block;
-  margin: 3px;
-  background-color: var(--check-mark);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  opacity: 0;
-}
-
-input[type="checkbox" i]::after {
-  display: block;
-  // anchors.centerIn: parent
-  text-align: center;
-  // anchors.verticalCenterOffset: 1
-  line-height: 17px;
-  // text: "\u2714"  // HEAVY CHECK MARK
-  content: "\2714";
-  font-family: var(--symbol-font);
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--check-mark);
-  opacity: 0;
-}
-
-input[type="radio" i]:checked::after,
-input[type="checkbox" i]:checked::after {
-  opacity: 1;
-}
-
-input[type="radio" i]:disabled:checked::after,
-input[type="radio" i]:enabled:active::after,
-input[type="checkbox" i]:disabled:checked::after,
-input[type="checkbox" i]:enabled:active::after {
-  opacity: .5;
-}
-
-input[type="radio" i]:disabled,
-input[type="checkbox" i]:disabled {
-  background: var(--window2);
+  &::after {
+    display: block;
+    // anchors.centerIn: parent
+    text-align: center;
+    // anchors.verticalCenterOffset: 1
+    line-height: 17px;
+    // text: "\u2714"  // HEAVY CHECK MARK
+    content: "\2714";
+    font-family: var(--symbol-font);
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--check-mark);
+    opacity: 0;
+  }
 }
 
 dialog {
@@ -834,6 +854,6 @@ dialog {
 }
 
 :focus {
-  outline: 2px solid var(--focus-frame);
+  outline: var(--focus-frame);
 }
 </style>

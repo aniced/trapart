@@ -204,7 +204,7 @@ function clickAutoRepeat(by: number) {
 /* Pretend that the input is still in focus while the spinners are held down. */
 .spin-box-container:focus-within,
 .spin-box-container:active:not(:disabled *) {
-  outline: 2px solid var(--focus-frame);
+  outline: var(--focus-frame);
   border-radius: 2px;
 }
 

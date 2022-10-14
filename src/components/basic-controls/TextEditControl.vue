@@ -60,7 +60,7 @@ input.control {
 }
 
 .control:focus {
-	outline: 2px solid var(--focus-frame);
+	outline: var(--focus-frame);
 	border-radius: 2px;
 }
 </style>
