@@ -197,4 +197,6 @@ export function inferType(x: any): SchemaType {
       }
     }
   }
+  // TODO: check for remaining unknown types and convert them to any
+  // and type the return value accordingly; requires a wrapper function
 }

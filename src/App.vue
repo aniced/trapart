@@ -12,11 +12,12 @@ import TabView from "./components/basic-controls/TabView.vue"
 import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
-import { inferType } from "./infer"
+import { inferType, type SchemaType } from "./infer"
 import { replacer } from "./json-map-set"
 import LabeledCheckBox from "./components/basic-layouts/LabeledCheckBox.vue"
 import LabeledRadioButton from "./components/basic-layouts/LabeledRadioButton.vue"
 import Labeler from "./components/basic-layouts/Labeler.vue"
+import Chameleon from "./components/Chameleon.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const x = ref(114)
@@ -26,11 +27,13 @@ const z = ref("data")
 const gamedataURL = ref("https://raw.fastgit.org/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
 //const gamedataURL = ref("https://raw.githubusercontents.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/%s")
 //const gamedataURL = ref("https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/%s")
-const gamedata = ref({ "excel/chapter_table.json": undefined })
+const gamedata = ref({ "excel/chapter_table.json": {} })
+const gamedataType = ref<{ [filename: string]: SchemaType }>({ "excel/chapter_table.json": { type: "any" } })
 
 watchEffect(async () => {
   const chapterTable = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/chapter_table.json"), { referrerPolicy: "no-referrer" })).json()
   const stageTable = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/stage_table.json"), { referrerPolicy: "no-referrer" })).json()
+  gamedataType.value["excel/chapter_table.json"] = inferType(chapterTable)
   gamedata.value["excel/chapter_table.json"] = chapterTable
   console.log(JSON.stringify(inferType(stageTable), replacer, 2))
 })
@@ -62,6 +65,8 @@ watchEffect(async () => {
         <TextEditControl :maximum-line-count="1" v-model="z" />
       </Labeler>
       <button>取消</button>
+      <Chameleon title="超级编辑器" :type="gamedataType['excel/chapter_table.json']" :value="gamedata"
+        key="excel/chapter_table.json" />
       <Checkerboard :red="0" :green="0" :blue="128">内容图像</Checkerboard>
       <GroupBox>
         <template #title>标题</template>
