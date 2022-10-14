@@ -7,8 +7,9 @@ defineProps({
 	modelValue: { type: String, default: '' },
 	maximumLineCount: { type: Number, default: 1 },
 })
-const emit = defineEmits(['update:modelValue'])
-
+const emit = defineEmits<{
+	(e: 'update:modelValue', value: string): void,
+}>()
 const inputMethodComposing = ref(false)
 function setInputMethodComposing(value: boolean) {
 	// visible: textEdit.inputMethodComposing && Qt.platform.os === "windows"
@@ -22,8 +23,8 @@ function emitUpdateModelValue(event: Event) {
 
 <template>
 	<component :is="maximumLineCount === 1 ? 'input' : 'textarea'" type="text" :value="modelValue"
-		@input="!inputMethodComposing && emitUpdateModelValue($event)"
-		class="control" :rows="maximumLineCount" @focus="$el.select()" @compositionstart="setInputMethodComposing(true)"
+		@input="!inputMethodComposing && emitUpdateModelValue($event)" class="control" :rows="maximumLineCount"
+		@focus="$el.select()" @compositionstart="setInputMethodComposing(true)"
 		@compositionend="emitUpdateModelValue($event), setInputMethodComposing(false)" :style="{
 			// readonly property bool disableScrollBars: maximumLineCount > 0
 			overflow: maximumLineCount > 0 ? 'hidden' : 'auto',

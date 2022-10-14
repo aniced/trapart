@@ -9,7 +9,9 @@ const props = defineProps({
   decimals: { type: Number, default: 0 },
   suffix: { type: String, default: "" },
 })
-const emit = defineEmits(["update:modelValue"])
+const emit = defineEmits<{
+  (e: "update:modelValue", value: number): void,
+}>()
 
 const editable = ref<HTMLElement | null>(null)
 
@@ -114,9 +116,9 @@ function clickAutoRepeat(by: number) {
 
 <template>
   <div class="spin-box-container" @transitionrun="onEnabledChanged" @pointercancel="clickAutoRepeat(0)">
-    <div ref="editable" class="input" :contenteditable="!disabled" inputmode="decimal" :data-prefix="prefix" :data-suffix="suffix"
-      @beforeinput="filterInput" @focus="selectValue" @blur="onTextChanged(), $nextTick(normalize)"
-      @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
+    <div ref="editable" class="input" :contenteditable="!disabled" inputmode="decimal" :data-prefix="prefix"
+      :data-suffix="suffix" @beforeinput="filterInput" @focus="selectValue"
+      @blur="onTextChanged(), $nextTick(normalize)" @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
       @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)"
       @wheel.prevent="increment(Math.sign(-$event.deltaY))">
       <span></span>

@@ -7,7 +7,9 @@ const props = defineProps({
 	tabPosition: { type: String, default: "top" },
 	itemHeight: { type: Number, default: 32 },
 })
-const emit = defineEmits(["update:modelValue"])
+const emit = defineEmits<{
+	(e: "update:modelValue", value: number): void,
+}>()
 const container = ref<HTMLDivElement | null>(null)
 const containerHeight = ref(0)
 
