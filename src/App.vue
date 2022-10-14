@@ -236,7 +236,7 @@ watchEffect(async () => {
   // border.color: Qt.darker(root.color, 1.2)
   --progress-bar-frame: #{qt.darker($progress-bar, 1.2)};
 
-  /* The PNG resources are solid. To mitigate difficulties in scrollbar styling, the opacity is baked into the following SVG data. An opacity: 0.7 multiplied with fill-opacity='0.7' will approximately give the desired opacity of 0.5 in disabled cases. */
+  // The PNG resources are solid. To mitigate difficulties in scrollbar styling, the opacity is baked into the following SVG data. An opacity: 0.7 multiplied with fill-opacity='0.7' will approximately give the desired opacity of 0.5 in disabled cases.
   --arrow-left-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 3.5 l 3.5 -3.5 v 7 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
   --arrow-right-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M 0 0 l 3.5 3.5 l -3.5 3.5 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
   --arrow-up-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M 3.5 0 l 3.5 3.5 h -7 z' fill='#{encode-color($arrow-color)}' fill-opacity='0.7' /%3E%3C/svg%3E");
@@ -245,7 +245,19 @@ watchEffect(async () => {
   color-scheme: if($is-dark-mode, dark, light);
 }
 
-:root {
+@mixin themed-root($class, $media) {
+  body.#{$class} {
+    @content;
+  }
+
+  @media #{$media} {
+    body {
+      @content;
+    }
+  }
+}
+
+@include themed-root(light, "all") {
   $window2: #d0dbe8;
   $control-frame: qt.darker($window2, 1.7);
   $deluxe-label1: #0050a0;
@@ -326,196 +338,190 @@ watchEffect(async () => {
   --control-height: 27px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    @include theme($is-dark-mode: true,
+@include themed-root(dark, "(prefers-color-scheme: dark)") {
+  @include theme($is-dark-mode: true,
 
-      $window1: #474b4d,
-      $window2: #2f3335,
-      $outside-area: #181819,
-      $inactive-tab1: #373b3d,
-      $inactive-tab2: #1f2325,
-      $control-frame: #111618,
-      $scrollbar1: #515658,
-      $scrollbar2: #616668,
-      $focus-frame: #4e78a1,
+    $window1: #474b4d,
+    $window2: #2f3335,
+    $outside-area: #181819,
+    $inactive-tab1: #373b3d,
+    $inactive-tab2: #1f2325,
+    $control-frame: #111618,
+    $scrollbar1: #515658,
+    $scrollbar2: #616668,
+    $focus-frame: #4e78a1,
 
-      $normal-text: #cccccc,
-      $normal-back1: #25282a,
-      $normal-back2: #2c2f31,
-      $selected-text: #cccccc,
-      $selected-back: #4b6eaf,
-      $selected-ed-text: var(--normal-text),
-      $selected-ed-back: #4b6eaf,
-      $disabled-text: #777777,
-      $hyperlink-text: #0099ff,
+    $normal-text: #cccccc,
+    $normal-back1: #25282a,
+    $normal-back2: #2c2f31,
+    $selected-text: #cccccc,
+    $selected-back: #4b6eaf,
+    $selected-ed-text: var(--normal-text),
+    $selected-ed-back: #4b6eaf,
+    $disabled-text: #777777,
+    $hyperlink-text: #0099ff,
 
-      $button1: #616668,
-      $button2: #54595b,
-      $pressed-button-text: var(--normal-text),
-      $hot-button1: #717678,
-      $hot-button2: #64696b,
-      $hot-button-text: var(--normal-text),
-      $twinkling-btn1: #173e70,
-      $twinkling-btn2: #082147,
-      $group-box1: #ffffff18,
-      $group-box2: #ffffff10,
-      $group-box-frame: #202020,
-      $deluxe-label1: #272b2d,
-      $deluxe-label2: #0f1315,
-      $deluxe-label-text: #dddddd,
+    $button1: #616668,
+    $button2: #54595b,
+    $pressed-button-text: var(--normal-text),
+    $hot-button1: #717678,
+    $hot-button2: #64696b,
+    $hot-button-text: var(--normal-text),
+    $twinkling-btn1: #173e70,
+    $twinkling-btn2: #082147,
+    $group-box1: #ffffff18,
+    $group-box2: #ffffff10,
+    $group-box-frame: #202020,
+    $deluxe-label1: #272b2d,
+    $deluxe-label2: #0f1315,
+    $deluxe-label-text: #dddddd,
 
-      $highlight: #51555780,
-      $work-area: #224488,
-      $check-mark: #aaaaaa,
-      $drop-target: #456ea6,
-      $progress-bar: #4499dd,
+    $highlight: #51555780,
+    $work-area: #224488,
+    $check-mark: #aaaaaa,
+    $drop-target: #456ea6,
+    $progress-bar: #4499dd,
 
-      $arrow-color: white,
-    );
+    $arrow-color: white,
+  );
 
-    --exp-curve-color1: #1AC011;
-    --exp-curve-color2: #ECA188;
+  --exp-curve-color1: #1AC011;
+  --exp-curve-color2: #ECA188;
 
-    --event-indigo: #DFBFFF;
-    --event-green: #00DF00;
-    --event-blue: #5394EC;
-    --event-red: #FF8785;
-    --event-darkorange: #FF8C00;
-    --event-magenta: #FFBFFF;
-    --event-maroon: #BF7070;
-    --event-olive: #D6BF55;
-    --event-crimson: #FF6B68;
-    --event-purple: #DC56DF;
-    --event-teal: #BFFFFF;
-    --event-deeppink: #FFBFE2;
-    --event-dodgerblue: #B0C9EB;
-    --event-darkviolet: #C19DD1;
-    --event-gray: #AAAAAA;
-    --event-navy: #BFBFFF;
-    --event-slategray: #9BB6CF;
-  }
+  --event-indigo: #DFBFFF;
+  --event-green: #00DF00;
+  --event-blue: #5394EC;
+  --event-red: #FF8785;
+  --event-darkorange: #FF8C00;
+  --event-magenta: #FFBFFF;
+  --event-maroon: #BF7070;
+  --event-olive: #D6BF55;
+  --event-crimson: #FF6B68;
+  --event-purple: #DC56DF;
+  --event-teal: #BFFFFF;
+  --event-deeppink: #FFBFE2;
+  --event-dodgerblue: #B0C9EB;
+  --event-darkviolet: #C19DD1;
+  --event-gray: #AAAAAA;
+  --event-navy: #BFBFFF;
+  --event-slategray: #9BB6CF;
 }
 
-@media screen and (prefers-contrast: more) {
-  :root {
-    @include theme($is-dark-mode: true,
+@include themed-root(high-contrast-dark, "(prefers-contrast: more)") {
+  @include theme($is-dark-mode: true,
 
-      $window1: #000000,
-      $window2: #000000,
-      $outside-area: #000000,
-      $inactive-tab1: #000000,
-      $inactive-tab2: #000000,
-      $control-frame: #ffffff,
-      $scrollbar1: #000000,
-      $scrollbar2: #000000,
-      $focus-frame: #ffff00,
+    $window1: #000000,
+    $window2: #000000,
+    $outside-area: #000000,
+    $inactive-tab1: #000000,
+    $inactive-tab2: #000000,
+    $control-frame: #ffffff,
+    $scrollbar1: #000000,
+    $scrollbar2: #000000,
+    $focus-frame: #ffff00,
 
-      $normal-text: #ffffff,
-      $normal-back1: #000000,
-      $normal-back2: #000000,
-      $selected-text: #000000,
-      $selected-back: #1AEBFF,
-      $selected-ed-text: #000000,
-      $selected-ed-back: #1AEBFF,
-      $disabled-text: #00FF00,
-      $hyperlink-text: #00ffff,
+    $normal-text: #ffffff,
+    $normal-back1: #000000,
+    $normal-back2: #000000,
+    $selected-text: #000000,
+    $selected-back: #1AEBFF,
+    $selected-ed-text: #000000,
+    $selected-ed-back: #1AEBFF,
+    $disabled-text: #00FF00,
+    $hyperlink-text: #00ffff,
 
-      $button1: #000000,
-      $button2: #000000,
-      $pressed-button-text: #000000,
-      $hot-button1: #1AEBFF,
-      $hot-button2: #1AEBFF,
-      $hot-button-text: #000000,
-      $twinkling-btn1: #1AEBFF80,
-      $twinkling-btn2: #1AEBFF80,
-      $group-box1: #000000,
-      $group-box2: #000000,
-      $group-box-frame: #ffffff,
-      $deluxe-label1: #000000,
-      $deluxe-label2: #000000,
-      $deluxe-label-text: #ffffff,
+    $button1: #000000,
+    $button2: #000000,
+    $pressed-button-text: #000000,
+    $hot-button1: #1AEBFF,
+    $hot-button2: #1AEBFF,
+    $hot-button-text: #000000,
+    $twinkling-btn1: #1AEBFF80,
+    $twinkling-btn2: #1AEBFF80,
+    $group-box1: #000000,
+    $group-box2: #000000,
+    $group-box-frame: #ffffff,
+    $deluxe-label1: #000000,
+    $deluxe-label2: #000000,
+    $deluxe-label-text: #ffffff,
 
-      $highlight: #ffffff80,
-      $work-area: #224488,
-      $check-mark: #FFFFFF,
-      $drop-target: #1AEBFF,
-      $progress-bar: #1AEBFF,
+    $highlight: #ffffff80,
+    $work-area: #224488,
+    $check-mark: #FFFFFF,
+    $drop-target: #1AEBFF,
+    $progress-bar: #1AEBFF,
 
-      $arrow-color: white,
-    );
+    $arrow-color: white,
+  );
 
-    --exp-curve-color1: #00FF00;
-    --exp-curve-color2: #FF8000;
+  --exp-curve-color1: #00FF00;
+  --exp-curve-color2: #FF8000;
 
-    --event-indigo: #FF58FF;
-    --event-green: #00FF00;
-    --event-blue: #00CFFF;
-    --event-red: #FF8080;
-    --event-darkorange: #FF8000;
-    --event-magenta: #FF58FF;
-    --event-maroon: #FF8080;
-    --event-olive: #FFFF00;
-    --event-crimson: #E78386;
-    --event-purple: #FF58FF;
-    --event-teal: #00FFFF;
-    --event-deeppink: #FF80C0;
-    --event-dodgerblue: #00FFFF;
-    --event-darkviolet: #D935FF;
-    --event-gray: #AAAAAA;
-    --event-navy: #00FFFF;
-    --event-slategray: #FFFFFF;
-  }
+  --event-indigo: #FF58FF;
+  --event-green: #00FF00;
+  --event-blue: #00CFFF;
+  --event-red: #FF8080;
+  --event-darkorange: #FF8000;
+  --event-magenta: #FF58FF;
+  --event-maroon: #FF8080;
+  --event-olive: #FFFF00;
+  --event-crimson: #E78386;
+  --event-purple: #FF58FF;
+  --event-teal: #00FFFF;
+  --event-deeppink: #FF80C0;
+  --event-dodgerblue: #00FFFF;
+  --event-darkviolet: #D935FF;
+  --event-gray: #AAAAAA;
+  --event-navy: #00FFFF;
+  --event-slategray: #FFFFFF;
 }
 
-@media screen and (prefers-contrast: more) and (prefers-color-scheme: light) {
-  :root {
-    @include theme($is-dark-mode: false,
+@include themed-root(high-contrast-light, "(prefers-contrast: more) and (prefers-color-scheme: light)") {
+  @include theme($is-dark-mode: false,
 
-      $window1: #FFFFFF,
-      $window2: #FFFFFF,
-      $outside-area: #FFFFFF,
-      $inactive-tab1: #FFFFFF,
-      $inactive-tab2: #FFFFFF,
-      $control-frame: #000000,
-      $scrollbar1: #FFFFFF,
-      $scrollbar2: #FFFFFF,
-      $focus-frame: #00009F,
+    $window1: #FFFFFF,
+    $window2: #FFFFFF,
+    $outside-area: #FFFFFF,
+    $inactive-tab1: #FFFFFF,
+    $inactive-tab2: #FFFFFF,
+    $control-frame: #000000,
+    $scrollbar1: #FFFFFF,
+    $scrollbar2: #FFFFFF,
+    $focus-frame: #00009F,
 
-      $normal-text: #000000,
-      $normal-back1: #FFFFFF,
-      $normal-back2: #FFFFFF,
-      $selected-text: #FFFFFF,
-      $selected-back: #37006E,
-      $selected-ed-text: #FFFFFF,
-      $selected-ed-back: #37006E,
-      $disabled-text: #800000,
-      $hyperlink-text: #0000ff,
+    $normal-text: #000000,
+    $normal-back1: #FFFFFF,
+    $normal-back2: #FFFFFF,
+    $selected-text: #FFFFFF,
+    $selected-back: #37006E,
+    $selected-ed-text: #FFFFFF,
+    $selected-ed-back: #37006E,
+    $disabled-text: #800000,
+    $hyperlink-text: #0000ff,
 
-      $button1: #FFFFFF,
-      $button2: #FFFFFF,
-      $pressed-button-text: #FFFFFF,
-      $hot-button1: #37006E,
-      $hot-button2: #37006E,
-      $hot-button-text: #FFFFFF,
-      $twinkling-btn1: #37006E80,
-      $twinkling-btn2: #37006E80,
-      $group-box1: #FFFFFF,
-      $group-box2: #FFFFFF,
-      $group-box-frame: #000000,
-      $deluxe-label1: #FFFFFF,
-      $deluxe-label2: #FFFFFF,
-      $deluxe-label-text: #000000,
+    $button1: #FFFFFF,
+    $button2: #FFFFFF,
+    $pressed-button-text: #FFFFFF,
+    $hot-button1: #37006E,
+    $hot-button2: #37006E,
+    $hot-button-text: #FFFFFF,
+    $twinkling-btn1: #37006E80,
+    $twinkling-btn2: #37006E80,
+    $group-box1: #FFFFFF,
+    $group-box2: #FFFFFF,
+    $group-box-frame: #000000,
+    $deluxe-label1: #FFFFFF,
+    $deluxe-label2: #FFFFFF,
+    $deluxe-label-text: #000000,
 
-      $highlight: #00000080,
-      $work-area: #224488,
-      $check-mark: #000000,
-      $drop-target: #37006E,
-      $progress-bar: #37006E,
+    $highlight: #00000080,
+    $work-area: #224488,
+    $check-mark: #000000,
+    $drop-target: #37006E,
+    $progress-bar: #37006E,
 
-      $arrow-color: black,
-    );
-  }
+    $arrow-color: black,
+  );
 }
 
 *,
@@ -543,7 +549,7 @@ body {
   cursor: default;
 }
 
-/* <hr> models DialogSeparator. */
+// <hr> models DialogSeparator.
 hr {
   margin: 8px auto;
   border-top: 1px solid #00000040;
@@ -679,8 +685,8 @@ hr {
 }
 
 
-/* The transparent border is for correct sizing, which in turn gives correct hit test areas. */
-/* Non-interactive components, on the other hand, may find having a container element being a more natural approach. */
+// The transparent border is for correct sizing, which in turn gives correct hit test areas.
+// Non-interactive components, on the other hand, may find having a container element being a more natural approach.
 button {
   width: 90px;
   height: var(--control-height);
@@ -693,10 +699,10 @@ button {
   --arrow-image: none;
   --arrow-image-color: var(--normal-text-70);
   text-align: center;
-  /* anchors.verticalCenter: parent.verticalCenter */
+  // anchors.verticalCenter: parent.verticalCenter
   line-height: calc(var(--control-height) - 4px);
   color: var(--normal-text);
-  /* anchors.margins: 1; radius: 2.5 */
+  // anchors.margins: 1; radius: 2.5
   border-radius: 3.5px;
   box-shadow: inset 0 0 0 1px var(--highlight);
 }
@@ -708,8 +714,8 @@ button>img:first-child {
 
 button:focus {
   background: var(--arrow-image), var(--twinkling-btn), var(--button);
-  /* Subtlety. Only the focus ring should get a radius of 2px, not the button itself. Does not make much difference, though. */
-  /* To compensate for the button border, which should still be (barely) visible under the focus ring, another pixel of rounded corners is added. */
+  // Subtlety. Only the focus ring should get a radius of 2px, not the button itself. Does not make much difference, though.
+  // To compensate for the button border, which should still be (barely) visible under the focus ring, another pixel of rounded corners is added.
   border-radius: 3px;
 }
 
@@ -752,8 +758,6 @@ button.ellipsis:disabled {
   color: transparent;
 }
 
-/* EllipsisBox and LabeledEllipsisBox emit mouse wheel events but no code actually handles them. */
-
 input[type="radio" i],
 input[type="checkbox" i] {
   appearance: none;
@@ -791,11 +795,11 @@ input[type="radio" i]::after {
 
 input[type="checkbox" i]::after {
   display: block;
-  /* anchors.centerIn: parent */
+  // anchors.centerIn: parent
   text-align: center;
-  /* anchors.verticalCenterOffset: 1 */
+  // anchors.verticalCenterOffset: 1
   line-height: 17px;
-  /* text: "\u2714"  // HEAVY CHECK MARK */
+  // text: "\u2714"  // HEAVY CHECK MARK
   content: "\2714";
   font-family: var(--symbol-font);
   font-size: 15px;
