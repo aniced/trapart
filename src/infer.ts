@@ -9,6 +9,7 @@ type SchemaSomeType = {
   type: "string",
   minimumLength: number,
   maximumLength: number,
+  multiline: boolean,
   format?: "url" | "regex" | "date" | "uuid",
   possibleValues: Set<string>,
 } | {
@@ -49,6 +50,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
         type: "string",
         minimumLength: Math.min(a.minimumLength, b.minimumLength),
         maximumLength: Math.max(a.maximumLength, b.maximumLength),
+        multiline: a.multiline || b.multiline,
         format: a.format === b.format ? a.format : undefined,
         possibleValues: new Set([...a.possibleValues, ...b.possibleValues]),
       }
@@ -140,6 +142,7 @@ export function inferType(x: any): SchemaType {
       type: "string",
       minimumLength: x.length,
       maximumLength: x.length,
+      multiline: x.includes("\n"),
       possibleValues: new Set([x]),
     }
     if (/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(x)) {

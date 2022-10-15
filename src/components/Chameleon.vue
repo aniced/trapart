@@ -45,7 +45,7 @@ const isNull = ref(false)
 		<div v-if="type.type === 'any'">
 			{{ JSON.stringify(value[keyName]) }}
 		</div>
-		<TextEditControl v-else-if="type.type === 'string'" v-model="value[keyName]" />
+		<TextEditControl v-else-if="type.type === 'string'" v-model="value[keyName]" :maximum-line-count="type.multiline ? 0 : 1" />
 		<SpinBox v-else-if="type.type === 'number'" v-model="value[keyName]" />
 		<template v-else-if="type.type === 'array'">
 			<Chameleon v-for="(_, i) in value[keyName]" :type="type.items" :value="value[keyName]" :key-name="i.toString()" />
