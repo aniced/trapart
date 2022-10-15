@@ -132,7 +132,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
 }
 
 // The input to this function must not have any circular reference.
-export function inferType(x: any): SchemaType {
+export function inferType(x: unknown): SchemaType {
   if (x === undefined || x === null) {
     return { type: "null" }
   } else if (typeof x === "boolean") {
@@ -171,7 +171,7 @@ export function inferType(x: any): SchemaType {
     }
   } else {
     const properties = new Map<string, SchemaType>()
-    for (const key in x) properties.set(key, inferType(x[key]))
+    for (const [key, value] of Object.entries(x)) properties.set(key, inferType(value))
     const unifiedType = [...properties.values()].reduce(unifyType, { type: "unknown" })
     // See if the JSON object looks like a homogeneous dictionary with string keys (type: "map").
     // http://blog.quicktype.io/markov/
