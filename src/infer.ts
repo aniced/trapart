@@ -3,8 +3,8 @@
 
 // SchemaType is modelled loosely after JSON Schema.
 type SchemaSomeType = {
-  // Maybe it's more elegant to treat null as optional<unknown>?
-  type: "null" | "boolean" | "any" | "unknown",
+  // Maybe it's more elegant to treat null as optional<never>?
+  type: "null" | "boolean" | "any" | "never",
 } | {
   type: "string",
   minimumLength: number,
@@ -41,7 +41,7 @@ export function optional(type: SchemaType): SchemaType {
 
 export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
   if (a.type === b.type) {
-    if (a.type === "null" || a.type === "boolean" || a.type === "any" || a.type == "unknown") {
+    if (a.type === "null" || a.type === "boolean" || a.type === "any" || a.type == "never") {
       return a
     } else if (a.type === "string") {
       // TypeScript can't narrow types with an equality assumption (a.type === b.type).
@@ -109,11 +109,11 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
     throw new Error("impossible")
   } else {
     // Beware: the order of the following conditionals is important.
-    // For example, (any | unknown) is any, not unknown.
+    // For example, (any | never) is any, not never.
     if (a.type === "any") return a
     if (b.type === "any") return b
-    if (a.type === "unknown") return b
-    if (b.type === "unknown") return a
+    if (a.type === "never") return b
+    if (b.type === "never") return a
     if (a.type === "optional") return optional(unifyType(a.items, b))
     if (b.type === "optional") return optional(unifyType(a, b.items))
     if (a.type === "null") return { type: "optional", items: b }
@@ -167,12 +167,12 @@ export function inferType(x: unknown): SchemaType {
   } else if (Array.isArray(x)) {
     return {
       type: "array",
-      items: x.reduce((type, x) => unifyType(type, inferType(x)), { type: "unknown" }),
+      items: x.reduce((type, x) => unifyType(type, inferType(x)), { type: "never" }),
     }
   } else {
     const properties = new Map<string, SchemaType>()
     for (const [key, value] of Object.entries(x)) properties.set(key, inferType(value))
-    const unifiedType = [...properties.values()].reduce(unifyType, { type: "unknown" })
+    const unifiedType = [...properties.values()].reduce(unifyType, { type: "never" })
     // See if the JSON object looks like a homogeneous dictionary with string keys (type: "map").
     // http://blog.quicktype.io/markov/
     if ((() => {
@@ -200,6 +200,4 @@ export function inferType(x: unknown): SchemaType {
       }
     }
   }
-  // TODO: check for remaining unknown types and convert them to any
-  // and type the return value accordingly; requires a wrapper function
 }
