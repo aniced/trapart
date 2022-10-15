@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import TheWelcome from "./components/TheWelcome.vue"
 import DeluxeLabel from "./components/basic-controls/DeluxeLabel.vue"
 import Checkerboard from "./components/basic-controls/Checkerboard.vue"
 import GroupBox from "./components/basic-controls/GroupBox.vue"
@@ -91,8 +90,6 @@ watchEffect(async () => {
     </RoundFrame>
 
     <ProgressBar :value="37" :max="100"></ProgressBar>
-
-    <TheWelcome />
 
     <button @click="g?.showModal()">&lt;dialog&gt;</button>
     <dialog ref="g">
