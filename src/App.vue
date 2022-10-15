@@ -66,7 +66,7 @@ watchEffect(async () => {
       </Labeler>
       <button>取消</button>
       <Chameleon title="超级编辑器" :type="gamedataType['excel/chapter_table.json']" :value="gamedata"
-        key="excel/chapter_table.json" />
+        key-name="excel/chapter_table.json" />
       <Checkerboard :red="0" :green="0" :blue="128">内容图像</Checkerboard>
       <GroupBox>
         <template #title>标题</template>
