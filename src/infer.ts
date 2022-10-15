@@ -2,9 +2,9 @@
 // Since we're given only the data — not any of the intended types — it's more like guesses rather than type inference in the traditional sense.
 
 // SchemaType is modelled loosely after JSON Schema.
+// However, we do not support union types ("anyOf").
 type SchemaSomeType = {
-  // Maybe it's more elegant to treat null as optional<never>?
-  type: "null" | "boolean" | "any" | "never",
+  type: "boolean" | "any" | "never",
 } | {
   type: "string",
   minimumLength: number,
@@ -29,8 +29,10 @@ type SchemaSomeType = {
   properties: Map<string, SchemaType>,
 }
 
+// For the #1 common use case of union types, (T | null), a dedicated optional<T> type (where T is not an optional type) is provided.
+// Consequently, the null type is represented as optional<never>.
+// undefined and null are not distinguished from each other.
 export type SchemaType = SchemaSomeType | {
-  // undefined and null are not distinguished from each other.
   type: "optional",
   items: SchemaSomeType,
 }
@@ -41,7 +43,7 @@ export function optional(type: SchemaType): SchemaType {
 
 export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
   if (a.type === b.type) {
-    if (a.type === "null" || a.type === "boolean" || a.type === "any" || a.type == "never") {
+    if (a.type === "boolean" || a.type === "any" || a.type == "never") {
       return a
     } else if (a.type === "string") {
       // TypeScript can't narrow types with an equality assumption (a.type === b.type).
@@ -116,8 +118,6 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
     if (b.type === "never") return a
     if (a.type === "optional") return optional(unifyType(a.items, b))
     if (b.type === "optional") return optional(unifyType(a, b.items))
-    if (a.type === "null") return { type: "optional", items: b }
-    if (b.type === "null") return { type: "optional", items: a }
     if (a.type === "map" && b.type === "object") {
       const tmp = a
       a = b
@@ -134,7 +134,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
 // The input to this function must not have any circular reference.
 export function inferType(x: unknown): SchemaType {
   if (x === undefined || x === null) {
-    return { type: "null" }
+    return { type: "optional", items: { type: "never" } }
   } else if (typeof x === "boolean") {
     return { type: "boolean" }
   } else if (typeof x === "string") {
