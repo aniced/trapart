@@ -17,8 +17,12 @@ import LabeledCheckBox from "./components/basic-layouts/LabeledCheckBox.vue"
 import LabeledRadioButton from "./components/basic-layouts/LabeledRadioButton.vue"
 import Labeler from "./components/basic-layouts/Labeler.vue"
 import Chameleon from "./components/Chameleon.vue"
+import CustomListView from "./components/basic-controls/CustomListView.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
+const m = ref(new Array(64).fill(1).map((v, i) => ({
+  text: 'Item ' + i,
+})))
 const x = ref(114)
 const y = ref(0)
 const z = ref("data")
@@ -42,6 +46,16 @@ watchEffect(async () => {
   <header>
     <fieldset></fieldset>
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
+    <CustomListView style="width: 100%; height: 600px; border: 1px solid #ccc" :items="m" line-number>
+      <template #thead>
+        <th>Original case</th>
+        <th>Upper case</th>
+      </template>
+      <template #tbody="{ item }">        
+        <td>{{ item }}</td>
+        <td>{{ (""+item).toUpperCase() }}</td>
+      </template>
+    </CustomListView>
     <LabeledCheckBox v-model="d">disable</LabeledCheckBox>
     {{ z }}
     <TextEditControl v-model="z"></TextEditControl>
@@ -204,8 +218,11 @@ watchEffect(async () => {
   --normal-text-50: #{color.scale($normal-text, $alpha: -50%)};
   --normal-back1: #{$normal-back1};
   --normal-back2: #{$normal-back2};
+  // visible: PaletteSingleton.normalBack1 == PaletteSingleton.normalBack2
+  --list-box-row-underline: #{if($normal-back1 == $normal-back2, $normal-text, transparent)};
   --selected-text: #{$selected-text};
   --selected-back: #{$selected-back};
+  --selected-back-130: #{qt.lighter($selected-back, 1.3)};
   --selected-ed-text: var(--normal-text);
   --selected-ed-back: #{$selected-ed-back};
   --disabled-text: #{$disabled-text};
