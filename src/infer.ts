@@ -16,11 +16,11 @@ type SchemaSomeType = SchemaTypeCommonProperties & ({
   type: "boolean" | "any" | "never",
 } | {
   type: "string",
-  minimumLength: number,
-  maximumLength: number,
+  minLength: number,
+  maxLength: number,
   multiline: boolean,
   format?: "url" | "regex" | "date" | "uuid",
-  possibleValues: Set<string>,
+  examples: string[],
 } | {
   // TODO: add type "enum"
 } & never | {
@@ -34,7 +34,7 @@ type SchemaSomeType = SchemaTypeCommonProperties & ({
 } | {
   type: "map",
   items: SchemaType,
-  possibleKeys: Set<string>,
+  propertyNames: Set<string>,
 } | {
   type: "object",
   properties: Map<string, SchemaType>,
@@ -61,11 +61,11 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
       if (b.type !== "string") throw new Error("impossible")
       return {
         type: "string",
-        minimumLength: Math.min(a.minimumLength, b.minimumLength),
-        maximumLength: Math.max(a.maximumLength, b.maximumLength),
+        minLength: Math.min(a.minLength, b.minLength),
+        maxLength: Math.max(a.maxLength, b.maxLength),
         multiline: a.multiline || b.multiline,
         format: a.format === b.format ? a.format : undefined,
-        possibleValues: new Set([...a.possibleValues, ...b.possibleValues]),
+        examples: a.examples.concat(b.examples),
       }
     } else if (a.type === "number") {
       if (b.type !== "number") throw new Error("impossible")
@@ -86,7 +86,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
       return {
         type: "map",
         items: unifyType(a.items, b.items),
-        possibleKeys: new Set([...a.possibleKeys, ...b.possibleKeys]),
+        propertyNames: new Set([...a.propertyNames, ...b.propertyNames]),
       }
     } else if (a.type === "optional") {
       if (b.type !== "optional") throw new Error("impossible")
@@ -151,10 +151,10 @@ export function inferType(x: unknown, pointer: string): SchemaType {
   } else if (typeof x === "string") {
     const type: SchemaType = {
       type: "string",
-      minimumLength: x.length,
-      maximumLength: x.length,
+      minLength: x.length,
+      maxLength: x.length,
       multiline: x.includes("\n"),
-      possibleValues: new Set([x]),
+      examples: [x],
     }
     if (/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(x)) {
       type.format = "uuid"
@@ -207,7 +207,7 @@ export function inferType(x: unknown, pointer: string): SchemaType {
       return {
         type: "map",
         items: unifiedType,
-        possibleKeys: new Set(properties.keys()),
+        propertyNames: new Set(properties.keys()),
       }
     } else {
       return {

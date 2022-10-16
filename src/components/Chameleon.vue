@@ -29,10 +29,7 @@ const isNull = ref(false)
 </script>
 
 <template>
-	<div v-if="type.type === 'null'">
-		{{ title }}: null
-	</div>
-	<LabeledCheckBox v-else-if="type.type === 'boolean'" v-model="value[keyName]">
+	<LabeledCheckBox v-if="type.type === 'boolean'" v-model="value[keyName]">
 		{{ title }}
 	</LabeledCheckBox>
 	<Labeler v-else-if="type.type === 'optional'">
