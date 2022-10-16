@@ -1,9 +1,18 @@
 // Infer types from JSON data.
 // Since we're given only the data — not any of the intended types — it's more like guesses rather than type inference in the traditional sense.
 
+import { tilde } from './json-pointer'
+
 // SchemaType is modelled loosely after JSON Schema.
 // However, we do not support union types ("anyOf").
-type SchemaSomeType = {
+interface SchemaTypeCommonProperties {
+  type: string,
+  title?: string,
+  description?: string,
+  control?: string,
+}
+
+type SchemaSomeType = SchemaTypeCommonProperties & ({
   type: "boolean" | "any" | "never",
 } | {
   type: "string",
@@ -13,6 +22,8 @@ type SchemaSomeType = {
   format?: "url" | "regex" | "date" | "uuid",
   possibleValues: Set<string>,
 } | {
+  // TODO: add type "enum"
+} & never | {
   type: "number",
   minimum: number,
   maximum: number,
@@ -27,12 +38,12 @@ type SchemaSomeType = {
 } | {
   type: "object",
   properties: Map<string, SchemaType>,
-}
+})
 
 // For the #1 common use case of union types, (T | null), a dedicated optional<T> type (where T is not an optional type) is provided.
 // Consequently, the null type is represented as optional<never>.
 // undefined and null are not distinguished from each other.
-export type SchemaType = SchemaSomeType | {
+export type SchemaType = SchemaSomeType | SchemaTypeCommonProperties & {
   type: "optional",
   items: SchemaSomeType,
 }
@@ -132,7 +143,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
 }
 
 // The input to this function must not have any circular reference.
-export function inferType(x: unknown): SchemaType {
+export function inferType(x: unknown, pointer: string): SchemaType {
   if (x === undefined || x === null) {
     return { type: "optional", items: { type: "never" } }
   } else if (typeof x === "boolean") {
@@ -166,12 +177,17 @@ export function inferType(x: unknown): SchemaType {
     }
   } else if (Array.isArray(x)) {
     return {
-      type: "array",
-      items: x.reduce((type, x) => unifyType(type, inferType(x)), { type: "never" }),
+      type: 'array',
+      items: x.reduce(
+        (type, x) => unifyType(type, inferType(x, pointer + '/0')),
+        { type: 'never' }
+      ),
     }
   } else {
     const properties = new Map<string, SchemaType>()
-    for (const [key, value] of Object.entries(x)) properties.set(key, inferType(value))
+    for (const [key, value] of Object.entries(x)) {
+      properties.set(key, inferType(value, pointer + '/' + tilde(key)))
+    }
     const unifiedType = [...properties.values()].reduce(unifyType, { type: "never" })
     // See if the JSON object looks like a homogeneous dictionary with string keys (type: "map").
     // http://blog.quicktype.io/markov/
