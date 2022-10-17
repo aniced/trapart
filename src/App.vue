@@ -20,9 +20,10 @@ import Chameleon from "./components/Chameleon.vue"
 import CustomListView from "./components/basic-controls/CustomListView.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
-const m = ref(new Array(64).fill(1).map((v, i) => ({
+const m = ref(new Array(11).fill(1).map((v, i) => ({
   text: 'Item ' + i,
 })))
+const n = ref(0)
 const x = ref(114)
 const y = ref(0)
 const z = ref("data")
@@ -46,16 +47,6 @@ watchEffect(async () => {
   <header>
     <fieldset></fieldset>
     <button class="ellipsis">确定哼哼啊啊啊啊啊</button>
-    <CustomListView style="width: 100%; height: 600px; border: 1px solid #ccc" :items="m" line-number>
-      <template #thead>
-        <th>Original case</th>
-        <th>Upper case</th>
-      </template>
-      <template #tbody="{ item }">        
-        <td>{{ item }}</td>
-        <td>{{ (""+item).toUpperCase() }}</td>
-      </template>
-    </CustomListView>
     <LabeledCheckBox v-model="d">disable</LabeledCheckBox>
     {{ z }}
     <TextEditControl v-model="z"></TextEditControl>
@@ -65,6 +56,22 @@ watchEffect(async () => {
       <LabeledRadioButton v-model="z" value="changed">The second</LabeledRadioButton>
       <LabeledCheckBox v-model="d">Start disabled inside</LabeledCheckBox>
       <SpinBox prefix="$[" v-model="x" suffix="]%" :minimum-value="-9" :maximum-value="500"></SpinBox>
+      <CustomListView style="width: 320px; height: 240px;" :items="m" v-model="n" line-number :item-height="40">
+        <template #thead>
+          <th>Original case</th>
+          <th>Upper case</th>
+        </template>
+        <template #tbody="{ item }">
+          <td>{{ item.text }}</td>
+          <td>{{ item.text.toUpperCase() }}</td>
+        </template>
+      </CustomListView>
+      <CustomListView style="width: 120px; height: 240px;" :items="m" v-model="n">
+        <template #tbody="{ item }">
+          <td>{{ item.text }}</td>
+          <td>{{ item.text.toLowerCase() }}</td>
+        </template>
+      </CustomListView>
       <HintArea title="哼哼">
         <DeluxeLabel>标题</DeluxeLabel>
         <template #hint>
@@ -227,7 +234,8 @@ watchEffect(async () => {
   --selected-ed-back: #{$selected-ed-back};
   --disabled-text: #{$disabled-text};
   // data.disabledOpacity is solely for double dimming of button labels. Hence we multiply the alpha components here.
-  --disabled-button-text: #{color.scale($disabled-text, $alpha: -50%)};
+  --disabled-text-50: #{color.scale($disabled-text, $alpha: -50%)};
+  --disabled-text-38: #{color.scale($disabled-text, $alpha: -62.5%)};
   --hyperlink-text: #{$hyperlink-text};
 
   --button1: #{$button1};
@@ -779,7 +787,7 @@ button:focus:active {
 
 button:disabled {
   background: var(--arrow-image), padding-box var(--window2);
-  color: var(--disabled-button-text);
+  color: var(--disabled-text-50);
   --arrow-image-color: var(--normal-text-50);
 }
 

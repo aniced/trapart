@@ -1,37 +1,46 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-withDefaults(defineProps<{
-  items: unknown[],
-  itemHeight: number,
-  multipleSelect?: boolean,
-  lineNumber?: boolean,
-  dragDrop?: boolean,
-  indentWidth?: number,
-}>(), {
-  itemHeight: 20,
-  multipleSelect: false,
-  lineNumber: false,
-  dragDrop: false,
-  indentWidth: 8,
+defineProps({
+  items: { type: Array, required: true },
+  modelValue: { type: Number, required: true }, // currentIndex
+  itemHeight: { type: Number, default: 20 },
+  multipleSelect: Boolean,
+  lineNumber: Boolean,
+  dragDrop: Boolean,
+  showSelectionAlways: { type: Boolean, default: true },
+  selectBottomByExtraRows: Boolean,
+  cancelMultiSelectOnLostFocus: Boolean,
+  indentWidth: { type: Number, default: 8 },
 })
 
-const selectionStart = ref(0)
-const selectionEnd = ref(0)
+defineEmits<{
+  (e: 'update:modelValue', value: number): void
+}>()
+
+const selectionStart = ref(2)
+const selectionEnd = ref(4)
 </script>
 
 <template>
-  <div tabindex="0" class="custom-list-view" :style="{ '--item-height': itemHeight + 'px' }">
+  <div tabindex="0" class="custom-list-view" :style="{
+    '--item-height': itemHeight + 'px',
+    '--header-height': $slots.thead ? '20px' : '0',
+  }">
+  <div v-if="lineNumber" class="line-numbers">{{
+    Object.keys(items).join("\n")
+  }}</div>
     <table>
       <thead v-if="$slots.thead">
         <tr class="list-box-header">
-          <td v-if="lineNumber" class="line-number">{{ items.length - 1 }}</td>
           <slot name="thead" />
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, i) in items" class="list-box-row">
-          <td v-if="lineNumber" class="line-number">{{ i }}</td>
+        <tr v-for="(item, i) in items" class="list-box-row" :class="{
+          current: i === modelValue,
+          selected: showSelectionAlways && i >= selectionStart && i < selectionEnd,
+        }">
           <slot name="tbody" :item="item" />
         </tr>
       </tbody>
@@ -41,18 +50,21 @@ const selectionEnd = ref(0)
 
 <style lang="scss" scoped>
 .custom-list-view {
+  display: flex;
+  align-items: flex-start;
   border: 2px solid transparent;
   overflow: auto;
   // Fill extra rows with alternate colors.
   background:
-    scroll 0 -1px / 100% var(--item-height) linear-gradient(var(--list-box-row-underline) 1px, transparent 0),
-    scroll repeating-linear-gradient(var(--normal-back1) 0 var(--item-height), var(--normal-back2) 0 calc(var(--item-height) * 2));
+    content-box local 0 var(--header-height) / 100% var(--item-height) linear-gradient(to top, var(--list-box-row-underline) 1px, transparent 0),
+    content-box local 0 var(--header-height) repeating-linear-gradient(var(--normal-back1) 0 var(--item-height), var(--normal-back2) 0 calc(var(--item-height) * 2));
 }
 
 .custom-list-view>table {
   table-layout: fixed;
   border-spacing: 0;
   width: 100%;
+  flex: 1;
 }
 
 .list-box-header {
@@ -62,7 +74,6 @@ const selectionEnd = ref(0)
   background: linear-gradient(var(--button1), var(--button2));
   line-height: 20px;
   text-align: left;
-  padding-left: 12px;
   color: var(--normal-text);
   font-family: var(--medium-font);
   font-size: var(--font-size);
@@ -72,27 +83,26 @@ const selectionEnd = ref(0)
   }
 
   &>:deep(th) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border: solid var(--control-frame);
-    border-width: 0 1px 1px 0;
+    box-shadow: inset -1px -1px var(--control-frame);
   }
 }
 
 .list-box-row {
   height: var(--item-height);
   line-height: var(--item-height);
-  background: var(--normal-back1);
-  box-shadow: inset 0 -1px var(--list-box-row-underline);
-
-  &:nth-child(2n) {
-    background: var(--normal-back2);
-  }
 
   &.selected {
     background: linear-gradient(var(--selected-back-130) -20%, var(--selected-back) 140%);
+    color: var(--selected-text);
   }
+}
+
+.list-box-header>:deep(th),
+.list-box-row>:deep(td){
+  padding-left: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .custom-list-view:focus {
@@ -101,26 +111,26 @@ const selectionEnd = ref(0)
   .list-box-row.current {
     outline: var(--focus-frame);
     outline-offset: -2px;
+    border-radius: 2px;
   }
 }
 
-.line-number {
+.line-numbers {
   // property int lineNumberWidth: Math.max((lineNumberSizeHint.width + 10), lineNumberMinWidth)
   min-width: 20px;
-  padding-left: 10px;
-  color: var(--normal-text);
+  padding: var(--header-height) 4px 0 6px;
+  // opacity: 0.75 * (root.enabled ? 1 : 0.5)
+  // Approximated.
+  color: var(--normal-text-70);
   background-color: var(--window1);
   text-align: right;
   line-height: var(--item-height);
   font-family: var(--fixed-font);
   font-size: calc(var(--font-size) * 0.75);
-
-  thead & {
-    color: transparent;
-  }
+  white-space: pre;
 
   :disabled & {
-    color: var(--disabled-text);
+    color: var(--disabled-text-38);
   }
 }
 </style>
