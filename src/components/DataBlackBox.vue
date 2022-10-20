@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+// At most one of this component can be mounted on a page as element IDs are used.
+
 import { onMounted } from 'vue'
 const faces: {
   isOuterFace: boolean,
   el: HTMLDivElement,
   filter: SVGFilterElement,
-  lights: NodeListOf<SVGFEPointLightElement>,
+  light0?: SVGFEPointLightElement,
+  light1?: SVGFEPointLightElement,
 }[] = []
 
 // Lengths are in em.
@@ -31,11 +34,13 @@ onMounted(() => {
 
         }
         face.style.filter = `url("#${filter.id}")`
+        const lights = filter.getElementsByTagName('fePointLight')
         faces.push({
           isOuterFace,
           el: face,
           filter,
-          lights: filter.getElementsByTagName('fePointLight')
+          light0: lights[0],
+          light1: lights[1],
         })
       }
     }
@@ -54,7 +59,7 @@ function rotate(angle: number = 7 / 12) {
   axisY /= axisLength
   axisZ /= axisLength
   const a = -2 * Math.PI * angle
-  const px = 0, py = -1, pz = 1
+  const px = -.25, py = -1, pz = 1
   const sin = Math.sin(a), cos = Math.cos(a)
   const px1 = (1 + (1 - cos) * (axisX * axisX - 1)) * px +
     (-axisZ * sin + axisX * axisY * (1 - cos)) * py +
@@ -65,7 +70,7 @@ function rotate(angle: number = 7 / 12) {
   const pz1 = (-axisY * sin + axisX * axisZ * (1 - cos)) * px +
     (axisX * sin + axisY * axisZ * (1 - cos)) * py +
     (1 + (1 - cos) * (axisZ * axisZ - 1)) * pz
-  let style=''
+  let style = ''
   // style+=`#data-black-box-debug-sun{transform:translate3d(${px1}em,${py1}em,${pz1}em);backface-visibility:visible}#data-black-box-sun::before{content:"${angle.toFixed(1)}"}`
 
   for (let i = 0; i < 3; i++) {
@@ -79,19 +84,19 @@ function rotate(angle: number = 7 / 12) {
           lz -= j * w + j * gap + k * w - .5
           if (!k) lx = -lx, lz = -lz
           if (i) lx = -lx
-          face.lights[0].x.baseVal = lx
-          face.lights[0].y.baseVal = ly
-          face.lights[0].z.baseVal = lz
+          face.light0!.x.baseVal = lx
+          face.light0!.y.baseVal = ly
+          face.light0!.z.baseVal = lz
           //face.el.id=`data-black-box-face-${i}${j}${k}`
-          style+=`#data-black-box-face-${i}${j}${k}{transform-style:preserve-3d}#data-black-box-face-${i}${j}${k}::before{content:"";transform:translate3d(${lx}em,${ly}em,${lz}em)rotateX(${i*6+j*2+k}deg);background:#${i*2}${j*2}${k*7};display:block;width:1em;height:1em;backface-visibility:visible}`
+          style += `#data-black-box-face-${i}${j}${k}{transform-style:preserve-3d}#data-black-box-face-${i}${j}${k}::before{content:"";transform:translate3d(${lx}em,${ly}em,${lz}em)rotateX(${i * 6 + j * 2 + k}deg);background:#${i * 2}${j * 2}${k * 7};display:block;width:1em;height:1em;backface-visibility:visible}`
         }
       }
     }
   }
-  if(!document.getElementById('data-black-box-debug-style')){
-    document.body.appendChild(document.createElement('style')).id='data-black-box-debug-style'
+  if (!document.getElementById('data-black-box-debug-style')) {
+    document.body.appendChild(document.createElement('style')).id = 'data-black-box-debug-style'
   }
-  document.getElementById('data-black-box-debug-style')!.innerHTML=style
+  document.getElementById('data-black-box-debug-style')!.innerHTML = style
 }
 
 let rotation = 0
@@ -105,6 +110,7 @@ function startAnimation() {
 
 function stopAnimation() {
   cancelAnimationFrame(timer)
+  rotate()
 }
 </script>
 
@@ -119,19 +125,32 @@ function stopAnimation() {
   item_table.json/items/act1bossrush_token_relic/name
   item_table.json/items/act1bossrush_token_relic/description
   <svg width="0" height="0">
-    <filter id="data-black-box-outer-face" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
-      <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" />
-      <feDiffuseLighting surfaceScale="2" diffuseConstant="1" lighting-color="white" result="light1">
-        <fePointLight x="0" y="0" z="1" />
+    <filter id="data-black-box-outer-face" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox"
+      primitiveUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="2" />
+      <feComponentTransfer result="noise">
+        <feFuncA type="linear" slope=".1" intercept=".2" />
+      </feComponentTransfer>
+
+      <feGaussianBlur stdDeviation=".01" in="SourceAlpha" />
+      <feDiffuseLighting surfaceScale="2" diffuseConstant="1" lighting-color="white" result="light0">
+        <fePointLight x="0" y="0" z="0" />
       </feDiffuseLighting>
-      <feBlend mode="hard-light" in="SourceGraphic" in2="light1" />
+      <feBlend mode="overlay" in="SourceGraphic" in2="noise" />
+      <feBlend mode="hard-light" in2="light0" />
       <feComposite in2="SourceAlpha" operator="in" />
-      <feColorMatrix values=".5 0 0 0 0  0 .5 0 0 0  0 0 .5 0 0  0 0 0 1 0" />
+      <feComponentTransfer>
+        <feFuncR type="linear" slope=".5" />
+        <feFuncG type="linear" slope=".5" />
+        <feFuncB type="linear" slope=".5" />
+      </feComponentTransfer>
     </filter>
-    <filter id="data-black-box-inner-face" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+    <filter id="data-black-box-inner-face" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox"
+      primitiveUnits="objectBoundingBox">
       <feColorMatrix values="0 0 0 0 .9  0 0 0 0 .67  0 0 0 0 .2  0 0 0 1 0" result="recolored" />
     </filter>
-    <filter id="data-black-box-post-processing" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox">
+    <filter id="data-black-box-post-processing" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox"
+      primitiveUnits="objectBoundingBox">
       <feDropShadow stdDeviation=".03" in="SourceAlpha" dx="0" dy=".08" flood-color="black" flood-opacity=".5" />
       <feComposite in2="SourceAlpha" operator="out" result="shadow" />
 
@@ -183,6 +202,6 @@ function stopAnimation() {
   height: 100%;
   position: absolute;
   backface-visibility: hidden;
-  background: 0 0 / calc(var(--w) + var(--gap)) calc(var(--w) + var(--gap)) conic-gradient(at var(--w) var(--w), transparent .75turn, #443 0);
+  background: 0 0 / calc(var(--w) + var(--gap)) calc(var(--w) + var(--gap)) conic-gradient(at var(--w) var(--w), transparent .75turn, #665 0);
 }
 </style>
