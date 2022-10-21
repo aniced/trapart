@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // At most one of this component can be mounted on a page as element IDs are used.
 
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 const faces: {
   isOuterFace: boolean,
   el: HTMLDivElement,
@@ -45,7 +45,7 @@ onMounted(() => {
       }
     }
   }
-  rotate(.07)
+  animate(0)
 })
 
 function rotate(angle: number = 7 / 12) {
@@ -100,22 +100,41 @@ function rotate(angle: number = 7 / 12) {
 }
 
 let rotation = 0
+let angleVelocity = 0
+let accelerate = false
 let timer = 0
+let oldT = 0
 
-function startAnimation() {
-  rotate(rotation)
-  rotation += 2 ** -8
-  timer = requestAnimationFrame(startAnimation)
+function animate(t: number) {
+  if (!oldT) oldT = t
+  const dt = t - oldT
+  oldT = t
+
+  // Update.
+  if (accelerate) {
+    angleVelocity = Math.min(.001, angleVelocity + .000001 * dt)
+  } else {
+    angleVelocity = Math.min(angleVelocity, (Math.ceil(rotation) - rotation) / 60)
+  }
+  rotation += angleVelocity
+
+  // Render.
+  rotate(rotation + 7 / 12)
+
+  timer = requestAnimationFrame(animate)
 }
 
-function stopAnimation() {
+function setAccelerate(x: boolean) {
+  accelerate = x
+}
+
+onUnmounted(() => {
   cancelAnimationFrame(timer)
-  rotate()
-}
+})
 </script>
 
 <template>
-  <div id="data-black-box-container" @pointerenter="startAnimation" @pointerleave="stopAnimation">
+  <div id="data-black-box-container" @pointerenter="setAccelerate(true)" @pointerleave="setAccelerate(false)">
     <div id="data-black-box-filter">
       <div id="data-black-box-transform">
         <div id="data-black-box-debug-sun" style="background:orange"></div>
@@ -132,8 +151,7 @@ function stopAnimation() {
         <feFuncA type="linear" slope=".1" intercept=".2" />
       </feComponentTransfer>
 
-      <feGaussianBlur stdDeviation=".01" in="SourceAlpha" />
-      <feDiffuseLighting surfaceScale="2" diffuseConstant="1" lighting-color="white" result="light0">
+      <feDiffuseLighting in="SourceAlpha" surfaceScale="2" diffuseConstant="1" lighting-color="white" result="light0">
         <fePointLight x="0" y="0" z="0" />
       </feDiffuseLighting>
       <feBlend mode="overlay" in="SourceGraphic" in2="noise" />
@@ -154,6 +172,10 @@ function stopAnimation() {
       <feDropShadow stdDeviation=".03" in="SourceAlpha" dx="0" dy=".08" flood-color="black" flood-opacity=".5" />
       <feComposite in2="SourceAlpha" operator="out" result="shadow" />
 
+      <!--
+        https://kalogirou.net/2006/05/20/how-to-do-good-bloom-for-hdr-rendering/
+        Sadly, SVG lacks a scaling filter that truly reduces computation.
+      -->
       <feColorMatrix type="matrix" values="1 0 0 0 -.5  0 1 0 0 -.5  0 0 1 0 -.5  21.25 71.54 7.21 0 -49.5"
         in="SourceGraphic" />
       <feComposite in2="SourceGraphic" operator="in" />
@@ -165,6 +187,9 @@ function stopAnimation() {
         <feMergeNode in="blur2" />
         <feMergeNode in="blur3" />
       </feMerge>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="2" />
+      </feComponentTransfer>
       <feComposite in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="2" k4="0" />
       <feComposite in2="shadow" operator="over" />
     </filter>
