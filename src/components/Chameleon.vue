@@ -51,7 +51,7 @@ const isNull = ref(false)
 			<Chameleon v-for="(_, i) in value[keyName]" :type="type.items" :value="value[keyName]" :key-name="i" />
 		</template>
 		<template v-else-if="type.type === 'object'">
-			<Chameleon v-for="(_, i) in value[keyName]" :type="type.properties.get(i as unknown as string)" :value="value[keyName]" :key-name="i" />
+			<Chameleon v-for="(_, i) in value[keyName]" :type="type.properties[i]" :value="value[keyName]" :key-name="i" />
 		</template>
 		<div v-else>
 			unknown type {{ JSON.stringify(type.type) }} encountered

@@ -12,13 +12,11 @@ import HintArea from './components/basic-controls/HintArea.vue'
 import TextEditControl from './components/basic-controls/TextEditControl.vue'
 import StatusBar from './components/basic-controls/StatusBar.vue'
 import { inferType, type SchemaType } from "./infer"
-import { replacer } from "./json-map-set"
 import LabeledCheckBox from "./components/basic-layouts/LabeledCheckBox.vue"
 import LabeledRadioButton from "./components/basic-layouts/LabeledRadioButton.vue"
 import Labeler from "./components/basic-layouts/Labeler.vue"
 import Chameleon from "./components/Chameleon.vue"
 import CustomListView from "./components/basic-controls/CustomListView.vue"
-import DataBlackBox from "./components/DataBlackBox.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const m = ref(new Array(11).fill(1).map((v, i) => ({
@@ -36,12 +34,11 @@ const gamedata = ref({ "excel/chapter_table.json": {} })
 const gamedataType = ref<{ [filename: string]: SchemaType }>({ "excel/chapter_table.json": { type: "any" } })
 
 watchEffect(async () => {
-  return
   const chapterTable = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/chapter_table.json"), { referrerPolicy: "no-referrer" })).json()
   const stageTable = await (await fetch(gamedataURL.value.replace(/%s/g, "excel/stage_table.json"), { referrerPolicy: "no-referrer" })).json()
   gamedataType.value["excel/chapter_table.json"] = inferType(chapterTable, '/')
   gamedata.value["excel/chapter_table.json"] = chapterTable
-  console.log(JSON.stringify(inferType(stageTable, '/'), replacer, 2))
+  console.log(JSON.stringify(inferType(stageTable, '/'), undefined, 2))
 })
 </script>
 
@@ -121,8 +118,6 @@ watchEffect(async () => {
         <button>Close?</button>
       </form>
     </dialog>
-
-    <DataBlackBox />
   </main>
 
   <StatusBar>

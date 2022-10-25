@@ -34,10 +34,10 @@ type SchemaSomeType = SchemaTypeCommonProperties & ({
 } | {
   type: "map",
   items: SchemaType,
-  propertyNames: Set<string>,
+  propertyNames: string[],
 } | {
   type: "object",
-  properties: Map<string, SchemaType>,
+  properties: { [key: string]: SchemaType },
 })
 
 // For the #1 common use case of union types, (T | null), a dedicated optional<T> type (where T is not an optional type) is provided.
@@ -86,28 +86,28 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
       return {
         type: "map",
         items: unifyType(a.items, b.items),
-        propertyNames: new Set([...a.propertyNames, ...b.propertyNames]),
+        propertyNames: [...a.propertyNames, ...b.propertyNames],
       }
     } else if (a.type === "optional") {
       if (b.type !== "optional") throw new Error("impossible")
       return optional(unifyType(a.items, b.items))
     } else if (a.type === "object") {
       if (b.type !== "object") throw new Error("impossible")
-      const properties = new Map<string, SchemaType>()
+      const properties: { [key: string]: SchemaType } = Object.create(null)
       let numberOfCommonProperties = 0
-      for (const [key, aType] of a.properties.entries()) {
-        const bType = b.properties.get(key)
+      for (const [key, aType] of Object.entries(a.properties)) {
+        const bType = b.properties[key]
         if (bType) {
           const unifiedType = unifyType(aType, bType)
-          properties.set(key, unifiedType)
+          properties[key] = unifiedType
           if (unifiedType.type !== "any") numberOfCommonProperties++
         } else {
-          properties.set(key, optional(aType))
+          properties[key] = optional(aType)
         }
       }
-      for (const [key, type] of b.properties.entries()) {
-        if (!properties.has(key)) {
-          properties.set(key, optional(type))
+      for (const [key, type] of Object.entries(b.properties)) {
+        if (!Object.hasOwn(properties, key)) {
+          properties[key] = optional(type)
         }
       }
       if (numberOfCommonProperties / Object.keys(properties).length < 3 / 4) {
@@ -184,30 +184,31 @@ export function inferType(x: unknown, pointer: string): SchemaType {
       ),
     }
   } else {
-    const properties = new Map<string, SchemaType>()
+    const properties: { [key: string]: SchemaType } = Object.create(null)
     for (const [key, value] of Object.entries(x)) {
-      properties.set(key, inferType(value, pointer + '/' + tilde(key)))
+      properties[key] = inferType(value, pointer + '/' + tilde(key))
     }
-    const unifiedType = [...properties.values()].reduce(unifyType, { type: "never" })
+    const unifiedType = Object.values(properties).reduce(unifyType, { type: "never" })
     // See if the JSON object looks like a homogeneous dictionary with string keys (type: "map").
     // http://blog.quicktype.io/markov/
     if ((() => {
+      const propertyKeys = Object.keys(properties)
       // If any of the keys isn't an identifier, the object must be a map.
-      if ([...properties.keys()].some(key => /\W|^\d/.test(key))) return true
+      if (propertyKeys.some(key => /\W|^\d/.test(key))) return true
       // If values are of different types, the object is most likely an object.
       if (unifiedType.type === "any") return false
       // “Some classes have relatively many string properties, but it's less common to find classes with lots of array, class, or map properties.”
       if (unifiedType.type === "array" || unifiedType.type === "object" || unifiedType.type === "map") {
         // There can be better heuristics. For now, stay simple.
-        return properties.size >= 3
+        return propertyKeys.length >= 3
       }
       // “If all values in a JSON object have the same type and it has at least 20 properties, consider it a map.”
-      return properties.size >= 20
+      return propertyKeys.length >= 20
     })()) {
       return {
         type: "map",
         items: unifiedType,
-        propertyNames: new Set(properties.keys()),
+        propertyNames: Object.keys(properties),
       }
     } else {
       return {
@@ -216,4 +217,11 @@ export function inferType(x: unknown, pointer: string): SchemaType {
       }
     }
   }
+}
+
+export function nullPrototypeReviver(_key: string, value: any) {
+  if (typeof value === 'object' && value && !Array.isArray(value)) {
+    Object.setPrototypeOf(value, null)
+  }
+  return value;
 }
