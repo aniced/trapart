@@ -20,7 +20,7 @@ import CustomListView from "./components/basic-controls/CustomListView.vue"
 const d = ref(false)
 const g = ref<HTMLDialogElement | null>(null)
 const m = ref(new Array(11).fill(1).map((v, i) => ({
-  text: 'Item ' + i,
+  text: 'Item ' + String.fromCodePoint(65 + i),
 })))
 const n = ref(0)
 const x = ref(114)
@@ -58,10 +58,12 @@ watchEffect(async () => {
       <CustomListView style="width: 320px; height: 240px;" :items="m" v-model="n" line-number :item-height="40">
         <template #thead>
           <th>Original case</th>
+          <th>Index</th>
           <th>Upper case</th>
         </template>
-        <template #tbody="{ item }">
+        <template #tbody="{ item, index }: { item: { text: string }, index: number }">
           <td>{{ item.text }}</td>
+          <td>{{ index }}</td>
           <td>{{ item.text.toUpperCase() }}</td>
         </template>
       </CustomListView>
@@ -96,7 +98,7 @@ watchEffect(async () => {
         longllllllllllllllllllllllllllllllllll long Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates
         aut perferendis dolores ab facere mollitia modi aliquid ipsa autem sed laborum illo repudiandae sit, id maxime
         possimus eos laboriosam. Eius?</div>
-      <TabView :pages="['a', 'bb','c','d','e','gg','f','we','f..','i','j','mm','z']" v-model="y" tab-position="left">
+      <TabView :pages="['Pa', 'Pb', 'Pc']" v-model="y" tab-position="left">
         <div style="height: 514px;">
           {{ gamedata["excel/chapter_table.json"] }}
         </div>

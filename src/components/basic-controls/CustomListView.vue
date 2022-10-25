@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, type PropType } from 'vue'
 
 defineProps({
-  items: { type: Array, required: true },
+  // Before generic props come to Vue, fall back to no typing.
+  items: { type: Array as PropType<any[]>, required: true },
   modelValue: { type: Number, required: true }, // currentIndex
   itemHeight: { type: Number, default: 20 },
   multipleSelect: Boolean,
@@ -41,7 +42,7 @@ const selectionEnd = ref(4)
           current: i === modelValue,
           selected: showSelectionAlways && i >= selectionStart && i < selectionEnd,
         }">
-          <slot name="tbody" :item="item" />
+          <slot name="tbody" :item="item" :index="i" />
         </tr>
       </tbody>
     </table>
@@ -94,6 +95,10 @@ const selectionEnd = ref(4)
   &.selected {
     background: linear-gradient(var(--selected-back-130) -20%, var(--selected-back) 140%);
     color: var(--selected-text);
+  }
+
+  :disabled & {
+    visibility: hidden;
   }
 }
 
