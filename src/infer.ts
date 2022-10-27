@@ -142,8 +142,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
   }
 }
 
-// The input to this function must not have any circular reference.
-export function inferType(x: unknown, pointer: string): SchemaType {
+function inferTypeInternal(x: unknown, pointer: string): SchemaType {
   if (x === undefined || x === null) {
     return { type: "optional", items: { type: "never" } }
   } else if (typeof x === "boolean") {
@@ -179,14 +178,14 @@ export function inferType(x: unknown, pointer: string): SchemaType {
     return {
       type: 'array',
       items: x.reduce(
-        (type, x) => unifyType(type, inferType(x, pointer + '/0')),
+        (type, x) => unifyType(type, inferTypeInternal(x, pointer + '/0')),
         { type: 'never' }
       ),
     }
   } else {
     const properties: { [key: string]: SchemaType } = Object.create(null)
     for (const [key, value] of Object.entries(x)) {
-      properties[key] = inferType(value, pointer + '/' + tilde(key))
+      properties[key] = inferTypeInternal(value, pointer + '/' + tilde(key))
     }
     const unifiedType = Object.values(properties).reduce(unifyType, { type: "never" })
     // See if the JSON object looks like a homogeneous dictionary with string keys (type: "map").
@@ -217,6 +216,28 @@ export function inferType(x: unknown, pointer: string): SchemaType {
       }
     }
   }
+}
+
+function cleanupType(type: SchemaType): void {
+  if (type.type === 'string') {
+    type.examples = [...new Set(type.examples)]
+  } else if (type.type === 'array' || type.type === 'map' || type.type === 'optional') {
+    cleanupType(type.items)
+    if (type.type === 'map') {
+      type.propertyNames = [...new Set(type.propertyNames)]
+    }
+  } else if (type.type === 'object') {
+    for (const x of Object.values(type.properties)) {
+      cleanupType(x)
+    }
+  }
+}
+
+// The input to this function must not have any circular reference.
+export function inferType(x: unknown, pointer: string): SchemaType {
+  const type = inferTypeInternal(x, pointer)
+  cleanupType(type)
+  return type
 }
 
 export function nullPrototypeReviver(_key: string, value: any) {
