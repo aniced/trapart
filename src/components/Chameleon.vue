@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import type { SchemaType } from "@/infer"
+import type { SchemaType } from "../infer"
 import LabeledCheckBox from "./basic-layouts/LabeledCheckBox.vue"
 import Labeler from "./basic-layouts/Labeler.vue"
 import TextEditControl from "./basic-controls/TextEditControl.vue"
