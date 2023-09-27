@@ -14,7 +14,7 @@ const mouseX = ref(0)
 const mouseY = ref(0)
 const cursorShape = ref("default")
 const mouseEntered = ref(false)
-let nextTime: Number
+let nextTime: number
 
 watch(toolTipVisible, async (newToolTipVisible, oldToolTipVisible) => {
   if (newToolTipVisible && !oldToolTipVisible) {

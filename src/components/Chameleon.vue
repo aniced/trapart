@@ -11,9 +11,9 @@ withDefaults(defineProps<{
 	type: SchemaType,
 	value: any,
 	// `key` has been taken by Vue.
-	keyName: string,
+	keyName: string | number | symbol,
 }>(), {
-	title: props => props.keyName,
+	title: props => props.keyName.toString(),
 })
 
 defineEmits<{
