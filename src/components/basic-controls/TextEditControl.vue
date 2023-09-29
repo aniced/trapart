@@ -1,35 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 // While TextEditControl covers both single- and multiline forms, its only use is to derive TextField and TextArea.
 
 defineProps({
-	modelValue: { type: String, default: '' },
 	maximumLineCount: { type: Number, default: 1 },
 })
-const emit = defineEmits<{
-	(e: 'update:modelValue', value: string): void,
-}>()
-const inputMethodComposing = ref(false)
-function setInputMethodComposing(value: boolean) {
-	// visible: textEdit.inputMethodComposing && Qt.platform.os === "windows"
-	inputMethodComposing.value = value && navigator.platform === 'Win32'
-}
-
-function emitUpdateModelValue(event: Event) {
-	emit('update:modelValue', (event.target as HTMLInputElement | HTMLTextAreaElement).value)
-}
+const modelValue = defineModel<string>({ required: true })
 </script>
 
 <template>
-	<component :is="maximumLineCount === 1 ? 'input' : 'textarea'" type="text" :value="modelValue"
-		@input="!inputMethodComposing && emitUpdateModelValue($event)" class="control" :rows="maximumLineCount"
-		@focus="$el.select()" @compositionstart="setInputMethodComposing(true)"
-		@compositionend="emitUpdateModelValue($event), setInputMethodComposing(false)" :style="{
+	<component :is="maximumLineCount === 1 ? 'input' : 'textarea'" type="text" v-model="modelValue"
+		:rows="maximumLineCount" @focus="$el.select()"
+		class="control" :style="{
 			// readonly property bool disableScrollBars: maximumLineCount > 0
 			overflow: maximumLineCount > 0 ? 'hidden' : 'auto',
-			// It does not exactly work like this, but it's the best we can do without rolling our own textboxes and carets.
-			caretColor: inputMethodComposing ? 'red' : '',
 		}"></component>
 </template>
 

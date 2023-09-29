@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { ref, type PropType } from 'vue'
 
+const modelValue = defineModel<number>({ local: true, default: 0 }) // currentIndex
+
 defineProps({
   // Before generic props come to Vue, fall back to no typing.
   items: { type: Array as PropType<any[]>, required: true },
-  modelValue: { type: Number, required: true }, // currentIndex
   itemHeight: { type: Number, default: 20 },
   multipleSelect: Boolean,
   lineNumber: Boolean,
@@ -14,10 +15,6 @@ defineProps({
   cancelMultiSelectOnLostFocus: Boolean,
   indentWidth: { type: Number, default: 8 },
 })
-
-defineEmits<{
-  (e: 'update:modelValue', value: number): void
-}>()
 
 const selectionStart = ref(2)
 const selectionEnd = ref(4)

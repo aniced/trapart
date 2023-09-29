@@ -1,19 +1,12 @@
 <script setup lang="ts">
 // LabeledCheckBox is specific to this Web implementation, because CheckBox comes with a label in Qt.
 
-defineProps<{
-  modelValue: boolean,
-}>()
-
-defineEmits<{
-  (e: "update:modelValue", value: boolean): void,
-}>()
+const modelValue = defineModel<boolean>({ required: true })
 </script>
 
 <template>
   <label class="label">
-    <input type="checkbox" :checked="modelValue"
-      @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)">
+    <input type="checkbox" v-model="modelValue">
     <div>
       <slot></slot>
     </div>

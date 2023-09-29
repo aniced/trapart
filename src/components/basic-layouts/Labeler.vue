@@ -4,10 +4,6 @@ defineProps({
 	labelOnTop: { type: Boolean, default: true },
 	minimumLabelWidth: { type: Number, default: 0 },
 })
-
-defineEmits<{
-	(e: "update:modelValue", value: boolean): void,
-}>()
 </script>
 
 <template>

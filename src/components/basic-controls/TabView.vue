@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
+const modelValue = defineModel<number>({ local: true, default: 0 })
+
 const props = defineProps({
-	modelValue: { type: Number, default: 0 },
 	pages: { type: Array },
 	tabPosition: { type: String, default: "top" },
 	itemHeight: { type: Number, default: 32 },
 })
-const emit = defineEmits<{
-	(e: "update:modelValue", value: number): void,
-}>()
 const container = ref<HTMLDivElement | null>(null)
 const containerHeight = ref(0)
 
@@ -31,9 +29,9 @@ onMounted(() => {
 
 function increment(by: number) {
 	if (props.pages === undefined) return
-	by += props.modelValue
+	by += modelValue.value
 	if (by >= 0 && by < props.pages.length) {
-		emit("update:modelValue", by)
+		modelValue.value = by
 	}
 }
 
@@ -47,9 +45,9 @@ function increment(by: number) {
 		@keydown.alt.page-down.stop.prevent="increment(1)">
 		<div class="tab-bar">
 			<div :class="{ tab: true, active: modelValue == index }" :style="tabStyle(index)" v-for="(page, index) in pages"
-				@pointerdown="$emit('update:modelValue', index)">
+				@pointerdown="modelValue = index">
 				<div>
-					<div tabindex="0" @click="$emit('update:modelValue', index)" @keydown.arrow-up.prevent="increment(-1)"
+					<div tabindex="0" @click="modelValue = index" @keydown.arrow-up.prevent="increment(-1)"
 						@keydown.arrow-down.prevent="increment(1)">{{ page }}</div>
 				</div>
 			</div>

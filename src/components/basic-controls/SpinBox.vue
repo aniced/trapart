@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
+const modelValue = defineModel<number>({ required: true })
+
 const props = defineProps({
   prefix: { type: String, default: "" },
-  modelValue: { type: Number, default: 0 },
   minimumValue: { type: Number, default: -Infinity },
   maximumValue: { type: Number, default: Infinity },
   decimals: { type: Number, default: 0 },
   suffix: { type: String, default: "" },
 })
-const emit = defineEmits<{
-  (e: "update:modelValue", value: number): void,
-}>()
 
 const editable = ref<HTMLElement | null>(null)
 
@@ -42,11 +40,11 @@ function normalize() {
     if (!(editable.value.childElementCount === 1 && editable.value.firstElementChild instanceof HTMLSpanElement)) {
       editable.value.replaceChildren(document.createElement("span"))
     }
-    editable.value.firstElementChild!.textContent = props.modelValue.toString()
+    editable.value.firstElementChild!.textContent = modelValue.value.toString()
   }
 }
 
-watch(() => props.modelValue, normalize)
+watch(() => modelValue.value, normalize)
 
 function onEnabledChanged() {
   if (editable.value) {
@@ -81,14 +79,14 @@ function onTextChanged() {
   if (newValue < props.minimumValue) newValue = props.minimumValue;
   if (newValue > props.maximumValue) newValue = props.maximumValue;
 
-  emit("update:modelValue", newValue)
+  modelValue.value = newValue
 
   getSelection()?.removeAllRanges()
 }
 
 function increment(by: number) {
   if (!disabled.value) {
-    emit("update:modelValue", Math.min(Math.max(props.modelValue + by, props.minimumValue), props.maximumValue))
+    modelValue.value = Math.min(Math.max(modelValue.value + by, props.minimumValue), props.maximumValue)
   }
 }
 

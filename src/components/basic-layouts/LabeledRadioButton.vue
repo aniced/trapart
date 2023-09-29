@@ -1,19 +1,16 @@
 <script setup lang="ts">
 // LabeledRadioButton is mostly copied from LabeledCheckBox.
 
+const modelValue = defineModel<string>({ required: true })
+
 defineProps<{
   value: string,
-  modelValue: string,
-}>()
-
-defineEmits<{
-  (e: "update:modelValue", value: string): void,
 }>()
 </script>
 
 <template>
   <label class="label">
-    <input type="radio" :checked="modelValue == value" @click="$emit('update:modelValue', value)">
+    <input type="radio" :value="value" v-model="modelValue">
     <div>
       <slot></slot>
     </div>
