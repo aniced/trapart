@@ -82,6 +82,7 @@ const selectionEnd = ref(4)
 
   &>:deep(th) {
     box-shadow: inset -1px -1px var(--control-frame);
+    font-weight: normal;
   }
 }
 

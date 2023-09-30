@@ -12,10 +12,10 @@ https://github.com/torappu/torappu.github.io
 
 使用的技术：Vue 3、TypeScript、Sass、Vite。
 依靠GitHub Actions自动托管在GitHub Pages上。
-使用了下列库：Floating UI（MIT）。
+使用了下列库：Floating UI（MIT）、Tailwind Preflight（MIT）。
 
 使用的字体：M+ 1c、M+ 1p、M+ 1m（SIL OFL 1.1）。
-如果语言为日语，采用Google Fonts提供的M PLUS 1可变字体，否则用M+mini 1和用户设备上的字体。
+如果语言为日语，采用Bunny Fonts提供的M PLUS 1可变字体，否则用M+mini 1和用户设备上的字体。
 M+mini 1网页字体来自Font Squirrel生成，子集化了M+ 1中除了汉字以外的所有可用字符。
 
 使用了下列第三方资源托管和加速服务：GitHub、jsDelivr、FastGit UK、7ED（raw.githubusercontentS.com）。

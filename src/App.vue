@@ -134,6 +134,10 @@ watchEffect(async () => {
 @use "sass:string";
 @use "qt";
 
+// We use neither UnoCSS nor Tailwind.
+// UnoCSS is installed just for its Tailwind reset.
+@import "@unocss/reset/tailwind.css" layer;
+
 @font-face {
   font-family: "M+mini 1c regular";
   src: url("assets/mplusmini-1c-regular-webfont.woff2") format("woff2");
@@ -563,10 +567,7 @@ watchEffect(async () => {
 ::before,
 ::after {
   box-sizing: border-box;
-  margin: 0;
-  border: 0;
   padding: 0;
-  font-weight: normal;
   cursor: inherit;
 }
 
