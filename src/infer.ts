@@ -1,8 +1,6 @@
 // Infer types from JSON data.
 // Since we're given only the data — not any of the intended types — it's more like guesses rather than type inference in the traditional sense.
 
-import { tilde } from './json-pointer'
-
 // SchemaType is modelled loosely after JSON Schema.
 // However, we do not support union types ("anyOf").
 interface SchemaTypeCommonProperties {
@@ -142,7 +140,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
   }
 }
 
-function inferTypeInternal(x: unknown, pointer: string): SchemaType {
+function inferTypeInternal(x: unknown, path: (string | number)[]): SchemaType {
   if (x === undefined || x === null) {
     return { type: "optional", items: { type: "never" } }
   } else if (typeof x === "boolean") {
@@ -178,14 +176,14 @@ function inferTypeInternal(x: unknown, pointer: string): SchemaType {
     return {
       type: 'array',
       items: x.reduce(
-        (type, x) => unifyType(type, inferTypeInternal(x, pointer + '/0')),
+        (type, x) => unifyType(type, inferTypeInternal(x, [...path, 0])),
         { type: 'never' }
       ),
     }
   } else {
     const properties: { [key: string]: SchemaType } = Object.create(null)
     for (const [key, value] of Object.entries(x)) {
-      properties[key] = inferTypeInternal(value, pointer + '/' + tilde(key))
+      properties[key] = inferTypeInternal(value, [...path, key])
     }
     const unifiedType = Object.values(properties).reduce(unifyType, { type: "never" })
     // See if the JSON object looks like a homogeneous dictionary with string keys (type: "map").
@@ -234,8 +232,8 @@ function cleanupType(type: SchemaType): void {
 }
 
 // The input to this function must not have any circular reference.
-export function inferType(x: unknown, pointer: string): SchemaType {
-  const type = inferTypeInternal(x, pointer)
+export function inferType(x: unknown, path: (string | number)[] = []): SchemaType {
+  const type = inferTypeInternal(x, path)
   cleanupType(type)
   return type
 }
