@@ -8,7 +8,13 @@ const modelValue = defineModel<string>({ required: true })
 </script>
 
 <template>
-	<component :is="maximumLineCount === 1 ? 'input' : 'textarea'" type="text" v-model="modelValue"
+	<component :is="maximumLineCount === 1 ? 'input' : 'textarea'" type="text"
+		:value="modelValue" @input="
+			// `v-model` is expanded to `:modelValue` and `@update:modelValue` on a <component> tag.
+			// Therefore, it is infeasible to use `v-model` a native element directly.
+			// https://vuejs.org/api/built-in-special-elements.html#component
+			$emit('update:modelValue', $event.target.value)
+		"
 		:rows="maximumLineCount" @focus="$el.select()"
 		class="control" :style="{
 			// readonly property bool disableScrollBars: maximumLineCount > 0
