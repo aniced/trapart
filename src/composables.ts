@@ -61,16 +61,3 @@ export function useHistoryState<T>(initialValue: T) {
     redo: () => { head.value = Math.min(head.value + 1, history.length - 1) },
   }
 }
-
-/**
- * Add global constructed style sheets.
- */
-export function useStyleSheets(styleSheets: MaybeRef<string[]>) {
-  watchEffect(() => {
-    document.adoptedStyleSheets = toValue(styleSheets).map(source => {
-      const sheet = new CSSStyleSheet
-      sheet.replaceSync(source)
-      return sheet
-    })
-  })
-}
