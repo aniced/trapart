@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, type PropType } from 'vue'
 
-const modelValue = defineModel<number>({ local: true, default: 0 }) // currentIndex
+const modelValue = defineModel<number>({ default: 0 }) // currentIndex
 
 defineProps({
   // Before generic props come to Vue, fall back to no typing.

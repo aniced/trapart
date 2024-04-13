@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const modelValue = defineModel<number>({ local: true, default: 0 })
+const modelValue = defineModel<number>({ default: 0 })
 
 const props = defineProps({
 	pages: { type: Array },
