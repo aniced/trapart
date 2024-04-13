@@ -1,12 +1,7 @@
 {
   "name": "torappu",
   "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview --port 5050",
-    "typecheck": "vue-tsc"
-  },
+  "type": "module",
   "dependencies": {
     "@floating-ui/dom": "^1.6.3",
     "vue": "^3.4.21"
