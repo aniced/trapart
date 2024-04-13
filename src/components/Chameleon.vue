@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import type { SchemaType } from "../infer"
+import type { Schema } from "../infer"
 import LabeledCheckBox from "./basic-layouts/LabeledCheckBox.vue"
 import Labeler from "./basic-layouts/Labeler.vue"
 import TextEditControl from "./basic-controls/TextEditControl.vue"
@@ -8,7 +8,7 @@ import SpinBox from "./basic-controls/SpinBox.vue"
 
 withDefaults(defineProps<{
 	title?: string,
-	type: SchemaType,
+	type: Schema,
 	value: any,
 	// `key` has been taken by Vue.
 	keyName: string | number | symbol,
@@ -24,7 +24,6 @@ defineEmits<{
 const isNull = ref(false)
 
 // assertions:
-// - type.type !== "unknown" (not needed after SchemaType refactor)
 // - Object.hasOwn(value, key)
 </script>
 

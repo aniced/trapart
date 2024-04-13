@@ -1,6 +1,3 @@
-// Infer types from JSON data.
-// Since we're given only the data — not any of the intended types — it's more like guesses rather than type inference in the traditional sense.
-
 // SchemaType is modelled loosely after JSON Schema.
 // However, we do not support union types ("anyOf").
 interface SchemaTypeCommonProperties {
@@ -28,29 +25,29 @@ type SchemaSomeType = SchemaTypeCommonProperties & ({
   decimalPlaces: number,
 } | {
   type: "array",
-  items: SchemaType,
+  items: Schema,
 } | {
   type: "map",
-  items: SchemaType,
+  items: Schema,
   propertyNames: string[],
 } | {
   type: "object",
-  properties: { [key: string]: SchemaType },
+  properties: { [key: string]: Schema },
 })
 
 // For the #1 common use case of union types, (T | null), a dedicated optional<T> type (where T is not an optional type) is provided.
 // Consequently, the null type is represented as optional<never>.
 // undefined and null are not distinguished from each other.
-export type SchemaType = SchemaSomeType | SchemaTypeCommonProperties & {
+export type Schema = SchemaSomeType | SchemaTypeCommonProperties & {
   type: "optional",
   items: SchemaSomeType,
 }
 
-export function optional(type: SchemaType): SchemaType {
+export function optional(type: Schema): Schema {
   return type.type === "optional" ? type : { type: "optional", items: type }
 }
 
-export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
+export function unifyType(a: Schema, b: Schema): Schema {
   if (a.type === b.type) {
     if (a.type === "boolean" || a.type === "any" || a.type == "never") {
       return a
@@ -91,7 +88,7 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
       return optional(unifyType(a.items, b.items))
     } else if (a.type === "object") {
       if (b.type !== "object") throw new Error("impossible")
-      const properties: { [key: string]: SchemaType } = Object.create(null)
+      const properties: { [key: string]: Schema } = Object.create(null)
       let numberOfCommonProperties = 0
       for (const [key, aType] of Object.entries(a.properties)) {
         const bType = b.properties[key]
@@ -140,13 +137,13 @@ export function unifyType(a: SchemaType, b: SchemaType): SchemaType {
   }
 }
 
-function inferTypeInternal(x: unknown, path: (string | number)[]): SchemaType {
+function inferTypeInternal(x: unknown, path: (string | number)[]): Schema {
   if (x === undefined || x === null) {
     return { type: "optional", items: { type: "never" } }
   } else if (typeof x === "boolean") {
     return { type: "boolean" }
   } else if (typeof x === "string") {
-    const type: SchemaType = {
+    const type: Schema = {
       type: "string",
       minLength: x.length,
       maxLength: x.length,
@@ -181,7 +178,7 @@ function inferTypeInternal(x: unknown, path: (string | number)[]): SchemaType {
       ),
     }
   } else {
-    const properties: { [key: string]: SchemaType } = Object.create(null)
+    const properties: { [key: string]: Schema } = Object.create(null)
     for (const [key, value] of Object.entries(x)) {
       properties[key] = inferTypeInternal(value, [...path, key])
     }
@@ -216,25 +213,31 @@ function inferTypeInternal(x: unknown, path: (string | number)[]): SchemaType {
   }
 }
 
-function cleanupType(type: SchemaType): void {
+function cleanupSchema(type: Schema): void {
   if (type.type === 'string') {
     type.examples = [...new Set(type.examples)]
   } else if (type.type === 'array' || type.type === 'map' || type.type === 'optional') {
-    cleanupType(type.items)
+    cleanupSchema(type.items)
     if (type.type === 'map') {
       type.propertyNames = [...new Set(type.propertyNames)]
     }
   } else if (type.type === 'object') {
     for (const x of Object.values(type.properties)) {
-      cleanupType(x)
+      cleanupSchema(x)
     }
   }
 }
 
-// The input to this function must not have any circular reference.
-export function inferType(x: unknown, path: (string | number)[] = []): SchemaType {
+/**
+ * Infer schemas from JSON data.
+ * 
+ * Since we're given only the data — not any of the intended types — it's more like guesses rather than type inference in the traditional sense.
+ * 
+ * @param x - The input to this function. Must not have any circular reference.
+ */
+export function inferSchema(x: unknown, path: (string | number)[] = []): Schema {
   const type = inferTypeInternal(x, path)
-  cleanupType(type)
+  cleanupSchema(type)
   return type
 }
 
