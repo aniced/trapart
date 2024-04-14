@@ -429,19 +429,7 @@
   );
 }
 
-*,
-::before,
-::after {
-  box-sizing: border-box;
-  margin: 0;
-  border: 0;
-  padding: 0;
-  font-weight: normal;
-  cursor: inherit;
-}
-
 body {
-  min-height: 100vh;
   background: linear-gradient(var(--window1), var(--window2));
   line-height: 1.2;
   color: var(--normal-text);
@@ -450,8 +438,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
-  user-select: none;
-  cursor: default;
 }
 
 // <hr> models DialogSeparator.

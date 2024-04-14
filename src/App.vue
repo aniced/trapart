@@ -13,3 +13,34 @@ const styleSheets = ref(initialStyleSheets)
   <Demo />
   <StyleSheets :sources="styleSheets" />
 </template>
+
+<style>
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    min-width: 0;
+    min-height: 0;
+    flex-shrink: 0;
+    cursor: inherit;
+  }
+
+  :root {
+    user-select: none;
+    cursor: default;
+    text-decoration-skip-ink: none;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+  }
+}
+</style>
