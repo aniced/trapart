@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useEnabled } from '../Enable.vue'
 
 const modelValue = defineModel<number>({ default: 0 })
 
@@ -8,6 +9,7 @@ const props = defineProps({
 	tabPosition: { type: String, default: "top" },
 	itemHeight: { type: Number, default: 32 },
 })
+const enabled = useEnabled()
 const container = ref<HTMLDivElement | null>(null)
 const containerHeight = ref(0)
 
@@ -110,7 +112,7 @@ function increment(by: number) {
 	}
 
 	.tab.active>*>* {
-		/* The radius is set so that the focus ring appears with rounded corners but pratically with a rectangle inside. */
+		// The radius is set so that the focus ring appears with rounded corners but practically with a rectangle inside.
 		border-radius: 0.1px;
 	}
 

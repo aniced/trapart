@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useEnabled } from '../Enable.vue'
 
 const modelValue = defineModel<number>({ required: true })
 
@@ -18,8 +19,9 @@ const editable = ref<HTMLElement | null>(null)
 // The most important feature missing is the ability to add prefixes and suffixes.
 // Existing solutions (such as Bootstrap) put the string in another element, which doesn't move or scroll as the input value changes.
 // In Qt, there's a reliable onCursorPositionChanged event, in which the selection is intercepted and modified before it reaches the screen, but now we're facing the infamous DOM.
+// The selectionchange event is fired for everything except <input> and <textarea>, which 
 
-const disabled = ref(false)
+const enabled = useEnabled()
 
 function selectValue() {
   if (editable.value) {
@@ -36,26 +38,19 @@ const maxTextLength = computed(() =>
 
 // We update the DOM manually because Vue cannot easily handle the weirdness of contenteditable.
 function normalize() {
-  if (editable.value) {
-    if (!(editable.value.childElementCount === 1 && editable.value.firstElementChild instanceof HTMLSpanElement)) {
-      editable.value.replaceChildren(document.createElement("span"))
-    }
-    editable.value.firstElementChild!.textContent = modelValue.value.toString()
+  if (
+    editable.value
+    && !(
+      editable.value.childNodes.length === 1
+      && editable.value.firstChild!.nodeType === Node.TEXT_NODE
+      && editable.value.firstChild!.textContent === modelValue.value.toString()
+    )
+  ) {
+    editable.value.textContent = modelValue.value.toString()
   }
 }
-
 watch(() => modelValue.value, normalize)
-
-function onEnabledChanged() {
-  if (editable.value) {
-    disabled.value = editable.value.matches(":disabled *")
-  }
-}
-
-onMounted(() => {
-  onEnabledChanged()
-  normalize()
-})
+onMounted(normalize)
 
 function filterInput(event: Event) {
   if (event instanceof InputEvent) {
@@ -85,7 +80,7 @@ function onTextChanged() {
 }
 
 function increment(by: number) {
-  if (!disabled.value) {
+  if (enabled.value) {
     modelValue.value = Math.min(Math.max(modelValue.value + by, props.minimumValue), props.maximumValue)
   }
 }
@@ -113,13 +108,12 @@ function clickAutoRepeat(by: number) {
 </script>
 
 <template>
-  <div class="spin-box-container" @transitionrun="onEnabledChanged" @pointercancel="clickAutoRepeat(0)">
-    <div ref="editable" class="input" :contenteditable="!disabled" inputmode="decimal" :data-prefix="prefix"
+  <div class="spin-box-container" @pointercancel="clickAutoRepeat(0)">
+    <div ref="editable" class="input" :contenteditable="enabled" inputmode="decimal" :data-prefix="prefix"
       :data-suffix="suffix" @beforeinput="filterInput" @focus="selectValue"
       @blur="onTextChanged(), $nextTick(normalize)" @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
       @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)"
       @wheel.prevent="increment(Math.sign(-$event.deltaY))">
-      <span></span>
     </div>
     <div class="up" @click="editable?.focus()" @pointerdown.left="clickAutoRepeat(1)"></div>
     <div class="down" @click="editable?.focus()" @pointerdown.left="clickAutoRepeat(-1)"></div>
@@ -141,9 +135,6 @@ function clickAutoRepeat(by: number) {
   box-shadow: inset 0 0 0 1px var(--highlight);
   outline: 1px solid var(--control-frame);
   outline-offset: -2px;
-  /* This is a hack to listen to style changes. */
-  accent-color: lime;
-  transition: 1s accent-color;
 }
 
 .input {
@@ -169,7 +160,6 @@ function clickAutoRepeat(by: number) {
   color: transparent;
   background-color: var(--window2);
   cursor: inherit;
-  accent-color: red;
 }
 
 .up,

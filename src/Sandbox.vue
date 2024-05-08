@@ -8,11 +8,9 @@ const gamedata = ref({ 'excel/chapter_table.json': {} })
 const gamedataType = ref<{ [filename: string]: Schema }>({ 'excel/chapter_table.json': { type: 'any' } })
 
 watchEffect(async () => {
-  const chapterTable = await (await fetch(gamedataURL.value.replace(/%s/g, 'excel/chapter_table.json'), { referrerPolicy: 'no-referrer' })).json()
-  const stageTable = await (await fetch(gamedataURL.value.replace(/%s/g, 'excel/stage_table.json'), { referrerPolicy: 'no-referrer' })).json()
-  gamedataType.value['excel/chapter_table.json'] = inferSchema(chapterTable, [])
-  gamedata.value['excel/chapter_table.json'] = chapterTable
-  console.log(JSON.stringify(inferSchema(stageTable, []), undefined, 2))
+	const chapterTable = await (await fetch(gamedataURL.value.replace(/%s/g, 'excel/chapter_table.json'), { referrerPolicy: 'no-referrer' })).json()
+	gamedataType.value['excel/chapter_table.json'] = inferSchema(chapterTable, [])
+	gamedata.value['excel/chapter_table.json'] = chapterTable
 })
 </script>
 

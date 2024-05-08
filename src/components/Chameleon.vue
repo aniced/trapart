@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import type { Schema } from "../infer"
-import LabeledCheckBox from "./basic-layouts/LabeledCheckBox.vue"
-import Labeler from "./basic-layouts/Labeler.vue"
 import TextEditControl from "./basic-controls/TextEditControl.vue"
 import SpinBox from "./basic-controls/SpinBox.vue"
 
@@ -28,16 +26,22 @@ const isNull = ref(false)
 </script>
 
 <template>
-	<LabeledCheckBox v-if="type.type === 'boolean'" v-model="value[keyName]">
+	<label v-if="type.type === 'boolean'">
+		<input type="checkbox" v-model="value[keyName]">
 		{{ title }}
-	</LabeledCheckBox>
-	<Labeler v-else-if="type.type === 'optional'">
-		<template #title>optional</template>
-		<LabeledCheckBox v-model="isNull">{{ title }}</LabeledCheckBox>
-		<Chameleon :type="type.items" :value="value" :key-name="keyName" />
-	</Labeler>
-	<Labeler v-else>
-		<template #title>{{ title }}</template>
+	</label>
+	<label v-else-if="type.type === 'optional'" class="vbox">
+		optional
+		<label>
+			<input type="checkbox" v-model="isNull">
+			{{ title }}
+		</label>
+		<div class="indent">
+			<Chameleon :type="type.items" :value="value" :key-name="keyName" />
+		</div>
+	</label>
+	<label v-else class="vbox">
+		{{ title }}
 		<div v-if="type.type === 'any'">
 			{{ JSON.stringify(value[keyName]) }}
 		</div>
@@ -55,5 +59,5 @@ const isNull = ref(false)
 		<div v-else>
 			unknown type {{ JSON.stringify(type.type) }} encountered
 		</div>
-	</Labeler>
+	</label>
 </template>

@@ -1,29 +1,34 @@
 @use "sass:color";
 @use "sass:string";
+@use "sass:math";
 @use "qt";
 
 @font-face {
   font-family: "M+mini 1c regular";
   src: url("mplusmini-1c-regular-webfont.woff2") format("woff2");
   font-weight: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: "M+mini 1p medium";
   src: url("mplusmini-1p-medium-webfont.woff2") format("woff2");
   font-weight: 500;
+  font-display: swap;
 }
 
 @font-face {
   font-family: "M+mini 1p heavy";
   src: url("mplusmini-1p-heavy-webfont.woff2") format("woff2");
   font-weight: 800;
+  font-display: swap;
 }
 
 @font-face {
   font-family: "M+mini 1m regular";
   src: url("mplusmini-1m-regular-webfont.woff2") format("woff2");
   font-weight: normal;
+  font-display: swap;
 }
 
 @import url("https://fonts.bunny.net/css2?family=M+PLUS+1:wght@400;500;800&display=swap");
@@ -151,12 +156,12 @@
 }
 
 @mixin themed-root($class, $media) {
-  body.#{$class} {
+  :root.#{$class} {
     @content;
   }
 
   @media #{$media} {
-    body {
+    :root {
       @content;
     }
   }
@@ -429,8 +434,7 @@
   );
 }
 
-body {
-  background: linear-gradient(var(--window1), var(--window2));
+:root {
   line-height: 1.2;
   color: var(--normal-text);
   font-family: var(--normal-font);
@@ -440,27 +444,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// <hr> models DialogSeparator.
-hr {
-  margin: 8px auto;
-  border-top: 1px solid #00000040;
-  border-bottom: 1px solid var(--highlight);
+@mixin round-frame {
+  border: 2px solid var(--control-frame);
+  border-radius: 8px;
+  opacity: 0.8;
 }
 
-label,
-// We don't want labels on buttons to delegate :hover, so here's a less semantic version of <label>.
-.label {
-  color: var(--normal-text);
-  font-family: var(--medium-font);
-  font-size: var(--label-font-size);
-  line-height: calc(var(--label-font-size) + 6px);
-  display: block;
-
-  :disabled & {
-    color: var(--normal-text-50);
-  }
+@mixin thick-frame {
+  box-shadow:
+    inset 0 0 0 1px black,
+    inset 0 0 0 3px white,
+    inset 0 0 0 4px black;
 }
 
+@mixin checkerboard($light-color: navy) {
+  $dark-color: rgb(color.red($light-color) - 0.138 * 255 - math.min(math.max(0, 0.888 * 255 - color.red($light-color)), 0.112 * 255),
+      color.green($light-color) - 0.138 * 255 - math.min(math.max(0, 0.888 * 255 - color.green($light-color)), 0.112 * 255),
+      color.blue($light-color) - 0.138 * 255 - math.min(math.max(0, 0.888 * 255 - color.blue($light-color)), 0.112 * 255));
+  background:
+    repeating-conic-gradient($light-color 0 .25turn, transparent 0 .5turn) 0 0 / 32px 32px,
+    $dark-color;
+}
+
+
+:focus {
+  outline: var(--focus-frame);
+}
 
 ::selection {
   background-color: var(--selected-ed-back);
@@ -589,6 +598,36 @@ label,
   background-color: var(--outside-area);
 }
 
+// <hr> models DialogSeparator.
+hr {
+  margin: 8px auto;
+  border-top: 1px solid #00000040;
+  border-bottom: 1px solid var(--highlight);
+}
+
+label {
+  color: var(--normal-text);
+  font-family: var(--medium-font);
+  font-size: var(--label-font-size);
+  line-height: calc(var(--label-font-size) + 6px);
+  gap: 0 16px;
+
+  &:not(.vbox) {
+    align-items: center;
+  }
+
+  &:has(>input[type="radio" i], >input[type="checkbox" i]) {
+    column-gap: 5px;
+  }
+
+  :disabled & {
+    color: var(--disabled-text);
+  }
+}
+
+.indent {
+  margin-left: 20px;
+}
 
 // The transparent border is for correct sizing, which in turn gives correct hit test areas.
 // Non-interactive components, on the other hand, may find having a container element being a more natural approach.
@@ -743,6 +782,97 @@ dialog {
   user-select: auto;
 }
 
-:focus {
-  outline: var(--focus-frame);
+fieldset {
+  position: relative;
+  padding: 26px 10px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--group-box-frame);
+  background-image: linear-gradient(var(--group-box1), var(--group-box2));
+}
+
+legend {
+  // fieldset>legend is special-cased in styling and cannot be overridden. Our best bet is to throw the legend out of the flow.
+  position: absolute;
+  // Set the padding so that tooltips are shown even if the cursor was a bit off.
+  // width: text.paintedWidth + 12
+  padding-right: 12px;
+  // height: text.paintedHeight + 6
+  padding-bottom: 6px;
+  // anchors.topMargin: 4
+  top: 3px;
+  // anchors.leftMargin: 6
+  left: 5px;
+  color: var(--normal-text);
+  font-family: var(--heavy-font);
+  font-weight: bold;
+  font-size: var(--font-size);
+
+  :disabled & {
+    color: var(--disabled-text);
+  }
+}
+
+// (for status bar)
+.toolbar {
+  /* The real height is larger than the nominated 16px. */
+  height: 24px;
+  background: linear-gradient(var(--window1), var(--window2));
+  color: var(--normal-text);
+  font-family: var(--fixed-font);
+  font-size: var(--font-size);
+  line-height: 24px;
+  /* The padding is measured; not sure where it comes from. */
+  padding: 0 3px;
+
+  >hr {
+    flex: 0;
+    margin: 2px 5px;
+    border: 0;
+    border-left: 1px solid var(--toolbar2-150);
+    border-right: 1px solid var(--toolbar1-150);
+  }
+}
+
+.status-bar {
+  @extend .toolbar;
+}
+
+.progress-bar {
+  width: 198px;
+  height: 22px;
+  margin: 1px;
+  background-color: var(--normal-back1);
+  box-shadow: inset 0 0 0 1px var(--control-frame);
+
+  >* {
+    border-radius: 2px;
+    background-image: linear-gradient(var(--progress-bar1), var(--progress-bar) 140%);
+    border: 1px solid var(--progress-bar-frame);
+    // Not sure about what it's for, but this thin line does show up.
+    box-shadow: inset -4px 0 0 -3px rgb(255 255 255 / 0.1);
+  }
+}
+
+// Theme-specific components.
+
+.deluxe-label {
+  display: block;
+  width: 200px;
+  height: 37px;
+  overflow: hidden;
+  background: linear-gradient(var(--deluxe-label1), var(--deluxe-label2));
+  border: 1px solid var(--deluxe-label2);
+  border-radius: 2px;
+  text-align: center;
+  // verticalAlignment: Text.AlignVCenter
+  line-height: 35px;
+  color: var(--deluxe-label-text);
+  font-family: var(--heavy-font);
+  font-weight: bold;
+  font-size: 22px;
+
+  :disabled & {
+    // Subtlety. The background and the text are in separate alpha groups. I have never seen a DeluxeLabel disabled anyway…
+    opacity: 0.5;
+  }
 }
