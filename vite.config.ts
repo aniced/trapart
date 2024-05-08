@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type PluginOption } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 
@@ -13,6 +13,6 @@ export default defineConfig({
     visualizer({
       emitFile: true,
       filename: 'bundle.html',
-    }),
+    }) as PluginOption,
   ],
 })
