@@ -743,11 +743,8 @@ input[type="radio" i] {
   &::after {
     content: "";
     display: block;
-    margin: 3px;
-    background-color: var(--check-mark);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+    background: radial-gradient(var(--check-mark) 4.5px, transparent 5.5px);
+    height: 100%;
     opacity: 0;
   }
 }
