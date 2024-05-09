@@ -5,11 +5,11 @@ import { useEnabled } from '../Enable.vue'
 const modelValue = defineModel<number>({ required: true })
 
 const props = defineProps({
-  prefix: { type: String, default: "" },
+  prefix: { type: String, default: '' },
   minimumValue: { type: Number, default: -Infinity },
   maximumValue: { type: Number, default: Infinity },
   decimals: { type: Number, default: 0 },
-  suffix: { type: String, default: "" },
+  suffix: { type: String, default: '' },
 })
 
 const editable = ref<HTMLElement | null>(null)
@@ -62,11 +62,11 @@ function filterInput(event: Event) {
 }
 
 function onTextChanged() {
-  let text = editable.value?.textContent ?? ""
+  let text = editable.value?.textContent ?? ''
 
-  text = text.replace(/[^0-9\-\.]/g, "")
-  if (props.minimumValue >= 0) text = text.replace(/\-/, "")
-  if (props.decimals === 0) text = text.replace(/\./, "")
+  text = text.replace(/[^0-9\-\.]/g, '')
+  if (props.minimumValue >= 0) text = text.replace(/\-/, '')
+  if (props.decimals === 0) text = text.replace(/\./, '')
   if (text.length > maxTextLength.value) text = text.slice(0, maxTextLength.value)
 
   let newValue = +text
@@ -82,6 +82,7 @@ function onTextChanged() {
 function increment(by: number) {
   if (enabled.value) {
     modelValue.value = Math.min(Math.max(modelValue.value + by, props.minimumValue), props.maximumValue)
+    nextTick(selectValue)
   }
 }
 
@@ -91,6 +92,7 @@ function clickAutoRepeat(by: number) {
   // Note that clearInterval and clearTimeout are synonymous.
   clearInterval(timer)
   timer = 0
+  editable.value?.focus()
   if (by) {
     timer = setTimeout(() => {
       increment(by)
@@ -98,112 +100,44 @@ function clickAutoRepeat(by: number) {
         increment(by)
       }, 60) // measured, should be SH_SpinBox_ClickAutoRepeatRate
     }, 400) // measured, should be SH_SpinBox_ClickAutoRepeatThreshold
-    addEventListener("pointerup", () => {
+    addEventListener('pointerup', () => {
       clickAutoRepeat(0)
       increment(by)
-      nextTick(() => editable.value?.focus())
     }, { once: true })
   }
 }
 </script>
 
 <template>
-  <div class="spin-box-container" @pointercancel="clickAutoRepeat(0)">
+  <div class="spin-box" @pointercancel="clickAutoRepeat(0)">
     <div ref="editable" class="input" :contenteditable="enabled" inputmode="decimal" :data-prefix="prefix"
       :data-suffix="suffix" @beforeinput="filterInput" @focus="selectValue"
-      @blur="onTextChanged(), $nextTick(normalize)" @keydown.arrow-up.prevent="increment(1), $nextTick(selectValue)"
-      @keydown.arrow-down.prevent="increment(-1), $nextTick(selectValue)"
-      @wheel.prevent="increment(Math.sign(-$event.deltaY))">
+      @blur="onTextChanged(), $nextTick(normalize)" @keydown.arrow-up.prevent="increment(1)"
+      @keydown.arrow-down.prevent="increment(-1)" @wheel.prevent="increment(Math.sign(-$event.deltaY))">
     </div>
-    <div class="up" @click="editable?.focus()" @pointerdown.left="clickAutoRepeat(1)"></div>
-    <div class="down" @click="editable?.focus()" @pointerdown.left="clickAutoRepeat(-1)"></div>
+    <!-- preventDefault so that the editable does not lose focus. -->
+    <div class="up" @pointerdown.left.prevent="clickAutoRepeat(1)"></div>
+    <div class="down" @pointerdown.left.prevent="clickAutoRepeat(-1)"></div>
   </div>
 </template>
 
-<style scoped>
-.spin-box-container {
-  position: relative;
-  width: 80px;
-  height: var(--control-height);
-  font-family: var(--normal-font);
-  font-size: var(--font-size);
-  cursor: text;
-  color: var(--normal-text);
-  border: 2px solid transparent;
-  background-color: var(--normal-back1);
-  background-clip: padding-box;
-  box-shadow: inset 0 0 0 1px var(--highlight);
-  outline: 1px solid var(--control-frame);
-  outline-offset: -2px;
-}
+<style lang="scss">
+.spin-box {
+  >.input {
+    white-space: nowrap;
+    cursor: text;
 
-.input {
-  position: absolute;
-  inset: -2px;
-  border: solid transparent;
-  /* padding { top: 0; left: 6; right: 20; bottom: 0 } */
-  border-width: 4px 20px 4px 6px;
-  white-space: nowrap;
-  line-height: 19px;
-  overflow: hidden;
-}
+    &::before {
+      content: attr(data-prefix);
+    }
 
-.input::before {
-  content: attr(data-prefix);
-}
+    &::after {
+      content: attr(data-suffix);
+    }
 
-.input::after {
-  content: attr(data-suffix);
-}
-
-:disabled .spin-box-container {
-  color: transparent;
-  background-color: var(--window2);
-  cursor: inherit;
-}
-
-.up,
-.down {
-  position: absolute;
-  right: -2px;
-  width: 18px;
-  cursor: default;
-}
-
-.up:active,
-.down:active,
-:disabled .up,
-:disabled .down {
-  opacity: 0.7;
-}
-
-.up {
-  top: -2px;
-  /* property rect upRect: Qt.rect(width - incrementControlLoader.implicitWidth, 0, incrementControlLoader.implicitWidth, height / 2 + 1) */
-  height: 14px;
-  background: var(--arrow-up-image) 4px 6.5px no-repeat;
-}
-
-.down {
-  bottom: -2px;
-  /* property rect downRect: Qt.rect(width - decrementControlLoader.implicitWidth, height / 2, decrementControlLoader.implicitWidth, height / 2) */
-  height: 13px;
-  background: var(--arrow-down-image) 4px 3px no-repeat;
-}
-
-/* Pretend that the input is still in focus while the spinners are held down. */
-.spin-box-container:focus-within,
-.spin-box-container:active:not(:disabled *) {
-  outline: var(--focus-frame);
-  border-radius: 2px;
-}
-
-.spin-box-container:active:not(:disabled *)>.input:not(:focus)>* {
-  color: var(--selected-ed-text);
-  background-color: var(--selected-ed-back);
-}
-
-.input:focus {
-  outline: none;
+    :disabled & {
+      cursor: inherit;
+    }
+  }
 }
 </style>
