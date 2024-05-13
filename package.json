@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "@floating-ui/dom": "^1.6.3",
+    "@floating-ui/vue": "^1.0.6",
     "vue": "^3.4.21"
   },
   "devDependencies": {
