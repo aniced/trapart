@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import SpinBox from './basic-controls/SpinBox.vue'
 import ProgressBar from './basic-controls/ProgressBar.vue'
 import TabView from './basic-controls/TabView.vue'
-import HintArea from './basic-controls/HintArea.vue'
+import ToolTip from './basic-controls/ToolTip.vue'
 import TextEditControl from './basic-controls/TextEditControl.vue'
 import Chameleon from './Chameleon.vue'
 import CustomListView from './basic-controls/CustomListView.vue'
@@ -91,7 +91,7 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
     </fieldset>
     <fieldset>
       <legend>Static components</legend>
-      <HintArea>
+      <ToolTip>
         <div class="deluxe-label">标题</div>
         <template #hint>
           <h1>哼哼</h1>
@@ -99,7 +99,7 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
           <hr>
           这在分割线以下。
         </template>
-      </HintArea>
+      </ToolTip>
       <div style="width:164px;height:100px;overflow:scroll;border:1px solid green">
         Ea aliqua amet nostrud occaecat tempor est. Dolor excepteur commodo do sunt do non nulla nisi nisi fugiat. Aute ipsum velit nostrud fugiat esse ipsum ut elit. Ex reprehenderit ea amet incididunt dolore occaecat est cupidatat. Consequat eu cupidatat et esse proident incididunt qui cillum ex fugiat in consectetur commodo. Sint et ipsum anim esse veniam mollit tempor tempor nostrud quis quis nulla occaecat.
       </div>
