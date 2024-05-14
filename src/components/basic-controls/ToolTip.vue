@@ -30,7 +30,7 @@ let mouseX = 0
 let mouseY = 0
 let cursorShape = 'default'
 let mouseEntered = false
-let nextTime: number
+let nextTime = NaN
 
 watch(toolTip, async toolTip => {
   if (toolTip) {
@@ -81,7 +81,7 @@ function hideToolTip(event: PointerEvent | MouseEvent) {
 </script>
 
 <template>
-  <div ref="container" style="display: contents;">
+  <div style="display: contents;">
     <div @pointerdown="hideToolTip" @pointerenter="onEntered" @pointermove="onPositionChanged"
       @pointerleave="hideToolTip" @pointercancel="hideToolTip" @wheel="hideToolTip">
       <slot></slot>
