@@ -91,9 +91,10 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
     </fieldset>
     <fieldset>
       <legend>Static components</legend>
-      <HintArea title="哼哼">
+      <HintArea>
         <div class="deluxe-label">标题</div>
         <template #hint>
+          <h1>哼哼</h1>
           这是关于标题的说明。
           <hr>
           这在分割线以下。

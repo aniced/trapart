@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, type Component } from 'vue'
+import { symbolize } from './utilities'
 import Demo from './components/Demo.vue'
 import Sandbox from './Sandbox.vue'
-const applications = {
-	Demo,
-	Sandbox,
-}
-const activeApplication = ref<keyof typeof applications>('Demo')
+const runningApplications: { name: string, component: Component }[] = [
+	{ name: 'Demo 1', component: Demo },
+	{ name: 'Demo 2', component: Demo },
+	{ name: 'Sandbox', component: Sandbox },
+]
+const activeApplication = ref(0)
 
 import initialStyleSheets from './styles'
 import StyleSheets from './components/StyleSheets.vue'
@@ -18,9 +20,9 @@ const styleSheets = ref(initialStyleSheets)
 	<div class="vbox" style="width: 200px;">
 		<menu class="menu-bar">menu bar</menu>
 		<div class="fill">
-			<label v-for="(_, key) in applications">
-				<input type="radio" name="application" :value="key" v-model="activeApplication">
-				{{ key }}
+			<label v-for="({ name }, index) in runningApplications">
+				<input type="radio" name="application" :value="index" v-model.number="activeApplication">
+				{{ name }}
 			</label>
 		</div>
 		<ul class="status-bar">
@@ -30,8 +32,14 @@ const styleSheets = ref(initialStyleSheets)
 		</ul>
 	</div>
 	<div id="workingArea" class="fill scroll">
-		<KeepAlive>
-			<component :is="applications[activeApplication]" />
+		<!--
+			Through :key on <component>, multiple instances of the same component can be cached.
+			However, in this case, it is currently (Vue 3.4) impossible to destroy a specific instance.
+			https://github.com/vuejs/rfcs/pull/284
+			I put each component in a separate <KeepAlive> and destroy the container instead.
+		-->
+		<KeepAlive v-for="(application, index) in runningApplications" :key="symbolize(application)" :max="1">
+			<component v-if="index === activeApplication" :is="application.component" />
 		</KeepAlive>
 	</div>
 </template>

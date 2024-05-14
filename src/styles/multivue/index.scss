@@ -918,6 +918,37 @@ legend {
   }
 }
 
+.tooltip {
+  position: fixed;
+  padding: 7px;
+  padding-top: 0;
+  /* Qt for Linux does not support transparent windows, but our platform do. */
+  border-radius: 6px;
+  max-width: 316px;
+  border: 1px solid var(--control-frame);
+  background-color: var(--normal-back1);
+  overflow: hidden;
+  color: var(--normal-text);
+  font-size: calc(var(--font-size) - 1px);
+
+  >h1 {
+    font-family: var(--heavy-font);
+    font-weight: bold;
+    font-size: inherit;
+    padding: 7px 7px 4px;
+    margin: 0 -7px 4px;
+    background-color: var(--normal-back2);
+  }
+
+  /* <hr> models the separator between the text and the component in a ToolTip, seen in e.g., the damage formula input in the database (atk, def, …) and help for message control characters (\V[n], \N[n], …). */
+  hr {
+    height: 1px;
+    margin: 6px auto;
+    border: 0;
+    background-color: var(--control-frame);
+  }
+}
+
 // Theme-specific components.
 
 .deluxe-label {

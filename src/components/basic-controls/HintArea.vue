@@ -1,59 +1,49 @@
+<script lang="ts">
+let lastFadeout = 0
+</script>
+
 <script setup lang="ts">
-import { computePosition, shift } from '@floating-ui/dom'
-import { ref, watch } from 'vue'
-import ToolTip from './ToolTip.vue'
+import { computed, ref, watch } from 'vue'
+import { useFloating, shift } from '@floating-ui/vue'
+import { useEnabled } from '../Enable.vue'
 
-defineProps<{
-  title: string,
-}>()
-
-const container = ref<HTMLDivElement | null>(null)
+const enabled = useEnabled()
 const toolTip = ref<HTMLDivElement | null>(null)
 const toolTipVisible = ref(false)
-const mouseX = ref(0)
-const mouseY = ref(0)
-const cursorShape = ref("default")
-const mouseEntered = ref(false)
+const toolTipStyles = useFloating(computed(() => ({
+  getBoundingClientRect() {
+    let x = mouseX + 2
+    let y = mouseY + 16
+    // if (info.cursorShape === Qt.IBeamCursor) y -= 6;
+    if (cursorShape === 'text' || cursorShape === 'auto') y -= 6
+    // if (info.cursorShape === Qt.ArrowCursor && Qt.platform.os === "windows") y += 4;
+    if (cursorShape === 'default' && navigator.platform === 'Win32') y += 4
+    return new DOMRectReadOnly(x, y, 0, 0)
+  }
+})), toolTip, {
+  placement: 'bottom-start',
+  strategy: 'fixed',
+  // var screen = TkoolAPI.desktopAvailableGeometryAtPoint(Qt.point(x, y));
+  middleware: [shift({ mainAxis: true, crossAxis: true })],
+}).floatingStyles
+let mouseX = 0
+let mouseY = 0
+let cursorShape = 'default'
+let mouseEntered = false
 let nextTime: number
 
-watch(toolTipVisible, async (newToolTipVisible, oldToolTipVisible) => {
-  if (newToolTipVisible && !oldToolTipVisible) {
-    const { x, y } = await computePosition({
-      getBoundingClientRect() {
-        let x = mouseX.value + 2
-        let y = mouseY.value + 16
-        // if (info.cursorShape === Qt.IBeamCursor) y -= 6;
-        if (cursorShape.value === 'text' || cursorShape.value === 'auto') y -= 6
-        // if (info.cursorShape === Qt.ArrowCursor && Qt.platform.os === "windows") y += 4;
-        if (cursorShape.value === 'default' && navigator.platform === 'Win32') y += 4
-        return {
-          x,
-          y,
-          width: 0,
-          height: 0,
-          left: x,
-          top: y,
-          right: x,
-          bottom: y,
-        }
-      }
-    }, toolTip.value!, {
-      placement: 'bottom-start',
-      strategy: 'fixed',
-      // var screen = TkoolAPI.desktopAvailableGeometryAtPoint(Qt.point(x, y));
-      middleware: [shift({ mainAxis: true, crossAxis: true })],
-    })
-    toolTip.value!.style.left = `${x}px`
-    toolTip.value!.style.top = `${y}px`
-  } else if (!newToolTipVisible && oldToolTipVisible) {
-    document.body.dataset.lastFadeout = Date.now().toString()
+watch(toolTip, async toolTip => {
+  if (toolTip) {
+    toolTip.showPopover()
+  } else {
+    lastFadeout = Date.now()
   }
 })
 
 function timer1() {
   if (Number.isNaN(nextTime)) return
   if (Date.now() >= nextTime) {
-    if (!container.value!.closest(":disabled")) {
+    if (enabled.value) {
       toolTipVisible.value = true
     }
   } else {
@@ -62,22 +52,21 @@ function timer1() {
 }
 
 function updateMouse(event: PointerEvent | MouseEvent) {
-  mouseX.value = event.clientX
-  mouseY.value = event.clientY
+  mouseX = event.clientX
+  mouseY = event.clientY
   if (event.target instanceof Element) {
-    cursorShape.value = getComputedStyle(event.target).cursor
+    cursorShape = getComputedStyle(event.target).cursor
   }
 }
 
 function onEntered(event: PointerEvent | MouseEvent) {
   updateMouse(event)
-  mouseEntered.value = true
+  mouseEntered = true
 }
 
 function onPositionChanged(event: PointerEvent | MouseEvent) {
   updateMouse(event)
-  if (mouseEntered.value && !toolTipVisible.value) {
-    const lastFadeout = +(document.body.dataset.lastFadeout ?? "0")
+  if (mouseEntered && !toolTipVisible.value) {
     nextTime = Date.now() + (Math.abs(Date.now() - lastFadeout) < 300 ? 400 : 1200)
     timer1()
   }
@@ -85,45 +74,34 @@ function onPositionChanged(event: PointerEvent | MouseEvent) {
 
 function hideToolTip(event: PointerEvent | MouseEvent) {
   updateMouse(event)
-  mouseEntered.value = false
+  mouseEntered = false
   nextTime = NaN
   toolTipVisible.value = false
 }
 </script>
-  
+
 <template>
-  <div ref="container">
+  <div ref="container" style="display: contents;">
     <div @pointerdown="hideToolTip" @pointerenter="onEntered" @pointermove="onPositionChanged"
       @pointerleave="hideToolTip" @pointercancel="hideToolTip" @wheel="hideToolTip">
       <slot></slot>
     </div>
-    <Transition>
-      <div class="tooltip-container" ref="toolTip" v-show="toolTipVisible">
-        <ToolTip :title="title">
-          <slot name="hint"></slot>
-        </ToolTip>
-      </div>
-    </Transition>
+    <article class="tooltip" ref="toolTip" v-if="toolTipVisible" popover :style="toolTipStyles">
+      <slot name="hint"></slot>
+    </article>
   </div>
 </template>
 
-<style scoped>
-.tooltip-container {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 1;
+<style lang="scss">
+@starting-style {
+  .tooltip {
+    opacity: 0;
+  }
 }
 
-.v-enter-active,
-.v-leave-active {
-  /* duration: 300; easing.type: Easing.InOutQuad */
-  /* However, Qt 5.4 is buggy on Windows, making animations faster than they should be (QTBUG-42699). With environment variable QSG_RENDER_LOOP=basic, it is correct. */
-  transition: opacity 300ms cubic-bezier(0.45, 0, 0.55, 1);
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
+.tooltip {
+  // duration: 300; easing.type: Easing.InOutQuad
+  // However, Qt 5.4 is buggy on Windows, making animations faster than they should be (QTBUG-42699). With environment variable QSG_RENDER_LOOP=basic, it is correct.
+  transition: opacity 300ms cubic-bezier(0.45, 0, 0.55, 1), display allow-discrete;
 }
 </style>
