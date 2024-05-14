@@ -63,7 +63,6 @@ const styleSheets = ref(initialStyleSheets)
 	}
 
 	aside,
-	body,
 	center,
 	details,
 	div,
@@ -96,7 +95,8 @@ const styleSheets = ref(initialStyleSheets)
 	}
 
 	html,
-	body {
+	body,
+	[data-v-app] {
 		width: 100%;
 		height: 100%;
 	}

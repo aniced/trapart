@@ -3,7 +3,7 @@ import { ref, readonly, type InjectionKey, type Ref } from 'vue'
 const ENABLED = Symbol() as InjectionKey<Readonly<Ref<boolean>>>
 const trueRef = readonly(ref(true))
 /**
- * Use <Enable> to provide containers.
+ * Use `<Enable>` to provide containers.
  * Inject as `const enabled = useEnabled()` for templates and scripts.
  * In CSS, use `&:disabled` for form controls and `:disabled &` for others.
  */
