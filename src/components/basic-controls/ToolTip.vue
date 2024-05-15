@@ -33,11 +33,7 @@ let mouseEntered = false
 let nextTime = NaN
 
 watch(toolTip, async toolTip => {
-  if (toolTip) {
-    toolTip.showPopover()
-  } else {
-    lastFadeout = Date.now()
-  }
+  if (!toolTip) lastFadeout = Date.now()
 })
 
 function timer1() {
@@ -86,22 +82,17 @@ function hideToolTip(event: PointerEvent | MouseEvent) {
       @pointerleave="hideToolTip" @pointercancel="hideToolTip" @wheel="hideToolTip">
       <slot></slot>
     </div>
-    <article class="tooltip" ref="toolTip" v-if="toolTipVisible" popover :style="toolTipStyles">
-      <slot name="hint"></slot>
-    </article>
+    <Teleport to="body">
+      <!--
+        CSS @starting-style is for entering exclusively.
+        It's impossible to control both enter and leave transitions in pure CSS.
+        Vue <Transition> to the rescue.
+      -->
+      <Transition>
+        <article class="tooltip" ref="toolTip" v-if="toolTipVisible" :style="toolTipStyles">
+          <slot name="hint"></slot>
+        </article>
+      </Transition>
+    </Teleport>
   </div>
 </template>
-
-<style lang="scss">
-@starting-style {
-  .tooltip {
-    opacity: 0;
-  }
-}
-
-.tooltip {
-  // duration: 300; easing.type: Easing.InOutQuad
-  // However, Qt 5.4 is buggy on Windows, making animations faster than they should be (QTBUG-42699). With environment variable QSG_RENDER_LOOP=basic, it is correct.
-  transition: opacity 300ms cubic-bezier(0.45, 0, 0.55, 1), display allow-discrete;
-}
-</style>

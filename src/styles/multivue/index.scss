@@ -931,6 +931,15 @@ legend {
   color: var(--normal-text);
   font-size: calc(var(--font-size) - 1px);
 
+  // duration: 300; easing.type: Easing.InOutQuad
+  // However, Qt 5.4 is buggy on Windows, making animations faster than they should be (QTBUG-42699). With environment variable QSG_RENDER_LOOP=basic, it is correct.
+  transition: opacity 300ms cubic-bezier(0.45, 0, 0.55, 1);
+
+  &.v-enter-from,
+  &.v-leave-to {
+    opacity: 0;
+  }
+
   >h1 {
     font-family: var(--heavy-font);
     font-weight: bold;
