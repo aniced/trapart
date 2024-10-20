@@ -33,7 +33,7 @@ const symbolForNull = Symbol('null symbolized')
 const symbolForFalse = Symbol('false symbolized')
 const symbolForTrue = Symbol('true symbolized')
 const symbolRegistry = new DefaultWeakMap<object, symbol>(Symbol)
-type Symbolized<T> = T extends string | number | symbol
+type Symbolize<T> = T extends string | number | symbol
 	? T
 	: T extends bigint
 	? string
@@ -44,7 +44,7 @@ type Symbolized<T> = T extends string | number | symbol
  * Note that symbols are garbage-collectable.
  * As long as a symbol is used as a property key, it is referenced, and can't be garbage-collected, even if the original object that generated it doesn't exist anymore.
  */
-export function symbolize<T>(x: T): Symbolized<T> {
+export function symbolize<T>(x: T): Symbolize<T> {
 	switch (typeof x) {
 		case 'string':
 		case 'number':

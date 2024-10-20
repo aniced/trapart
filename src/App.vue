@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, type Component } from 'vue'
-import { symbolize } from './utilities'
 import Demo from './components/Demo.vue'
 import Sandbox from './Sandbox.vue'
-const runningApplications: { name: string, component: Component }[] = [
-	{ name: 'Demo 1', component: Demo },
-	{ name: 'Demo 2', component: Demo },
-	{ name: 'Sandbox', component: Sandbox },
+const runningApplications: { id: number, name: string, component: Component }[] = [
+	{ id: 0, name: 'Demo 1', component: Demo },
+	{ id: 1, name: 'Demo 2', component: Demo },
+	{ id: 2, name: 'Sandbox', component: Sandbox },
 ]
 const activeApplication = ref(0)
 
@@ -38,7 +37,7 @@ const styleSheets = ref(initialStyleSheets)
 			https://github.com/vuejs/rfcs/pull/284
 			I put each component in a separate <KeepAlive> and destroy the container instead.
 		-->
-		<KeepAlive v-for="(application, index) in runningApplications" :key="symbolize(application)" :max="1">
+		<KeepAlive v-for="(application, index) in runningApplications" :key="application.id" :max="1">
 			<component v-if="index === activeApplication" :is="application.component" />
 		</KeepAlive>
 	</div>
