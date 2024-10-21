@@ -1,9 +1,9 @@
-Aniced Torappu — 编辑万物
+Aniced Trapart — 编辑万物
 ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
 
 ▼ 关于
 
-https://github.com/aniced/torappu
+https://github.com/aniced/trapart
 
 注意：
 ◇ 开发主要在最新版本的Chrome稳定版和Firefox开发者版上进行。较老的浏览器无法正常使用本网站。
