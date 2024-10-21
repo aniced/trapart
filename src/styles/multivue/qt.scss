@@ -2,8 +2,8 @@
 @use "sass:color";
 
 @function lighter($color, $factor) {
-  $v: 100% - color.blackness($color);
-  $s: math.percentage(1 - math.div(color.whiteness($color), $v));
+  $v: 100% - color.channel($color, "blackness", $space: hwb);
+  $s: math.percentage(1 - math.div(color.channel($color, "whiteness", $space: hwb), $v));
 
   @if $s != $s {
     $s: 0%;
@@ -12,7 +12,7 @@
   $v: $v * $factor;
   $s: $s - math.max(0%, $v - 100%);
   $v: math.min(100%, $v);
-  @return color.hwb(color.hue($color),
+  @return color.hwb(color.channel($color, "hue", $space: hwb),
     math.clamp(0%, math.div(100% - $s, 100%) * $v, 100%),
     100% - $v,
     color.alpha($color),
