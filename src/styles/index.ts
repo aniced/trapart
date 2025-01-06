@@ -1,5 +1,5 @@
-import multivue from './multivue/index.scss?inline'
+import plain from './plain/index.scss?inline'
 
 export default [
-  multivue,
+  plain,
 ]
