@@ -4,9 +4,8 @@ import SpinBox from './basic-controls/SpinBox.vue'
 import ProgressBar from './basic-controls/ProgressBar.vue'
 import TabView from './basic-controls/TabView.vue'
 import ToolTip from './basic-controls/ToolTip.vue'
-import Chameleon from './Chameleon.vue'
-import CustomListView from './basic-controls/CustomListView.vue'
 import TextBox from './basic-controls/TextBox.vue'
+import ListView from './basic-controls/ListView.vue'
 import Enable from './Enable.vue'
 
 const disabled = ref(false)
@@ -53,7 +52,7 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
     </fieldset>
     <fieldset>
       <legend>Lists</legend>
-      <CustomListView style="width: 320px; height: 240px;" :items="array" v-model="currentIndex" line-number :item-height="40">
+      <ListView style="width: 320px; height: 240px;" :items="array" v-model="currentIndex" line-number :item-height="40">
         <template #thead>
           <th>Original case</th>
           <th>Index</th>
@@ -64,13 +63,13 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
           <td>{{ index }}</td>
           <td>{{ item.text.toUpperCase() }}</td>
         </template>
-      </CustomListView>
-      <CustomListView style="width: 120px; height: 240px;" :items="array" v-model="currentIndex">
+      </ListView>
+      <ListView style="width: 120px; height: 240px;" :items="array" v-model="currentIndex">
         <template #tbody="{ item }">
           <td>{{ item.text }}</td>
           <td>{{ item.text.toLowerCase() }}</td>
         </template>
-      </CustomListView>
+      </ListView>
       <TabView :pages="['Pa', 'Pb', 'Pc']" v-model="currentIndex" tab-position="left">
         <div style="height: 514px;">
           114514
