@@ -4,9 +4,9 @@ import SpinBox from './basic-controls/SpinBox.vue'
 import ProgressBar from './basic-controls/ProgressBar.vue'
 import TabView from './basic-controls/TabView.vue'
 import ToolTip from './basic-controls/ToolTip.vue'
-import TextEditControl from './basic-controls/TextEditControl.vue'
 import Chameleon from './Chameleon.vue'
 import CustomListView from './basic-controls/CustomListView.vue'
+import TextBox from './basic-controls/TextBox.vue'
 import Enable from './Enable.vue'
 
 const disabled = ref(false)
@@ -30,10 +30,8 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
       <button>Cancel</button>
     </fieldset>
     <fieldset>
-      <legend>Primitives</legend>
-      {{ string }}
-      <TextEditControl v-model="string" />
-      <TextEditControl :maximum-line-count="3" v-model="string" />
+      <legend>Primitives</legend>{{ string }}<TextBox v-model="string" />
+      <TextBox v-model="string" />
       <label>
         <input type="radio" v-model="string" value="data">
         The first
@@ -49,7 +47,7 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
       <SpinBox prefix="$[" v-model="number" suffix="]%" :minimum-value="-9" :maximum-value="500" />
       <label>
         Labeled text field
-        <TextEditControl :maximum-line-count="1" v-model="string" />
+        <TextBox single-line v-model="string" />
       </label>
       <ProgressBar :value="42" :max="100" />
     </fieldset>

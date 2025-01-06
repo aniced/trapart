@@ -771,6 +771,36 @@ input[type="checkbox" i] {
 }
 
 
+input[type="text" i],
+textarea {
+	width: 100px;
+	padding: 2px 4px 3px;
+	font-family: var(--fixed-font);
+	font-size: var(--font-size);
+	color: var(--normal-text);
+	border: 2px solid transparent;
+	background: padding-box var(--normal-back1);
+	box-shadow: inset 0 0 0 1px var(--highlight);
+	outline: 1px solid var(--control-frame);
+	outline-offset: -2px;
+
+	&:disabled {
+		color: transparent;
+		background-color: var(--window2);
+	}
+
+	&:focus {
+		outline: var(--focus-frame);
+		border-radius: 2px;
+	}
+}
+
+input[type="text" i] {
+	height: var(--control-height);
+	padding-top: 4px;
+}
+
+
 .spin-box {
   position: relative;
   width: 80px;
@@ -835,6 +865,62 @@ input[type="checkbox" i] {
 
   >.input:focus {
     outline: none;
+  }
+}
+
+.list-view {
+  border: 2px solid transparent;
+  // Fill extra rows with alternate colors.
+  background:
+    content-box local 0 var(--header-height) / 100% var(--item-height) linear-gradient(to top, var(--list-box-row-underline) 1px, transparent 0),
+    content-box local 0 var(--header-height) repeating-linear-gradient(var(--normal-back1) 0 var(--item-height), var(--normal-back2) 0 calc(var(--item-height) * 2));
+
+  >table {
+    >thead>tr {
+      height: 20px;
+      background: linear-gradient(var(--button1), var(--button2));
+      line-height: 20px;
+      color: var(--normal-text);
+      font-family: var(--medium-font);
+      font-size: var(--font-size);
+
+      :disabled & {
+        color: var(--disabled-text)
+      }
+
+      &>th {
+        box-shadow: inset -1px -1px var(--control-frame);
+      }
+    }
+
+    >tbody>tr {
+      height: var(--item-height);
+      line-height: var(--item-height);
+
+      &.selected {
+        background: linear-gradient(var(--selected-back-130) -20%, var(--selected-back) 140%);
+        color: var(--selected-text);
+      }
+
+      :disabled & {
+        visibility: hidden;
+      }
+    }
+
+    >thead>tr>th,
+    >tbody>tr>td {
+      padding-left: 12px;
+    }
+  }
+
+  &:focus {
+    outline: none;
+
+    >table>tbody>tr.current {
+      outline: var(--focus-frame);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
   }
 }
 
