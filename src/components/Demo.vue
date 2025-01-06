@@ -48,7 +48,7 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
         Labeled text field
         <TextBox single-line v-model="string" />
       </label>
-      <ProgressBar :value="42" :max="100" />
+      <ProgressBar :value="42 / 100" />
     </fieldset>
     <fieldset>
       <legend>Lists</legend>
