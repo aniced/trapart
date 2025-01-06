@@ -44,12 +44,12 @@ function updateMouse(event: PointerEvent | MouseEvent) {
   mouseY = event.clientY
 }
 
-function onEntered(event: PointerEvent | MouseEvent) {
+function onEnter(event: PointerEvent | MouseEvent) {
   updateMouse(event)
   mouseEntered = true
 }
 
-function onPositionChanged(event: PointerEvent | MouseEvent) {
+function onMove(event: PointerEvent | MouseEvent) {
   updateMouse(event)
   if (mouseEntered && !toolTipVisible.value) {
     nextTime = Date.now() + (Math.abs(Date.now() - lastFadeout) < 300 ? 400 : 1200)
@@ -67,7 +67,7 @@ function hideToolTip(event: PointerEvent | MouseEvent) {
 
 <template>
   <div style="display: contents;">
-    <div @pointerdown="hideToolTip" @pointerenter="onEntered" @pointermove="onPositionChanged"
+    <div @pointerdown="hideToolTip" @pointerenter="onEnter" @pointermove="onMove"
       @pointerleave="hideToolTip" @pointercancel="hideToolTip" @wheel="hideToolTip">
       <slot></slot>
     </div>
