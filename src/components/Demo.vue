@@ -12,12 +12,24 @@ const disabled = ref(false)
 const number = ref(114514)
 const currentIndex = ref(0)
 const string = ref('Hello, world!')
-const array = ref(new Array(11).fill(65).map((x, i) => ({
+const array = ref<{ text: string, children?: { text: string }[] }[]>(new Array(114).fill(0xc0).map((x, i) => ({
   text: 'Item ' + String.fromCodePoint(x + i),
+	children: [{text: `Child A of ${i}`}, {text:`Child B of ${i}`}],
 })))
+const columns = {
+	str: {
+		get: (item: {text:string}) => item.text,
+		name:'Original case',
+	},
+	upperStr: {
+		get: (item: {text:string}) => item.text.toUpperCase(),
+		name: 'Upper case',
+	},
+} as const
 </script>
 
 <template>
+	<div class="fill vbox">
   <label>
     <input type="checkbox" v-model="disabled">
     Disable everything
@@ -29,7 +41,8 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
       <button>Cancel</button>
     </fieldset>
     <fieldset>
-      <legend>Primitives</legend>{{ string }}<TextBox v-model="string" />
+				<legend>Primitives</legend>{{ string }}
+				<TextBox v-model="string" />
       <TextBox v-model="string" />
       <label>
         <input type="radio" v-model="string" value="data">
@@ -50,25 +63,16 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
       </label>
       <ProgressBar :value="42 / 100" />
     </fieldset>
-    <fieldset>
+			<fieldset class="vbox">
       <legend>Lists</legend>
-      <ListView style="width: 320px; height: 240px;" :items="array" v-model="currentIndex" line-number :item-height="40">
-        <template #thead>
-          <th>Original case</th>
-          <th>Index</th>
-          <th>Upper case</th>
-        </template>
-        <template #tbody="{ item, index }: { item: { text: string }, index: number }">
-          <td>{{ item.text }}</td>
-          <td>{{ index }}</td>
-          <td>{{ item.text.toUpperCase() }}</td>
-        </template>
+				<ListView style="width: 320px; height: 240px;" :items="array" :get-key="item => item.text" :columns
+					v-model="currentIndex">
+				</ListView>
+				<ListView style="width: 120px; height: 240px;" :items="array" :get-key="item => item.text"
+					:columns="{ a: columns.str }" v-model="currentIndex">
       </ListView>
-      <ListView style="width: 120px; height: 240px;" :items="array" v-model="currentIndex">
-        <template #tbody="{ item }">
-          <td>{{ item.text }}</td>
-          <td>{{ item.text.toLowerCase() }}</td>
-        </template>
+				<ListView style="width: 320px; height: 240px;" :items="array" :get-key="item => item.text" :columns
+					:get-children="item => item.children ?? []" v-model="currentIndex">
       </ListView>
       <TabView :pages="['Pa', 'Pb', 'Pc']" v-model="currentIndex" tab-position="left">
         <div style="height: 514px;">
@@ -102,4 +106,5 @@ const array = ref(new Array(11).fill(65).map((x, i) => ({
       </div>
     </fieldset>
   </Enable>
+	</div>
 </template>

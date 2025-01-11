@@ -15,9 +15,4 @@ defineProps({
 </template>
 
 <style>
-input[type="text" i],
-textarea {
-	cursor: auto;
-	resize: none;
-}
 </style>

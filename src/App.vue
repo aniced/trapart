@@ -126,13 +126,20 @@ const styleSheets = ref(initialStyleSheets)
 		text-align: inherit;
 	}
 
+	input[type="text" i],
+	textarea {
+		cursor: auto;
+		resize: none;
+	}
+
 	// Ban the use of PITA elements.
+	input[type="search" i],
 	meter,
 	progress,
 	select {
-		background: red;
-		color: lightcoral;
-		accent-color: lightcoral;
+		background: repeating-linear-gradient(-45deg, red 0 .5em, lightcoral 0 1em), red;
+		color: pink;
+		accent-color: pink;
 
 		&::before,
 		&::after {
@@ -147,7 +154,7 @@ const styleSheets = ref(initialStyleSheets)
 		height: 100%;
 	}
 
-	dialog,
+	dialog[open],
 	.vbox {
 		display: flex;
 		flex-direction: column;
