@@ -8,14 +8,9 @@ const runningApplications: { id: number, name: string, component: Component }[] 
 	{ id: 2, name: 'Sandbox', component: Sandbox },
 ]
 const activeApplication = ref(0)
-
-import initialStyleSheets from './styles'
-import StyleSheets from './components/StyleSheets.vue'
-const styleSheets = ref(initialStyleSheets)
 </script>
 
 <template>
-	<StyleSheets :sources="styleSheets" />
 	<div class="vbox" style="width: 200px;">
 		<menu class="menu-bar">menu bar</menu>
 		<div class="fill">
