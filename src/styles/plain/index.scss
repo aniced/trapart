@@ -15,15 +15,49 @@
 }
 
 :root {
-	font-family: "Inter", sans-serif;
+	font: 12px/1.3333333333 "Inter", sans-serif;
 	font-optical-sizing: auto;
 	font-feature-settings: "liga", "calt", "cv01", "cv10", "ss03";
+	background-color: azure;
 }
 
 :any-link {
-	color: blue;
+	color: deepskyblue;
 
 	&:active {
-		color: red;
+		color: steelblue;
+	}
+}
+
+:focus {
+	outline: 2px solid darkslategray;
+	outline-offset: -2px;
+}
+
+::selection {
+	background-color: darkslategray;
+	color: white;
+}
+
+input[type="text" i] {
+	border: 2px inset skyblue;
+}
+
+.list-view {
+	>table {
+		border: 2px inset skyblue;
+	}
+
+	>table>thead>tr>th {
+		border: 2px outset skyblue;
+		background: powderblue;
+
+		&:active {
+			border-style: inset;
+		}
+	}
+
+	>table>tbody>tr>td {
+		padding: 2px;
 	}
 }

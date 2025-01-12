@@ -2,10 +2,12 @@
 	This is a versatile component that covers controls ranging from list boxes to tree views.
 	The internal data structure is heavily inspired by TanStack Table.
 	https://tanstack.com/table/v8
+	Grouping is omitted because it is incompatible with a tree.
 -->
 
 <script lang="ts" setup generic="T, ColumnID extends string">
 import { computed, ref } from 'vue'
+import TextBox from './TextBox.vue'
 
 const props = withDefaults(defineProps<{
 	items: T[],
@@ -24,6 +26,8 @@ const props = withDefaults(defineProps<{
 	columns: { [id in ColumnID]: {
 		get: (item: T) => any,
 		name: string,
+		/** If the compare key is not passed in, the column is not sortable. */
+		compareKey?: (value: any) => number | string,
 	} },
 	multipleSelection?: boolean,
 	dragDrop?: boolean,
@@ -31,17 +35,13 @@ const props = withDefaults(defineProps<{
 	getChildren: () => [],
 })
 
-const modelValue = defineModel<number>({ default: 0 }) // currentIndex
-const filter = ref('')
-const sortBy = defineModel<ColumnID>('sortBy')
-const sortDescending = defineModel<boolean>('sortDescending', { default: false })
-const visibleColumnsProp = defineModel<ColumnID[]>('visibleColumns')
-const visibleColumns = computed<ColumnID[]>(() =>
-	visibleColumnsProp.value ?? Object.keys(props.columns) as ColumnID[])
-const expanded = defineModel<true | Record<PropertyKey, boolean>>('expanded', { default: true })
 defineSlots<{
 	[id in ColumnID]?: (props: { value: any }) => any
 }>()
+
+//============================================================================
+// Convert data into internal representation
+//============================================================================
 
 interface Row<T> {
 	key: PropertyKey,
@@ -49,105 +49,137 @@ interface Row<T> {
 	item: T,
 	/** The depth of the row (if nested or grouped) relative to the root row array. */
 	indent: number,
-	parent?: PropertyKey,
 	children: Row<T>[],
-	/** The index of the row within its parent array (or the root data array). */
-	// index: number;
 }
 
-/** Care must be taken to update the three representations in sync. */
-interface Rows<T> {
-	tree: Row<T>[],
-	array: Row<T>[],
-	map: { [key: PropertyKey]: Row<T> },
-}
+//----------------------------------------------------------------------------
+// From items to rows
 
 const allRows = computed(() => {
-	const result: Rows<T> = {
-		tree: [],
-		array: [],
-		map: {},
-	}
-	result.tree = function traverse(items: T[], depth:number, parent?: Row<T>): Row<T>[] {
-		return items.map(item => {
-			const row: Row<T> = {
-				key: props.getKey(item),
-				item,
-				indent: depth,
-				parent: parent?.key,
-				children: [],
-			}
-			result.array.push(row)
-			result.map[row.key] = row
-			row.children = traverse(props.getChildren(item), depth + 1, row)
-			return row
-		})
+	return function traverse(items: T[], depth: number): Row<T>[] {
+		return items.map(item => ({
+			key: props.getKey(item),
+			item,
+			indent: depth,
+			children: traverse(props.getChildren(item), depth + 1),
+		}))
 	}(props.items, 0)
-	return result
 })
+
+//----------------------------------------------------------------------------
+// Apply text filter
+
+const filter = ref('')
 
 const filterRow = (row: Row<T>): boolean => (props.getPlainText ?? props.getKey)(row.item)
 	.toString().includes(filter.value)
 
 const filteredRows = computed(() => {
-	if (!allRows.value.array.length || !filter.value) return allRows.value
-	const result: Rows<T> = {
-		tree: [],
-		array: [],
-		map: {},
-	}
-	result.tree = function traverse(rows: Row<T>[]): Row<T>[] {
+	if (!allRows.value.length || !filter.value) return allRows.value
+	return function traverse(rows: Row<T>[]): Row<T>[] {
 		return rows.flatMap(row => {
 			const children = traverse(row.children)
-			if  (children.length || filterRow(row)) {
-				row = { ...row, children }
-				// Not in order ...??
-				// getPreGroupRowModel in filterFromLeafRows tables
-				result.array.push(row)
-				result.map[row.key] = row
-				return [row]
-			}
-			return []
+			return children.length || filterRow(row)
+				? [{ ...row, children }]
+				: []
 		})
-	}(allRows.value.tree)
+	}(allRows.value)
+})
+
+//----------------------------------------------------------------------------
+// Apply sorting
+
+const sorting = ref<{ by: ColumnID, descending: boolean }[]>([])
+
+const toString = (x: object) => x.toString()
+const compareRows = (a: Row<T>, b: Row<T>): number => {
+	for (const { by, descending } of sorting.value) {
+		const { get, compareKey = toString } = props.columns[by as ColumnID]
+		const ka = compareKey(get(a.item))
+		const kb = compareKey(get(b.item))
+		if (ka === kb) continue
+		if (typeof ka === typeof kb) return (ka < kb) !== descending ? -1 : 1
+		// return (typeof ka < typeof kb) !== descending ? -1 : 1
+	}
+	return 0
+}
+
+const sortedRows = computed(() => {
+	if (!filteredRows.value.length || !sorting.value.length) return filteredRows.value
+	return function traverse(rows: Row<T>[]): Row<T>[] {
+		return rows.map(row => ({
+			...row,
+			children: traverse(row.children),
+		})).sort(compareRows)
+	}(filteredRows.value)
+})
+
+//----------------------------------------------------------------------------
+// Flat out expanded rows
+
+const expanded = ref(new Set<PropertyKey>)
+const expandedInverted = ref(false)
+const isExpanded = (row: Row<T>) => expanded.value.has(row.key) !== expandedInverted.value
+const expandedRows = computed(() => {
+	if (!sortedRows.value.length || !expanded.value.size && !expandedInverted.value) return sortedRows.value
+	const result: Row<T>[] = []
+	;(function traverse(rows: Row<T>[]) {
+		for (const row of rows) {
+			result.push(row)
+			if (isExpanded(row)) traverse(row.children)
+		}
+	})(sortedRows.value)
 	return result
 })
-const groupedRows = computed(() => {
-	return filteredRows.value
-})
-const sortedRows = computed(() => {
-	return groupedRows.value
-})
-const expandedRows = computed(() => {
-	return sortedRows.value
-})
+
+//----------------------------------------------------------------------------
+// Hide data too big
+// This is the final data source for display.
+
 const truncatedRows = computed(() => {
-	return expandedRows.value
+	if (expandedRows.value.length <= 1000) return expandedRows.value
+	return expandedRows.value.slice(0, 1000)
 })
 
+//============================================================================
+// Miscellaneous processing not directly related to data
+//============================================================================
 
+//----------------------------------------------------------------------------
+// Column reordering
+
+const visibleColumnsProp = defineModel<ColumnID[]>('visibleColumns')
+const visibleColumns = computed<ColumnID[]>(() =>
+	visibleColumnsProp.value ?? Object.keys(props.columns) as ColumnID[])
+
+//----------------------------------------------------------------------------
+// Selection
+
+const modelValue = defineModel<number>({ default: 0 }) // currentIndex
 const selectionStart = ref(2)
 const selectionEnd = ref(4)
 </script>
 
 <template>
 	<div class="list-view">
-		<input type="text" v-model="filter">
+		<TextBox v-model="filter" />
 		<table :style="{
 			gridTemplateColumns: '',
 		}">
 			<thead>
 				<tr>
+					<th><span>±</span></th>
 					<th v-for="columnID in visibleColumns" :key="columnID">
 						{{ columns[columnID].name }}
 					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="(row, i) in truncatedRows.array" :key="row.key" :class="{
+				<tr v-for="(row, i) in truncatedRows" :key="row.key" :class="{
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
 				}">
+					<td><span>±</span></td>
 					<td v-for="columnID in visibleColumns" :key="columnID">
 						<slot :name="columnID" :value="columns[columnID].get(row.item)">
 							{{ columns[columnID].get(row.item) }}
@@ -186,6 +218,7 @@ const selectionEnd = ref(4)
 		>thead {
 			position: sticky;
 			top: 0;
+			z-index: 1;
 		}
 
 		>thead>tr>th,
