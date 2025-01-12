@@ -1,7 +1,7 @@
 <!--
 	This is a versatile component that covers controls ranging from list boxes to tree views.
 	The internal data structure is heavily inspired by TanStack Table.
-	https://tanstack.com/table
+	https://tanstack.com/table/v8
 -->
 
 <script lang="ts" setup generic="T, ColumnID extends string">
@@ -10,8 +10,21 @@ import { computed, ref } from 'vue'
 const props = withDefaults(defineProps<{
 	items: T[],
 	getKey: (item: T) => PropertyKey,
+	/**
+	 * If getChildren returns non-empty arrays, ListView acts as a tree view.
+	 */
 	getChildren?: (item: T) => T[],
-	columns: { [id in ColumnID]: { get: (item: T) => any, name: string } },
+	/**
+	 * Get the text for filtering.
+	 * Usually, not all fields should be used for filtering.
+	 * It is recommended that multiple fields are joined with newlines.
+	 * Filtering is required for consistency; also because the <input> is what possesses the focus all the time.
+	 */
+	getPlainText: (item: T) => string,
+	columns: { [id in ColumnID]: {
+		get: (item: T) => any,
+		name: string,
+	} },
 	multipleSelection?: boolean,
 	dragDrop?: boolean,
 }>(), {
@@ -19,6 +32,7 @@ const props = withDefaults(defineProps<{
 })
 
 const modelValue = defineModel<number>({ default: 0 }) // currentIndex
+const filter = ref('')
 const sortBy = defineModel<ColumnID>('sortBy')
 const sortDescending = defineModel<boolean>('sortDescending', { default: false })
 const visibleColumnsProp = defineModel<ColumnID[]>('visibleColumns')
@@ -49,13 +63,12 @@ interface Rows<T> {
 }
 
 const allRows = computed(() => {
-	const rows: Rows<T> = {
+	const result: Rows<T> = {
 		tree: [],
 		array: [],
 		map: {},
 	}
-	rows.tree = function traverse(items: T[], depth = 0, parent?: Row<T>): Row<T>[] {
-		console.log(items, items.map)
+	result.tree = function traverse(items: T[], depth:number, parent?: Row<T>): Row<T>[] {
 		return items.map(item => {
 			const row: Row<T> = {
 				key: props.getKey(item),
@@ -64,16 +77,40 @@ const allRows = computed(() => {
 				parent: parent?.key,
 				children: [],
 			}
-			rows.array.push(row)
-			rows.map[row.key] = row
+			result.array.push(row)
+			result.map[row.key] = row
 			row.children = traverse(props.getChildren(item), depth + 1, row)
 			return row
 		})
-	}(props.items)
-	return rows
+	}(props.items, 0)
+	return result
 })
+
+const filterRow = (row: Row<T>): boolean => (props.getPlainText ?? props.getKey)(row.item)
+	.toString().includes(filter.value)
+
 const filteredRows = computed(() => {
-	return allRows.value
+	if (!allRows.value.array.length || !filter.value) return allRows.value
+	const result: Rows<T> = {
+		tree: [],
+		array: [],
+		map: {},
+	}
+	result.tree = function traverse(rows: Row<T>[]): Row<T>[] {
+		return rows.flatMap(row => {
+			const children = traverse(row.children)
+			if  (children.length || filterRow(row)) {
+				row = { ...row, children }
+				// Not in order ...??
+				// getPreGroupRowModel in filterFromLeafRows tables
+				result.array.push(row)
+				result.map[row.key] = row
+				return [row]
+			}
+			return []
+		})
+	}(allRows.value.tree)
+	return result
 })
 const groupedRows = computed(() => {
 	return filteredRows.value
@@ -95,23 +132,23 @@ const selectionEnd = ref(4)
 
 <template>
 	<div class="list-view">
-		<input type="text">
+		<input type="text" v-model="filter">
 		<table :style="{
 			gridTemplateColumns: '',
 		}">
 			<thead>
 				<tr>
-					<th v-for="columnID in visibleColumns">
+					<th v-for="columnID in visibleColumns" :key="columnID">
 						{{ columns[columnID].name }}
 					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="(row, i) in truncatedRows.array" :class="{
+				<tr v-for="(row, i) in truncatedRows.array" :key="row.key" :class="{
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
 				}">
-					<td v-for="columnID in visibleColumns">
+					<td v-for="columnID in visibleColumns" :key="columnID">
 						<slot :name="columnID" :value="columns[columnID].get(row.item)">
 							{{ columns[columnID].get(row.item) }}
 						</slot>

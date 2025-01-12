@@ -66,13 +66,13 @@ const columns = {
 			<fieldset class="vbox">
       <legend>Lists</legend>
 				<ListView style="width: 320px; height: 240px;" :items="array" :get-key="item => item.text" :columns
-					v-model="currentIndex">
+          :get-plain-text="item => item.text" v-model="currentIndex">
 				</ListView>
 				<ListView style="width: 120px; height: 240px;" :items="array" :get-key="item => item.text"
-					:columns="{ a: columns.str }" v-model="currentIndex">
+					:columns="{ a: columns.str }" :get-plain-text="item => item.text" v-model="currentIndex">
       </ListView>
 				<ListView style="width: 320px; height: 240px;" :items="array" :get-key="item => item.text" :columns
-					:get-children="item => item.children ?? []" v-model="currentIndex">
+          :get-plain-text="item => item.text" :get-children="item => item.children ?? []" v-model="currentIndex">
       </ListView>
       <TabView :pages="['Pa', 'Pb', 'Pc']" v-model="currentIndex" tab-position="left">
         <div style="height: 514px;">
