@@ -91,6 +91,16 @@ input[type="text" i] {
 		}
 	}
 
+	>table>tbody>tr.expandable {
+		>td:first-child::before {
+			content: "+";
+		}
+
+		&.expanded>td:first-child::before {
+			content: "−";
+		}
+	}
+
 	>table>tbody>tr>td {
 		padding: 0 2px;
 	}

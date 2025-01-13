@@ -25,16 +25,19 @@ const view: ListViewDescriptor<(typeof array)['value'][number]> = {
 			render: ({ item }) => item.text,
 			name: 'Original case',
 			compareKey: (item) => item.text,
+			initialWidth: 100,
 		},
 		upperStr: {
 			render: ({ item }) => item.text.toUpperCase(),
 			name: 'Upper case',
 			compareKey: (item) => item.text,
+			initialWidth: 100,
 		},
 		length: {
 			render: ({ item }) => item.text.length.toString(),
 			name: 'Length',
 			compareKey: (item) => item.text.length,
+			initialWidth: 50,
 		},
 	},
 }

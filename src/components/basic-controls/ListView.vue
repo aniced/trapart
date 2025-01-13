@@ -26,6 +26,7 @@ export interface ListViewDescriptor<T, ColumnID extends string = string> {
 		name: string,
 		/** If the compare key is not passed in, the column is not sortable. */
 		compareKey?: (item: T) => number | string,
+		initialWidth: number,
 	} },
 }
 
@@ -195,6 +196,14 @@ const visibleColumns = computed<ColumnID[]>(() =>
 	visibleColumnsProp.value ?? Object.keys(props.view.columns) as ColumnID[])
 
 //----------------------------------------------------------------------------
+// Column resizing
+
+const columnWidthDelta = ref<{ [id in ColumnID]?: number }>({})
+const gridTemplateColumns = computed(() => '1em ' + visibleColumns.value.map(id =>
+	props.view.columns[id].initialWidth + (columnWidthDelta.value[id] ?? 0) + 'px'
+).join(' '))
+
+//----------------------------------------------------------------------------
 // Selection
 
 const modelValue = defineModel<number>({ default: 0 }) // currentIndex
@@ -206,10 +215,12 @@ const selectionEnd = ref(4)
 	<div class="list-view">
 		<input type="text" ref="filterInput" v-model="filter" />
 		<table :style="{
-			gridTemplateColumns: '',
+			gridTemplateColumns,
 		}" @mousedown.prevent="filterInput?.focus()">
 			<thead>
-				<tr>
+				<tr :class="{
+					expanded: expandedInverted,
+				}">
 					<th @click=""></th>
 					<th v-for="columnID in visibleColumns" :key="columnID" :class="{
 						ascending: sortingMap[columnID]?.clause.descending === false,
@@ -224,6 +235,7 @@ const selectionEnd = ref(4)
 				<tr v-for="(row, i) in truncatedRows" :key="row.key" :class="{
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
+					expandable: row.children.length,
 					expanded: isExpanded(row.key),
 				}">
 					<td :style="{
@@ -243,10 +255,12 @@ const selectionEnd = ref(4)
 	flex-direction: column;
 
 	>table {
-		display: block;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
 		flex: 1;
 		overflow: auto;
-		grid-auto-flow: column;
+		grid: 1lh / auto-flow;
 
 		>thead,
 		>tbody {
@@ -257,7 +271,6 @@ const selectionEnd = ref(4)
 				display: grid;
 				grid: inherit;
 				contain: strict;
-				contain-intrinsic-size: none 1lh;
 				content-visibility: auto;
 			}
 		}
