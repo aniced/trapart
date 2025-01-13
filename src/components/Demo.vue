@@ -13,7 +13,7 @@ const number = ref(114514)
 const currentIndex = ref(0)
 const string = ref('Hello, world!')
 const array = ref<{ text: string, children?: { text: string }[] }[]>(new Array(114).fill(0xc0).map((x, i) => ({
-	text: 'Item ' + String.fromCodePoint(x + i),
+	text: `Item ${Math.floor(Math.random() * 100)} ${String.fromCodePoint(x + i)}`,
 	children: [{ text: `Child A of ${i}` }, { text: `Child B of ${i}` }],
 })))
 const view: ListViewDescriptor<(typeof array)['value'][number]> = {
@@ -30,6 +30,11 @@ const view: ListViewDescriptor<(typeof array)['value'][number]> = {
 			render: ({ item }) => item.text.toUpperCase(),
 			name: 'Upper case',
 			compareKey: (item) => item.text,
+		},
+		length: {
+			render: ({ item }) => item.text.length.toString(),
+			name: 'Length',
+			compareKey: (item) => item.text.length,
 		},
 	},
 }

@@ -1,13 +1,12 @@
 <!--
 	This is a versatile component that covers controls ranging from list boxes to tree views.
 	The internal data structure is heavily inspired by TanStack Table.
-	https://tanstack.com/table/v8
+	https://tanstack.com/table/v8/docs/guide/row-models
 	Grouping is omitted because it is incompatible with a tree.
 -->
 
 <script lang="ts" setup generic="T, ColumnID extends string">
 import { computed, ref, type Component } from 'vue'
-import TextBox from './TextBox.vue'
 
 export interface ListViewDescriptor<T, ColumnID extends string = string> {
 	getKey: (item: T) => PropertyKey,
@@ -23,7 +22,7 @@ export interface ListViewDescriptor<T, ColumnID extends string = string> {
 	 */
 	getPlainText: (item: T) => string,
 	columns: { [id in ColumnID]: {
-		render: Component<{item: T}>,
+		render: Component<{ item: T }>,
 		name: string,
 		/** If the compare key is not passed in, the column is not sortable. */
 		compareKey?: (item: T) => number | string,
@@ -68,6 +67,7 @@ const allRows = computed(() => {
 // Apply text filter
 
 const filter = ref('')
+const filterInput = ref<HTMLInputElement>()
 
 const filterRow = (row: Row<T>): boolean => (props.view.getPlainText ?? props.view.getKey)(row.item)
 	.toString().includes(filter.value)
@@ -88,6 +88,13 @@ const filteredRows = computed(() => {
 // Apply sorting
 
 const sorting = ref<{ by: ColumnID, descending: boolean }[]>([])
+const sortingMap = computed(() => {
+	const result: { [id in ColumnID]?: { order: number, clause: { descending: boolean } } } = {}
+	for (const [order, clause] of sorting.value.entries()) {
+		result[clause.by as ColumnID] = { order, clause }
+	}
+	return result
+})
 
 const compareRows = (a: Row<T>, b: Row<T>): number => {
 	for (const { by, descending } of sorting.value) {
@@ -112,22 +119,59 @@ const sortedRows = computed(() => {
 	}(filteredRows.value)
 })
 
+function clickHeader(columnID: ColumnID, multipleSelection: boolean) {
+	if (multipleSelection) {
+		const clause = sortingMap.value[columnID]?.clause
+		if (clause) {
+			clause.descending = !clause.descending
+		} else {
+			sorting.value.push({
+				// @ts-expect-error UnwrapRef<ColumnID> does not understand generic…?
+				by: columnID,
+				descending: false,
+			})
+		}
+	} else {
+		if (sorting.value.length === 1 && sorting.value[0].by === columnID) {
+			const clause = sorting.value[0]
+			if (clause.descending) {
+				sorting.value.pop()
+			} else {
+				clause.descending = true
+			}
+		} else {
+			sorting.value.splice(0, Infinity, {
+				// @ts-expect-error Ditto.
+				by: columnID,
+				descending: false,
+			})
+		}
+	}
+}
+
 //----------------------------------------------------------------------------
 // Flat out expanded rows
 
 const expanded = ref(new Set<PropertyKey>)
 const expandedInverted = ref(false)
-const isExpanded = (row: Row<T>) => expanded.value.has(row.key) !== expandedInverted.value
+const isExpanded = (key: PropertyKey) => expanded.value.has(key) !== expandedInverted.value
+const toggleExpanded = (key: PropertyKey, newValue?: boolean) => {
+	if (newValue === undefined ? expanded.value.has(key) : newValue === expandedInverted.value) {
+		expanded.value.delete(key)
+	} else {
+		expanded.value.add(key)
+	}
+}
 const expandedRows = computed(() => {
 	if (!sortedRows.value.length || !expanded.value.size && !expandedInverted.value) return sortedRows.value
 	const result: Row<T>[] = []
-	;(function traverse(rows: Row<T>[]) {
+	return (function traverse(rows: Row<T>[]) {
 		for (const row of rows) {
 			result.push(row)
-			if (isExpanded(row)) traverse(row.children)
+			if (isExpanded(row.key)) traverse(row.children)
 		}
+		return result
 	})(sortedRows.value)
-	return result
 })
 
 //----------------------------------------------------------------------------
@@ -160,14 +204,18 @@ const selectionEnd = ref(4)
 
 <template>
 	<div class="list-view">
-		<TextBox v-model="filter" />
+		<input type="text" ref="filterInput" v-model="filter" />
 		<table :style="{
 			gridTemplateColumns: '',
-		}">
+		}" @mousedown.prevent="filterInput?.focus()">
 			<thead>
 				<tr>
 					<th @click=""></th>
-					<th v-for="columnID in visibleColumns" :key="columnID" @click="">
+					<th v-for="columnID in visibleColumns" :key="columnID" :class="{
+						ascending: sortingMap[columnID]?.clause.descending === false,
+						descending: sortingMap[columnID]?.clause.descending === true,
+					}" :data-sort-order="sortingMap[columnID]?.order"
+						@click="clickHeader(columnID, $event.ctrlKey || $event.metaKey)">
 						{{ view.columns[columnID].name }}
 					</th>
 				</tr>
@@ -176,11 +224,11 @@ const selectionEnd = ref(4)
 				<tr v-for="(row, i) in truncatedRows" :key="row.key" :class="{
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
-					expanded: isExpanded(row),
+					expanded: isExpanded(row.key),
 				}">
 					<td :style="{
 						paddingLeft: row.indent + 'em',
-					}" @click="" />
+					}" @click="toggleExpanded(row.key)" />
 					<td v-for="columnID in visibleColumns" :key="columnID">
 						<component :is="view.columns[columnID].render" :item="row.item" />
 					</td>

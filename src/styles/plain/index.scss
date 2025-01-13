@@ -24,6 +24,19 @@
 	scrollbar-color: slategray #2a4444;
 }
 
+* {
+	outline-offset: -2px;
+}
+
+:focus {
+	outline: 2px solid paleturquoise;
+}
+
+::selection {
+	background-color: paleturquoise;
+	color: darkslategray;
+}
+
 :any-link {
 	color: deepskyblue;
 
@@ -32,21 +45,19 @@
 	}
 }
 
-:focus {
-	outline: 2px solid paleturquoise;
-	outline-offset: -2px;
-}
-
-::selection {
-	background-color: paleturquoise;
-	color: darkslategray;
-}
-
 input[type="text" i] {
 	border: 2px inset slategray;
 }
 
 .list-view {
+	&:focus-within {
+		@extend :focus;
+	}
+
+	>input {
+		outline: none;
+	}
+
 	>table {
 		border: 2px inset slategray;
 	}
@@ -59,6 +70,24 @@ input[type="text" i] {
 		&:active {
 			border-style: inset;
 			padding: 1px 0 0 1px;
+		}
+
+		&.ascending::after,
+		&.descending::after {
+			content: "";
+			display: inline-block;
+			border: 6px solid;
+			border-color: lightblue transparent;
+			margin: 3px 4px;
+			vertical-align: bottom;
+		}
+
+		&.ascending::after {
+			border-top-width: 0;
+		}
+
+		&.descending::after {
+			border-bottom-width: 0;
 		}
 	}
 
