@@ -6,11 +6,10 @@
 -->
 
 <script lang="ts" setup generic="T, ColumnID extends string">
-import { computed, ref } from 'vue'
+import { computed, ref, type Component } from 'vue'
 import TextBox from './TextBox.vue'
 
-const props = withDefaults(defineProps<{
-	items: T[],
+export interface ListViewDescriptor<T, ColumnID extends string = string> {
 	getKey: (item: T) => PropertyKey,
 	/**
 	 * If getChildren returns non-empty arrays, ListView acts as a tree view.
@@ -24,19 +23,18 @@ const props = withDefaults(defineProps<{
 	 */
 	getPlainText: (item: T) => string,
 	columns: { [id in ColumnID]: {
-		get: (item: T) => any,
+		render: Component<{item: T}>,
 		name: string,
 		/** If the compare key is not passed in, the column is not sortable. */
-		compareKey?: (value: any) => number | string,
+		compareKey?: (item: T) => number | string,
 	} },
+}
+
+const props = defineProps<{
+	items: T[],
+	view: ListViewDescriptor<T, ColumnID>,
 	multipleSelection?: boolean,
 	dragDrop?: boolean,
-}>(), {
-	getChildren: () => [],
-})
-
-defineSlots<{
-	[id in ColumnID]?: (props: { value: any }) => any
 }>()
 
 //============================================================================
@@ -58,10 +56,10 @@ interface Row<T> {
 const allRows = computed(() => {
 	return function traverse(items: T[], depth: number): Row<T>[] {
 		return items.map(item => ({
-			key: props.getKey(item),
+			key: props.view.getKey(item),
 			item,
 			indent: depth,
-			children: traverse(props.getChildren(item), depth + 1),
+			children: traverse(props.view.getChildren?.(item) ?? [], depth + 1),
 		}))
 	}(props.items, 0)
 })
@@ -71,7 +69,7 @@ const allRows = computed(() => {
 
 const filter = ref('')
 
-const filterRow = (row: Row<T>): boolean => (props.getPlainText ?? props.getKey)(row.item)
+const filterRow = (row: Row<T>): boolean => (props.view.getPlainText ?? props.view.getKey)(row.item)
 	.toString().includes(filter.value)
 
 const filteredRows = computed(() => {
@@ -91,12 +89,12 @@ const filteredRows = computed(() => {
 
 const sorting = ref<{ by: ColumnID, descending: boolean }[]>([])
 
-const toString = (x: object) => x.toString()
 const compareRows = (a: Row<T>, b: Row<T>): number => {
 	for (const { by, descending } of sorting.value) {
-		const { get, compareKey = toString } = props.columns[by as ColumnID]
-		const ka = compareKey(get(a.item))
-		const kb = compareKey(get(b.item))
+		const { compareKey } = props.view.columns[by as ColumnID]
+		if (!compareKey) continue
+		const ka = compareKey(a.item)
+		const kb = compareKey(b.item)
 		if (ka === kb) continue
 		if (typeof ka === typeof kb) return (ka < kb) !== descending ? -1 : 1
 		// return (typeof ka < typeof kb) !== descending ? -1 : 1
@@ -150,7 +148,7 @@ const truncatedRows = computed(() => {
 
 const visibleColumnsProp = defineModel<ColumnID[]>('visibleColumns')
 const visibleColumns = computed<ColumnID[]>(() =>
-	visibleColumnsProp.value ?? Object.keys(props.columns) as ColumnID[])
+	visibleColumnsProp.value ?? Object.keys(props.view.columns) as ColumnID[])
 
 //----------------------------------------------------------------------------
 // Selection
@@ -168,9 +166,9 @@ const selectionEnd = ref(4)
 		}">
 			<thead>
 				<tr>
-					<th><span>±</span></th>
-					<th v-for="columnID in visibleColumns" :key="columnID">
-						{{ columns[columnID].name }}
+					<th @click=""></th>
+					<th v-for="columnID in visibleColumns" :key="columnID" @click="">
+						{{ view.columns[columnID].name }}
 					</th>
 				</tr>
 			</thead>
@@ -178,12 +176,13 @@ const selectionEnd = ref(4)
 				<tr v-for="(row, i) in truncatedRows" :key="row.key" :class="{
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
+					expanded: isExpanded(row),
 				}">
-					<td><span>±</span></td>
+					<td :style="{
+						paddingLeft: row.indent + 'em',
+					}" @click="" />
 					<td v-for="columnID in visibleColumns" :key="columnID">
-						<slot :name="columnID" :value="columns[columnID].get(row.item)">
-							{{ columns[columnID].get(row.item) }}
-						</slot>
+						<component :is="view.columns[columnID].render" :item="row.item" />
 					</td>
 				</tr>
 			</tbody>
