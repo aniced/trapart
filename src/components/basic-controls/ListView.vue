@@ -199,7 +199,7 @@ const visibleColumns = computed<ColumnID[]>(() =>
 // Column resizing
 
 const columnWidthDelta = ref<{ [id in ColumnID]?: number }>({})
-const gridTemplateColumns = computed(() => '1em ' + visibleColumns.value.map(id =>
+const gridTemplateColumns = computed(() => visibleColumns.value.map(id =>
 	props.view.columns[id].initialWidth + (columnWidthDelta.value[id] ?? 0) + 'px'
 ).join(' '))
 
@@ -216,18 +216,18 @@ const selectionEnd = ref(4)
 		<input type="text" ref="filterInput" v-model="filter" />
 		<table :style="{
 			gridTemplateColumns,
-		}" @mousedown.prevent="filterInput?.focus()">
+		}" @mousedown.left.prevent="filterInput?.focus()">
 			<thead>
 				<tr :class="{
 					expanded: expandedInverted,
 				}">
-					<th @click=""></th>
 					<th v-for="columnID in visibleColumns" :key="columnID" :class="{
 						ascending: sortingMap[columnID]?.clause.descending === false,
 						descending: sortingMap[columnID]?.clause.descending === true,
 					}" :data-sort-order="sortingMap[columnID]?.order"
 						@click="clickHeader(columnID, $event.ctrlKey || $event.metaKey)">
-						{{ view.columns[columnID].name }}
+						<span>{{ view.columns[columnID].name }}</span>
+						<div class="grip"></div>
 					</th>
 				</tr>
 			</thead>
@@ -236,11 +236,10 @@ const selectionEnd = ref(4)
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
 					expandable: row.children.length,
-					expanded: isExpanded(row.key),
-				}">
-					<td :style="{
-						paddingLeft: row.indent + 'em',
-					}" @click="toggleExpanded(row.key)" />
+					expanded: row.children.length && isExpanded(row.key),
+				}" :style="{
+					'--indent': row.indent,
+				}" @click="toggleExpanded(row.key)">
 					<td v-for="columnID in visibleColumns" :key="columnID">
 						<component :is="view.columns[columnID].render" :item="row.item" />
 					</td>
@@ -281,7 +280,19 @@ const selectionEnd = ref(4)
 			z-index: 1;
 		}
 
-		>thead>tr>th,
+		>thead>tr>th {
+			display: flex;
+
+			>span {
+				flex: 1;
+			}
+
+			>.grip {
+				cursor: col-resize;
+			}
+		}
+
+		>thead>tr>th>span,
 		>tbody>tr>td {
 			white-space: nowrap;
 			overflow: hidden;
