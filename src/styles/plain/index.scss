@@ -15,10 +15,13 @@
 }
 
 :root {
-	font: 12px/1.3333333333 "Inter", sans-serif;
+	font: 12px/16px "Inter", sans-serif;
 	font-optical-sizing: auto;
 	font-feature-settings: "liga", "calt", "cv01", "cv10", "ss03";
-	background-color: azure;
+	background-color: darkslategray;
+	color: azure;
+	color-scheme: dark;
+	scrollbar-color: slategray #2a4444;
 }
 
 :any-link {
@@ -30,34 +33,36 @@
 }
 
 :focus {
-	outline: 2px solid darkslategray;
+	outline: 2px solid paleturquoise;
 	outline-offset: -2px;
 }
 
 ::selection {
-	background-color: darkslategray;
-	color: white;
+	background-color: paleturquoise;
+	color: darkslategray;
 }
 
 input[type="text" i] {
-	border: 2px inset skyblue;
+	border: 2px inset slategray;
 }
 
 .list-view {
 	>table {
-		border: 2px inset skyblue;
+		border: 2px inset slategray;
 	}
 
 	>table>thead>tr>th {
-		border: 2px outset skyblue;
-		background: powderblue;
+		line-height: 12px;
+		border: 2px outset slategray;
+		background: slategray;
 
 		&:active {
 			border-style: inset;
+			padding: 1px 0 0 1px;
 		}
 	}
 
 	>table>tbody>tr>td {
-		padding: 2px;
+		padding: 0 2px;
 	}
 }
