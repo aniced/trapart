@@ -198,10 +198,25 @@ const visibleColumns = computed<ColumnID[]>(() =>
 //----------------------------------------------------------------------------
 // Column resizing
 
-const columnWidthDelta = ref<{ [id in ColumnID]?: number }>({})
+const columnWidth = ref<{ [id in ColumnID]?: number }>({})
 const gridTemplateColumns = computed(() => visibleColumns.value.map(id =>
-	props.view.columns[id].initialWidth + (columnWidthDelta.value[id] ?? 0) + 'px'
+	(columnWidth.value[id] ?? props.view.columns[id].initialWidth) + 'px'
 ).join(' '))
+const pointerdownGrip = (event: PointerEvent, columnID: ColumnID) => {
+	if (event.button !== 0) return
+	const x0 = event.clientX - (columnWidth.value[columnID] ?? props.view.columns[columnID].initialWidth)
+	const pointermove = (event: PointerEvent) => {
+		columnWidth.value[columnID] = Math.max(0, event.clientX - x0)
+	}
+	const pointerup = (event: PointerEvent) => {
+		if (event.button !== 0) return
+		pointermove(event)
+		document.removeEventListener('pointermove', pointermove)
+		document.removeEventListener('pointerup', pointerup)
+	}
+	document.addEventListener('pointermove', pointermove)
+	document.addEventListener('pointerup', pointerup)
+}
 
 //----------------------------------------------------------------------------
 // Selection
@@ -224,10 +239,11 @@ const selectionEnd = ref(4)
 					<th v-for="columnID in visibleColumns" :key="columnID" :class="{
 						ascending: sortingMap[columnID]?.clause.descending === false,
 						descending: sortingMap[columnID]?.clause.descending === true,
-					}" :data-sort-order="sortingMap[columnID]?.order"
-						@click="clickHeader(columnID, $event.ctrlKey || $event.metaKey)">
+					}" :data-sort-order="sortingMap[columnID]?.order" @click="
+						($event.target as HTMLElement).className !== 'grip'
+						&& clickHeader(columnID, $event.ctrlKey || $event.metaKey)">
 						<span>{{ view.columns[columnID].name }}</span>
-						<div class="grip"></div>
+						<div class="grip" @pointerdown="pointerdownGrip($event, columnID)"></div>
 					</th>
 				</tr>
 			</thead>
@@ -289,6 +305,7 @@ const selectionEnd = ref(4)
 
 			>.grip {
 				cursor: col-resize;
+				touch-action: none;
 			}
 		}
 

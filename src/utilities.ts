@@ -68,3 +68,14 @@ export function symbolize<T>(x: T): Symbolize<T> {
 			throw new Error('JavaScript has evolved')
 	}
 }
+
+export function mapObjectValues<K extends string | number, V0, V1>(
+	x: { [_ in K]: V0 },
+	f: (value: V0, key: K) => V1,
+): { [_ in K]: V1 } {
+	const y: any = { }
+	for (const key in x) {
+		y[key] = f(x[key], key)
+	}
+	return y
+}
