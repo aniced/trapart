@@ -29,12 +29,12 @@
 }
 
 :focus {
-	outline: 2px solid paleturquoise;
+	outline: 2px solid violet;
 }
 
 ::selection {
 	background-color: paleturquoise;
-	color: darkslategray;
+	color: black;
 }
 
 :any-link {
@@ -43,6 +43,56 @@
 	&:active {
 		color: steelblue;
 	}
+}
+
+:disabled {
+	color: slategray;
+}
+
+@mixin button {
+	border: 2px outset slategray;
+	background: slategray;
+
+	&:disabled,
+	:disabled & {
+		background: darkslategray;
+	}
+
+	&:not(:disabled, :disabled *):active {
+		border-style: inset;
+	}
+}
+
+button {
+	@include button;
+	height: 24px;
+	align-items: center;
+	padding: 4px;
+	outline-offset: -4px;
+
+	&:enabled:active {
+		padding: 5px 3px 3px 5px;
+	}
+}
+
+input[type="checkbox" i],
+input[type="radio" i] {
+  border: 2px inset slategray;
+  width: 1em;
+  height: 1em;
+
+  &:checked {
+    box-shadow: inset 0 0 0 1px darkslategray;
+    background: paleturquoise;
+  }
+
+	&:disabled:checked {
+		background: slategray;
+	}
+}
+
+input[type="radio" i] {
+  border-radius: 50%;
 }
 
 input[type="text" i] {
@@ -60,14 +110,13 @@ input[type="text" i] {
 
 	>table {
 		border: 2px inset slategray;
+		font-variant-numeric: tabular-nums;
 	}
 
 	>table>thead>tr>th {
-		border: 2px outset slategray;
-		background: slategray;
+		@include button;
 
-		&:active {
-			border-style: inset;
+		&:not(:disabled *):active {
 			padding: 1px 0 0 1px;
 		}
 

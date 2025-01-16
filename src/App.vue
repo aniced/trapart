@@ -107,7 +107,8 @@ const activeApplication = ref(0)
 
 	ul,
 	ol,
-	menu {
+	menu,
+	summary {
 		list-style: none;
 	}
 
@@ -127,7 +128,7 @@ const activeApplication = ref(0)
 		resize: none;
 	}
 
-	// Ban the use of PITA elements.
+	// Ban the use of PITA elements that are impossible to style.
 	input[type="search" i],
 	meter,
 	progress,
@@ -150,6 +151,7 @@ const activeApplication = ref(0)
 	}
 
 	dialog[open],
+	// Utility classes.
 	.vbox {
 		display: flex;
 		flex-direction: column;
