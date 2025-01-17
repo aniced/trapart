@@ -8,6 +8,7 @@
 <script lang="ts" setup generic="T, ColumnID extends string">
 import { computed, ref, type Component } from 'vue'
 import Grip from './Grip.vue'
+import { useEnabled } from '../Enable.vue';
 
 export interface ListViewDescriptor<T, ColumnID extends string = string> {
 	getKey: (item: T) => PropertyKey,
@@ -190,6 +191,11 @@ const truncatedRows = computed(() => {
 //============================================================================
 
 //----------------------------------------------------------------------------
+// Enabled
+
+const enabled = useEnabled()
+
+//----------------------------------------------------------------------------
 // Column reordering
 
 const visibleColumnsProp = defineModel<ColumnID[]>('visibleColumns')
@@ -217,7 +223,7 @@ const selectionEnd = ref(4)
 		<input type="text" ref="filterInput" v-model="filter" />
 		<table :style="{
 			gridTemplateColumns,
-		}" @mousedown.left.prevent="filterInput?.focus()">
+		}" @mousedown.left.prevent="filterInput?.focus()" :inert="!enabled">
 			<thead>
 				<tr :class="{
 					expanded: expandedInverted,
