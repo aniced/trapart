@@ -7,6 +7,7 @@
 
 <script lang="ts" setup generic="T, ColumnID extends string">
 import { computed, ref, type Component } from 'vue'
+import Grip from './Grip.vue'
 
 export interface ListViewDescriptor<T, ColumnID extends string = string> {
 	getKey: (item: T) => PropertyKey,
@@ -202,21 +203,6 @@ const columnWidth = ref<{ [id in ColumnID]?: number }>({})
 const gridTemplateColumns = computed(() => visibleColumns.value.map(id =>
 	(columnWidth.value[id] ?? props.view.columns[id].initialWidth) + 'px'
 ).join(' '))
-const pointerdownGrip = (event: PointerEvent, columnID: ColumnID) => {
-	if (event.button !== 0) return
-	const x0 = event.clientX - (columnWidth.value[columnID] ?? props.view.columns[columnID].initialWidth)
-	const pointermove = (event: PointerEvent) => {
-		columnWidth.value[columnID] = Math.max(0, event.clientX - x0)
-	}
-	const pointerup = (event: PointerEvent) => {
-		if (event.button !== 0) return
-		pointermove(event)
-		document.removeEventListener('pointermove', pointermove)
-		document.removeEventListener('pointerup', pointerup)
-	}
-	document.addEventListener('pointermove', pointermove)
-	document.addEventListener('pointerup', pointerup)
-}
 
 //----------------------------------------------------------------------------
 // Selection
@@ -240,10 +226,11 @@ const selectionEnd = ref(4)
 						ascending: sortingMap[columnID]?.clause.descending === false,
 						descending: sortingMap[columnID]?.clause.descending === true,
 					}" :data-sort-order="sortingMap[columnID]?.order" @click="
-						($event.target as HTMLElement).className !== 'grip'
-						&& clickHeader(columnID, $event.ctrlKey || $event.metaKey)">
+						($event.target as HTMLElement).classList.contains('grip')
+						|| clickHeader(columnID, $event.ctrlKey || $event.metaKey)">
 						<span>{{ view.columns[columnID].name }}</span>
-						<div class="grip" @pointerdown="pointerdownGrip($event, columnID)"></div>
+						<Grip :x="columnWidth[columnID] ?? view.columns[columnID].initialWidth" :min-x="0" @input="// @ts-expect-error weird error caused by ColumnID
+							x => columnWidth[columnID] = x" />
 					</th>
 				</tr>
 			</thead>
