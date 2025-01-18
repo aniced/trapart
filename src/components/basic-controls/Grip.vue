@@ -21,21 +21,21 @@ const pointerdown = (event: PointerEvent) => {
 	if (event.button !== 0) return
 	const initialX = event.clientX - props.x
 	const initialY = event.clientY - props.y
-	const pointermove = (event: PointerEvent) => {
-		emit(
-			event.type === 'pointermove' ? 'input' : 'update',
-			Math.min(Math.max(event.clientX - initialX, props.minX), props.maxX),
-			Math.min(Math.max(event.clientY - initialY, props.minY), props.maxY),
-		)
+	// `pointerup` is fired when the last depressed button is released, unlike `mouseup` which is fired for each release.
+	// For a specific button, `pointermove` should be listened.
+	// https://w3c.github.io/pointerevents/#chorded-button-interactions
+	const handler = (event: PointerEvent) => {
+		const x = Math.min(Math.max(event.clientX - initialX, props.minX), props.maxX)
+		const y = Math.min(Math.max(event.clientY - initialY, props.minY), props.maxY)
+		emit('input', x, y)
+		if (!(event.buttons & 1)) {
+			emit('update', x, y)
+			document.removeEventListener('pointermove', handler)
+			document.removeEventListener('pointerup', handler)
+		}
 	}
-	const pointerup = (event: PointerEvent) => {
-		if (event.button !== 0) return
-		pointermove(event)
-		document.removeEventListener('pointermove', pointermove)
-		document.removeEventListener('pointerup', pointerup)
-	}
-	document.addEventListener('pointermove', pointermove, { passive: true })
-	document.addEventListener('pointerup', pointerup, { passive: true })
+	document.addEventListener('pointermove', handler, { passive: true })
+	document.addEventListener('pointerup', handler, { passive: true })
 }
 </script>
 
