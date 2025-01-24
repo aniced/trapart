@@ -4,16 +4,17 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@floating-ui/vue": "^1.1.5",
+    "@floating-ui/vue": "^1.1.6",
+    "nanoid": "^5.0.9",
     "vue": "^3.5.13"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.5.1",
-    "rollup-plugin-visualizer": "^5.13.1",
-    "sass-embedded": "^1.83.1",
+    "rollup-plugin-visualizer": "^5.14.0",
+    "sass-embedded": "^1.83.4",
     "typescript": "~5.6.3",
-    "vite": "^6.0.7",
+    "vite": "^6.0.11",
     "vitest": "^2.1.8",
     "vue-tsc": "^2.2.0"
   },
