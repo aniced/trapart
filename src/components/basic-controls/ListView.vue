@@ -166,7 +166,11 @@ const toggleExpanded = (key: PropertyKey, newValue?: boolean) => {
 	}
 }
 const expandedRows = computed(() => {
-	if (!sortedRows.value.length || !expanded.value.size && !expandedInverted.value) return sortedRows.value
+	if (
+		!sortedRows.value.length
+		|| !expanded.value.size && !expandedInverted.value
+		|| !props.view.getChildren
+	) return sortedRows.value
 	const result: Row<T>[] = []
 	return (function traverse(rows: Row<T>[]) {
 		for (const row of rows) {
@@ -181,7 +185,7 @@ const expandedRows = computed(() => {
 // Hide data too big
 // This is the final data source for display.
 
-const truncatedRows = computed(() => {
+const visibleRows = computed(() => {
 	if (expandedRows.value.length <= 1000) return expandedRows.value
 	return expandedRows.value.slice(0, 1000)
 })
@@ -219,7 +223,10 @@ const selectionEnd = ref(4)
 </script>
 
 <template>
-	<div class="list-view">
+	<div :class="{
+		'list-view': true,
+		tree: view.getChildren,
+	}">
 		<input type="text" ref="filterInput" v-model="filter" />
 		<table :style="{
 			gridTemplateColumns,
@@ -241,7 +248,7 @@ const selectionEnd = ref(4)
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="(row, i) in truncatedRows" :key="row.key" :class="{
+				<tr v-for="(row, i) in visibleRows" :key="row.key" :class="{
 					current: i === modelValue,
 					selected: i >= selectionStart && i < selectionEnd,
 					expandable: row.children.length,

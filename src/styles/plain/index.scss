@@ -164,7 +164,7 @@ legend {
 		}
 	}
 
-	>table>tbody>tr {
+	&.tree>table>tbody>tr {
 		>td:first-child {
 			padding-left: calc(1em * var(--indent));
 		}
