@@ -1,3 +1,10 @@
+/**
+ * An identifier unique to the window, for use with interoperability APIs such as drag and drop and clipboard.
+ * It does not contain uppercase ASCII letters, which is important for use with types in DataTransfer.
+ */
+// It should not be replaced with a nanoid.
+export const windowID = crypto.randomUUID()
+
 export class DefaultMap<K, V> extends Map<K, V> {
 	constructor(public factory: () => V) {
 		super()
