@@ -99,6 +99,16 @@ input[type="text" i] {
 	border: 2px inset slategray;
 }
 
+fieldset {
+	border: 2px ridge slategray;
+	padding: 4px 8px 8px;
+}
+
+legend {
+	margin: 0 -6px;
+	padding: 0 2px;
+}
+
 .list-view {
 	&:focus-within {
 		@extend :focus;
