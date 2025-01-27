@@ -21,6 +21,21 @@ type Items = {
 	[key: string]: string | undefined
 }
 
+//============================================================================
+// Clipboard (WIP)
+//============================================================================
+
+//----------------------------------------------------------------------------
+// Copy (and cut)
+
+export function copy() {
+	document.execCommand('copy')
+}
+
+export function cut() {
+	document.execCommand('cut')
+}
+
 function b(data: any) {
 	const span = document.createElement('span')
 	span.dataset.data = JSON.stringify(data)
@@ -36,6 +51,16 @@ document.addEventListener('copy', event => {
 		}
 	}
 	event.clipboardData!.items.add('', 'text/html')
+})
+
+//----------------------------------------------------------------------------
+// Paste
+
+export function paste() {
+	navigator.clipboard.read().then()
+}
+
+document.addEventListener('paste', event => {
 })
 
 function clipboardHTMLToItems(html: string): Items {
