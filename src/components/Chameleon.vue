@@ -1,63 +1,35 @@
-<script setup lang="ts">
-import { ref } from "vue"
-import type { Schema } from "../infer"
-import TextBox from "./basic-controls/TextBox.vue"
-import SpinBox from "./basic-controls/SpinBox.vue"
+<script setup lang="ts" generic="T">
+import type { Schema } from '../schema'
 
-withDefaults(defineProps<{
-	title?: string,
-	type: Schema,
-	value: any,
-	// `key` has been taken by Vue.
-	keyName: string | number | symbol,
-}>(), {
-	title: props => props.keyName.toString(),
-})
-
-defineEmits<{
-	(e: "update:modelValue", value: any): void,
+const props = defineProps<{
+	type: Schema<T>,
+	value: T,
 }>()
 
-//TODO
-const isNull = ref(false)
-
-// assertions:
-// - Object.hasOwn(value, key)
+const emit = defineEmits<{
+	(e: 'update', value: T, commit?: boolean): void,
+}>()
 </script>
 
 <template>
-	<label v-if="type.type === 'boolean'">
-		<input type="checkbox" v-model="value[keyName]">
-		{{ title }}
-	</label>
-	<label v-else-if="type.type === 'optional'" class="vbox">
-		optional
+	<div :class="{
+		chameleon: true,
+	}">
 		<label>
-			<input type="checkbox" v-model="isNull">
-			{{ title }}
+			{{ type.title }}
 		</label>
-		<div class="indent">
-			<Chameleon :type="type.items" :value="value" :key-name="keyName" />
+		<div>
+			<component :="type.view.props" :is="type.view.component" :value @update="(value: T, commit: boolean) => $emit('update', value)"
+				@input="(value: T) => $emit('input', value)" />
 		</div>
-	</label>
-	<label v-else class="vbox">
-		{{ title }}
-		<div v-if="type.type === 'any'">
-			{{ JSON.stringify(value[keyName]) }}
+		<div v-if="type.description">
+			<component :is="type.description" />
 		</div>
-		<TextBox v-else-if="type.type === 'string'" v-model="value[keyName]" :single-line="!type.multiline" />
-		<SpinBox v-else-if="type.type === 'number'" v-model="value[keyName]" />
-		<template v-else-if="type.type === 'array'">
-			<Chameleon v-for="(_, i) in value[keyName]" :type="type.items" :value="value[keyName]" :key-name="i.toString()" />
-		</template>
-		<template v-else-if="type.type === 'map'">
-			<Chameleon v-for="(_, i) in value[keyName]" :type="type.items" :value="value[keyName]" :key-name="i" />
-		</template>
-		<template v-else-if="type.type === 'object'">
-			<Chameleon v-for="(_, i) in value[keyName]" :type="type.properties[i]" :value="value[keyName]" :key-name="i" />
-		</template>
-		<div v-else>
-			unknown type {{ JSON.stringify(type.type) }} encountered
-		</div>
-	</label>
+	</div>
 </template>
+
+<style lang="scss">
+.chameleon {
+	flex-direction: column;
+}
+</style>

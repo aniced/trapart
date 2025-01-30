@@ -189,3 +189,9 @@ legend {
 		padding: 0 2px;
 	}
 }
+
+.chameleon {
+	&.selected>label{
+		@extend ::selection;
+	}
+}
