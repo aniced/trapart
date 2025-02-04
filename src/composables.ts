@@ -1,63 +1,12 @@
-import {
-  ref,
-  shallowRef,
-  shallowReactive,
-  computed,
-  watch,
-  watchEffect,
-  onMounted,
-  onUnmounted,
-  toRef,
-  toValue,
-  isProxy,
-  type Ref,
-  type ShallowRef,
-  type MaybeRef,
-} from 'vue'
+import { createStore, type Store, produce } from 'solid-js/store'
 
 /**
- * Create a ref for a property on a shallow object ref.
- * It works similarly to the 2-argument form of Vue's built-in `toRef`, but for refs instead of reactives.
- * The function treats objects shallowly referenced as immutable, and creates a new object for the source ref every time the created ref is written to.
+ * Create a reactive object that can be read and written through a proxy.
+ *
+ * While standard createStore encourages an ad-hoc path syntax, this one forces you to use the proxy-based setter.
  */
-export function useLens<T extends object, K extends keyof T>(object: Ref<T>, key: K): Ref<T[K]> {
-  return !isProxy(object.value)
-    ? toRef(object.value, key)
-    : computed({
-      get: () => object.value[key],
-      set: x => object.value = { ...object.value, [key]: x },
-    })
-}
-
-export function useLocalStorage<T>(key: string, initialValue: T): ShallowRef<T> {
-  try {
-    initialValue = JSON.parse(localStorage.getItem(key)!)
-  } catch {
-  }
-  const state = shallowRef<T>(initialValue)
-  watch(state, newValue => localStorage.setItem(key, JSON.stringify(newValue)))
-  const listener = (event: StorageEvent) => {
-    if (event.storageArea === localStorage && event.key === key && event.newValue) {
-      state.value = JSON.parse(event.newValue)
-    }
-  }
-  onMounted(() => addEventListener('storage', listener))
-  onUnmounted(() => removeEventListener('storage', listener))
-  return state
-}
-
-export function useHistoryState<T>(initialValue: T) {
-  const history = shallowReactive([initialValue])
-  const head = ref(0)
-  return {
-    state: computed({
-      get: () => history[head.value],
-      // https://github.com/zaboople/klonk/blob/master/TheGURQ.md
-      set: x => history.push(...history.slice(head.value, -1).reverse(), x),
-    }),
-    canUndo: computed(() => head.value > 0),
-    undo: () => { head.value = Math.max(0, head.value - 1) },
-    canRedo: computed(() => head.value < history.length - 1),
-    redo: () => { head.value = Math.min(head.value + 1, history.length - 1) },
-  }
+export function createStore2<T extends object>(store: T | Store<T>):
+  [get: Store<T>, set: (fn: (state: T) => void) => void] {
+  const [get, set] = createStore(store)
+  return [get, fn => set(produce(fn))]
 }

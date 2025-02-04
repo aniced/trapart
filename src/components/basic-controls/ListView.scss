@@ -1,0 +1,34 @@
+.list-view {
+	>table {
+		align-items: flex-start;
+		grid: 1lh / auto-flow;
+
+		>thead,
+		>tbody {
+			display: block;
+			grid: inherit;
+
+			>tr {
+				display: grid;
+				grid: inherit;
+				contain: strict;
+				content-visibility: auto;
+			}
+		}
+
+		>thead {
+			position: sticky;
+			top: 0;
+			z-index: 1;
+		}
+
+		>thead>tr>th {
+			display: flex;
+
+			>.grip {
+				cursor: col-resize;
+				touch-action: none;
+			}
+		}
+	}
+}

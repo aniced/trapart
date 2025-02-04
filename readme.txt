@@ -10,7 +10,7 @@ https://github.com/aniced/trapart
 
 ▼ 致谢与声明
 
-使用的技术：Vue 3、TypeScript、Sass、Vite。
+使用的技术：Solid、TypeScript、Sass、Vite。
 依靠GitHub Actions自动托管在GitHub Pages上。
 使用了下列库：Floating UI（MIT）。
 

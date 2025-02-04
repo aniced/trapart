@@ -1,25 +1,18 @@
 import { defineConfig, type PluginOption } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import solid from 'vite-plugin-solid'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler',
-      },
-    },
-  },
   plugins: [
-    vue({
-      script: {
-        defineModel: true,
-      },
-    }),
+    solid(),
     visualizer({
       emitFile: true,
       filename: 'bundle.html',
     }) as PluginOption,
   ],
+  build: {
+    target: 'esnext',
+  },
+  // resolveSnapshotPath: (testPath, snapExtension) => testPath + snapExtension,
 })

@@ -5,8 +5,8 @@
 <title>Aniced Trapart — everything editor</title>
 <meta name="description" content="I'm not sure about what this project is.">
 <script type="module">
-	import { createApp } from 'vue'
-	import App from './src/App.vue'
+	import { render } from 'solid-js/web'
+	import { App } from './src/App'
 	import './src/styles/plain/index.scss'
-	createApp(App).mount(document.body.appendChild(document.createElement('div')))
+	render(App, document.body.appendChild(document.createElement('main')))
 </script>
