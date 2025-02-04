@@ -86,3 +86,13 @@ export function mapObjectValues<K extends string | number, V0, V1>(
 	}
 	return y
 }
+
+/**
+ * Check if there are any properties on this object.
+ */
+export function isEmpty(x: object): boolean {
+	for (const key in x) if (Object.hasOwn(x, key)) {
+		return false
+	}
+	return true
+}
