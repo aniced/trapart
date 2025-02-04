@@ -21,13 +21,19 @@ export function $set<T>(value: T): $set<T> {
 /** Shorthand to $set(undefined). */
 export const $delete = $set(undefined)
 
-/** a + b */
+/**
+ * a + b
+ * 
+ * Operands are not mutated. If no changes are made, a is returned.
+ */
 export function patch<T>(a: T, b: Delta<T>): T {
 	if (b === undefined) return a
 	if (b instanceof $set) return b.value
-	const y = Array.isArray(a) ? a.slice() : { ...a }
+	let y = a
 	for (const key in b) if (Object.hasOwn(b, key)) {
 		const value = patch(y[key], b[key])
+		if (Object.is(value, y[key])) continue
+		if (y === a) y = Array.isArray(a) ? a.slice() : { ...a }
 		if (value === undefined) {
 			delete y[key]
 		} else {

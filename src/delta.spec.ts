@@ -20,7 +20,7 @@ describe('patch', () => {
 				a: undefined,
 				c: undefined,
 			},
-		})).toStrictEqual(state)
+		})).toBe(state)
 	})
 
 	it('handles nested $set', () => {
