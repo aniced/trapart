@@ -180,6 +180,10 @@ legend {
 	.disabled &>.down {
 		color: slategray;
 	}
+
+	&.invalid {
+		background: #4f2f2f;
+	}
 }
 
 .list-view {

@@ -1,7 +1,14 @@
-import { JSX, mergeProps, Show } from 'solid-js'
+import { createEffect, createSignal, JSX, mergeProps, Show } from 'solid-js'
 import { Update } from '../../schema'
 import { useEnabled } from '../Enable'
 import { $set } from '../../delta'
+
+function parse(s: string): number | undefined {
+	let x = Number(s)
+	if (Number.isNaN(x)) x = parseFloat(s)
+	if (s !== 'NaN' && Number.isNaN(x)) return undefined
+	return x
+}
 
 export function SpinBox(propsIn: {
 	value: number,
@@ -19,6 +26,8 @@ export function SpinBox(propsIn: {
 	}, propsIn)
 	const enabled = useEnabled()
 	let input!: HTMLInputElement
+	const [valid, setValid] = createSignal(true)
+	let changed = false
 	function update(newValue: number, commit: boolean) {
 		newValue = props.min <= props.max
 			? Math.min(Math.max(newValue, props.min), props.max)
@@ -27,6 +36,7 @@ export function SpinBox(propsIn: {
 		props.onUpdate({ delta: $set(newValue), commit })
 	}
 	function increment(steps: number) {
+		changed = false
 		update(props.value + steps * props.step, false)
 		input.select()
 	}
@@ -49,14 +59,20 @@ export function SpinBox(propsIn: {
 			}, { once: true })
 		}
 	}
-	function parse(commit: boolean): boolean {
-		let newValue = parseFloat(input.value)
-		if (Number.isNaN(newValue)) newValue = Number(input.value)
-		if (input.value !== 'NaN' && Number.isNaN(newValue)) return false
-		update(newValue, commit)
-		return true
-	}
-	return <div class="spin-box" onMouseDown={event => {
+	createEffect(() => {
+		const value = props.value
+		// In case `change` event didn't fire, fix the state.
+		if (document.activeElement !== input) changed = false
+		if (!changed) {
+			input.value = value.toString()
+			if (document.activeElement === input) {
+				input.select()
+			}
+		}
+	})
+	return <div class="spin-box" classList={{
+		invalid: !valid(),
+	}} onMouseDown={event => {
 		if (event.button !== 0) return
 		if (!enabled()) return
 		if (event.target !== input) {
@@ -70,10 +86,20 @@ export function SpinBox(propsIn: {
 			</div>
 		</Show>
 		<input ref={input} type="text" inputmode="decimal"
-			value={props.value}
 			onFocus={event => event.target.select()}
-			onChange={() => parse(true)}
-			onInput={() => parse(false)}
+			onChange={event => {
+				changed = false
+				const newValue = parse(event.target.value)
+				if (newValue !== undefined) update(newValue, true)
+				event.target.value = props.value.toString()
+				setValid(true)
+			}}
+			onInput={event => {
+				changed = true
+				const newValue = parse(event.target.value)
+				if (newValue !== undefined) update(newValue, false)
+				setValid(newValue !== undefined)
+			}}
 			onKeyDown={event => {
 				if (event.key === 'ArrowUp') {
 					event.preventDefault()
