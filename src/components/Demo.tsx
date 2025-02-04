@@ -8,8 +8,10 @@ import { TextBox } from './basic-controls/TextBox'
 import { ListView, type ListViewDescriptor } from './basic-controls/ListView'
 import { Enable } from './Enable'
 import { patch } from '../delta'
+import { Chameleon } from './Chameleon'
+import { integer } from '../basic-views'
 
-export function Demo() {
+function ControlDemo() {
 	const [disabled, setDisabled] = createSignal(false)
 	const [number, setNumber] = createSignal(114514)
 	const [currentIndex, setCurrentIndex] = createSignal(0)
@@ -125,3 +127,20 @@ export function Demo() {
 		</Enable>
 	</div>
 }
+
+function ChameleonDemo() {
+	const [x, setX] = createSignal(114514)
+	setInterval(() => {
+		setX(x => x + 1)
+	}, 500)
+	return <div class="vbox">
+		<h1>{x()}</h1>
+		<Chameleon type={{
+			title: 'Number',
+			view: integer,
+			description: () => 'A spin box control.',
+		}} value={x()} onUpdate={u => setX(x => patch(x, u.delta))} />
+	</div>
+}
+
+export const Demo = ChameleonDemo

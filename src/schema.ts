@@ -17,6 +17,7 @@ export interface ViewDescriptor<T> {
 		onUpdate: (update: Update<T>) => void,
 	}>,
 	methods: { [name: string]: (oldValue: T) => Update<T> },
+	default: () => T,
 }
 
 export interface Command {
@@ -33,5 +34,7 @@ export interface Command {
 export interface Schema<T> {
 	title: string,
 	description?: Component,
+	/** The default value. If not provided, view's default will be used. */
+	default?: () => T,
 	view: ViewDescriptor<T>,
 }
