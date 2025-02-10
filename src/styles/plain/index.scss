@@ -53,12 +53,11 @@
 	border: 2px outset slategray;
 	background: slategray;
 
-	&:disabled,
 	:disabled & {
 		background: darkslategray;
 	}
 
-	&:not(:disabled, :disabled *):active {
+	&:not(:disabled *):active {
 		border-style: inset;
 	}
 }

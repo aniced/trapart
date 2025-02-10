@@ -5,7 +5,7 @@ const EnabledContext = createContext<() => boolean>(() => true)
 /**
  * Use `<Enable>` to provide containers.
  * Inject as `const enabled = useEnabled()` for templates and scripts.
- * In CSS, use `&:disabled` for form controls and `:disabled &` for others.
+ * In CSS, use `:disabled &` to select a disabled variant, and `&:not(:disabled *)` to select an enabled one.
  */
 export const useEnabled = () => useContext(EnabledContext)
 
