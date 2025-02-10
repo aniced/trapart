@@ -1,7 +1,5 @@
-import { createEffect, createSignal, JSX, mergeProps, Show } from 'solid-js'
-import { Update } from '../../schema'
+import { createEffect, createSignal, JSX, Show } from 'solid-js'
 import { useEnabled } from '../Enable'
-import { $set } from '../../delta'
 
 export function makeSpinBox<T>(options: Readonly<{
 	add: (value: T, by: number) => T,
@@ -10,7 +8,7 @@ export function makeSpinBox<T>(options: Readonly<{
 }>) {
 	return (props: {
 		value: T,
-		onUpdate: (update: Update<T>) => void,
+		onUpdate: (newValue: T, commit: boolean) => void,
 		prefix?: JSX.Element,
 		suffix?: JSX.Element,
 	}) => {
@@ -19,8 +17,8 @@ export function makeSpinBox<T>(options: Readonly<{
 		const [valid, setValid] = createSignal(true)
 		let dirty = false
 		function update(newValue: T, commit: boolean) {
-			if (Object.is(newValue, props.value)) return
-			props.onUpdate({ delta: $set(newValue), commit })
+			if (!commit && Object.is(newValue, props.value)) return
+			props.onUpdate(newValue, commit)
 		}
 		function increment(by: number) {
 			dirty = false
@@ -128,6 +126,18 @@ export const SpinBox = makeSpinBox<number>({
 		// 	? Math.min(Math.max(newValue, props.min), props.max)
 		// 	: NaN
 		return x
+	},
+	stringify: x => x.toString(),
+})
+
+export const IntegerSpinBox = makeSpinBox<number>({
+	add(a, b) {
+		const y = a + b
+		return Math.min(Math.max(y, -Number.MAX_SAFE_INTEGER), Number.MAX_SAFE_INTEGER)
+	},
+	parse(s) {
+		const x = Number(s)
+		return Number.isSafeInteger(x) ? x : undefined
 	},
 	stringify: x => x.toString(),
 })

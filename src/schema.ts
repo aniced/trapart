@@ -1,40 +1,47 @@
 import { type Component } from 'solid-js'
 import { Delta } from './delta'
 
-export interface Update<T> {
-	delta: Delta<T>,
+export type Selection<T> = true | undefined | { [K in keyof T]: Selection<T[K]> }
+
+export interface ViewProps<T> {
+	type: Schema<T>,
+	value: T,
+	selection: Selection<T>,
 	/**
-	 * false: Do not commit.
-	 * true: Commit even if there is no change.
-	 * undefined: Commit if there is a change.
+	 * Mutable state of the view that persists, but not part of the value.
+	 * Examples include the viewport of a canvas and expanded nodes in a tree.
 	 */
-	commit?: boolean | undefined,
+	state: any,
+	onUpdate: (update: {
+		value?: Delta<T>,
+		/**
+		 * Force (true) or prevent (false) a commit.
+		 * The default is to commit if there is a change.
+		 */
+		commit?: boolean,
+		selection?: Delta<Selection<T>>,
+		/** Replace (instead of adding to) the selection. */
+		deselect?: boolean,
+	}) => void,
 }
 
-export interface ViewDescriptor<T> {
-	component: Component<{
-		value: T,
-		onUpdate: (update: Update<T>) => void,
-	}>,
-	methods: { [name: string]: (oldValue: T) => Update<T> },
-	default: () => T,
-}
-
-export interface Command {
-	name: string,
+export interface Command<T> {
+	run: (props: ViewProps<T>) => void,
 	title: string,
 	shortcut?: {
 		ctrlKey?: boolean,
 		shiftKey?: boolean,
 		altKey?: boolean,
 		key: string,
+		preventDefault?: boolean,
 	},
 }
 
 export interface Schema<T> {
 	title: string,
 	description?: Component,
-	/** The default value. If not provided, view's default will be used. */
-	default?: () => T,
-	view: ViewDescriptor<T>,
+	default: T,
+	component: Component<ViewProps<T>>,
+	traverse: (props: ViewProps<T>) => ViewProps<any>[],
+	commands: Command<T>[],
 }

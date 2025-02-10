@@ -1,13 +1,11 @@
 import { type Ref } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
-import { UpdateHandler } from '../../schema'
-import { $set } from '../../delta'
 
 const composing = Symbol('composing')
 
 export function TextBox(props: {
 	value: string,
-	onUpdate?: UpdateHandler<string>,
+	onUpdate?: (newValue: string, commit: boolean) => void,
 	multiline?: boolean,
 	ref?: Ref<HTMLInputElement> | Ref<HTMLTextAreaElement>,
 }) {
@@ -30,12 +28,12 @@ export function TextBox(props: {
 		onInput={(event: InputEvent) => {
 			const target = event.target as any
 			if (target[composing]) return
-			props.onUpdate?.($set(target.value), false)
+			props.onUpdate?.(target.value, false)
 		}}
 		onChange={(event: Event) => {
 			const target = event.target as any
 			target[composing] = false
-			props.onUpdate?.($set(target.value), true)
+			props.onUpdate?.(target.value, true)
 		}}
 		onFocus={(event: FocusEvent) => {
 			const target = event.target as any

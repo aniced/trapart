@@ -267,7 +267,18 @@ legend {
 }
 
 .chameleon {
-	&.selected>label {
+	border: 2px outset slategray;
+
+	&.selected>.title {
 		@extend ::selection;
+	}
+
+	.title {
+		padding: 0 2px;
+		background: #2a4444;
+	}
+
+	.description {
+		padding: 0 2px;
 	}
 }

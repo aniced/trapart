@@ -10,7 +10,7 @@ export type Delta<T> =
 		? { [key: number]: Delta<E> }
 		: { [K in keyof T]?: Delta<T[K]> })
 
-declare class $set<T> {
+export declare class $set<T> {
 	readonly value: T
 }
 export function $set<T>(value: T): $set<T> {
@@ -43,17 +43,25 @@ export function patch<T>(a: T, b: readonly Delta<T>): T {
 	return y
 }
 
-/** a ← a + b */
-export function apply<T extends object>(a: T, b: readonly Delta<T>): void {
-	if (b === undefined) return
+/**
+ * a ← a + b
+ * 
+ * Returns true if changes are made.
+ */
+export function apply<T extends object>(a: T, b: readonly Delta<T>): boolean {
+	if (b === undefined) return false
 	if (b instanceof $set) throw new Error('cannot mutate a leaf')
+	let changed = false
 	for (const key in b) if (Object.hasOwn(b, key)) {
 		if (b[key] instanceof $set) {
 			a[key] = b[key].value
+			changed = true
 		} else {
-			apply(a[key], b[key])
+			// No short circuit!
+			changed = apply(a[key], b[key]) || changed
 		}
 	}
+	return changed
 }
 
 /** y such that a + b + y = a */

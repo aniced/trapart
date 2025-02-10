@@ -1,18 +1,12 @@
 import { Dynamic, Show } from 'solid-js/web'
-import type { Schema, Update } from '../schema'
+import type { ViewProps } from '../schema'
 
-export function Chameleon<T>(props: {
-	type: Schema<T>,
-	value: T,
-	onUpdate: (update: Update<T>) => void,
-}) {
+export function Chameleon<T>(props: ViewProps<T>) {
 	return <div class="chameleon vbox">
-		<label>{props.type.title}</label>
-		<div>
-			<Dynamic component={props.type.view.component} value={props.value} onUpdate={props.onUpdate} />
-		</div>
+		<div class="title">{props.type.title}</div>
+		<Dynamic component={props.type.component} {...props} />
 		<Show when={props.type.description}>
-			<div>
+			<div class="description">
 				<Dynamic component={props.type.description} />
 			</div>
 		</Show>

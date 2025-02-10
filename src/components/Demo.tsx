@@ -7,9 +7,8 @@ import { ProgressBar } from './basic-controls/ProgressBar'
 import { TextBox } from './basic-controls/TextBox'
 import { ListView, type ListViewDescriptor } from './basic-controls/ListView'
 import { Enable } from './Enable'
-import { patch } from '../delta'
-import { Chameleon } from './Chameleon'
 import { integer } from '../basic-views'
+import { DataRoot } from './DataRoot'
 
 function ControlDemo() {
 	const [disabled, setDisabled] = createSignal(false)
@@ -74,7 +73,12 @@ function ControlDemo() {
 					<input type="checkbox" checked={disabled()} onChange={event => setDisabled(event.target.checked)} />
 					Start disabled inside
 				</label>
-				<SpinBox prefix={<><b>$</b>[</>} value={number()} onUpdate={u => setNumber(x => patch(x, u.delta))} suffix="]%" />
+				{/* <SpinBox
+					prefix={<><b>$</b>[</>}
+					value={number()}
+					onUpdate={u => setNumber(x => patch(x, u.delta))}
+					suffix="]%"
+				/> */}
 				<label>
 					Labeled text field
 					<TextBox value={string()} onUpdate={setString} />
@@ -128,19 +132,12 @@ function ControlDemo() {
 	</div>
 }
 
-function ChameleonDemo() {
-	const [x, setX] = createSignal(114514)
-	setInterval(() => {
-		setX(x => x + 1)
-	}, 500)
-	return <div class="vbox">
-		<h1>{x()}</h1>
-		<Chameleon type={{
-			title: 'Number',
-			view: integer,
-			description: () => 'A spin box control.',
-		}} value={x()} onUpdate={u => setX(x => patch(x, u.delta))} />
-	</div>
+function DataRootDemo() {
+	return <DataRoot type={{
+		...integer,
+		title: 'Number',
+		description: () => 'A spin box control.',
+	}} />
 }
 
-export const Demo = ChameleonDemo
+export const Demo = DataRootDemo
