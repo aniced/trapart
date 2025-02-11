@@ -15,10 +15,9 @@ export interface ViewProps<T> {
 	onUpdate: (update: {
 		value?: Delta<T>,
 		/**
-		 * Force (true) or prevent (false) a commit.
-		 * The default is to commit if there is a change.
+		 * Start ('new') or end ('commit') a transaction.
 		 */
-		commit?: boolean,
+		transaction?: 'new' | 'commit',
 		selection?: Delta<Selection<T>>,
 		/** Replace (instead of adding to) the selection. */
 		deselect?: boolean,

@@ -1,8 +1,8 @@
 import { For } from 'solid-js'
-import { IntegerSpinBox, makeSpinBox, SpinBox } from './components/basic-controls/SpinBox'
+import { IntegerSpinBox, SpinBox } from './components/basic-controls/SpinBox'
 import { TextBox } from './components/basic-controls/TextBox'
 import { $set, Delta } from './delta'
-import type { Selection, Schema, ViewProps } from './schema'
+import type { Selection, Schema } from './schema'
 import { Chameleon } from './components/Chameleon'
 
 export const string: Schema<string> = {
@@ -12,7 +12,7 @@ export const string: Schema<string> = {
 		value={props.value}
 		onUpdate={(newValue, commit) => props.onUpdate({
 			value: $set(newValue),
-			commit: commit ? undefined : false,
+			transaction: commit ? 'commit' : undefined,
 		})}
 	/>,
 	traverse: () => [],
@@ -29,7 +29,10 @@ export const float: Schema<number> = {
 	default: 0,
 	component: props => <SpinBox
 		value={props.value}
-		onUpdate={(newValue, commit) => props.onUpdate({ value: $set(newValue), commit })}
+		onUpdate={(newValue, commit) => props.onUpdate({
+			value: $set(newValue),
+			transaction: commit ? 'commit' : undefined,
+		})}
 	/>,
 	traverse: () => [],
 	commands: [
@@ -48,7 +51,10 @@ export const integer: Schema<number> = {
 	...float,
 	component: props => <IntegerSpinBox
 		value={props.value}
-		onUpdate={(newValue, commit) => props.onUpdate({ value: $set(newValue), commit })}
+		onUpdate={(newValue, commit) => props.onUpdate({
+			value: $set(newValue),
+			transaction: commit ? 'commit' : undefined,
+		})}
 	/>,
 }
 

@@ -73,12 +73,7 @@ function ControlDemo() {
 					<input type="checkbox" checked={disabled()} onChange={event => setDisabled(event.target.checked)} />
 					Start disabled inside
 				</label>
-				{/* <SpinBox
-					prefix={<><b>$</b>[</>}
-					value={number()}
-					onUpdate={u => setNumber(x => patch(x, u.delta))}
-					suffix="]%"
-				/> */}
+				<SpinBox prefix={<><b>$</b>[</>} value={number()} onUpdate={setNumber} suffix="]%" />
 				<label>
 					Labeled text field
 					<TextBox value={string()} onUpdate={setString} />

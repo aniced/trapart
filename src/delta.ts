@@ -23,7 +23,7 @@ export const $delete = $set(undefined)
 
 /**
  * a + b
- * 
+ *
  * Operands are not mutated. If no changes are made, a is returned.
  */
 export function patch<T>(a: T, b: readonly Delta<T>): T {
@@ -45,23 +45,39 @@ export function patch<T>(a: T, b: readonly Delta<T>): T {
 
 /**
  * a ← a + b
- * 
- * Returns true if changes are made.
+ *
+ * Returns simplified b and −b with respect to the original a.
+ * Both return values are undefined if nothing changes.
  */
-export function apply<T extends object>(a: T, b: readonly Delta<T>): boolean {
+export function apply<T extends object>(a: T, b: readonly Delta<T>): [Delta<T>, Delta<T>] {
 	if (b === undefined) return false
 	if (b instanceof $set) throw new Error('cannot mutate a leaf')
 	let changed = false
+	const undo = {}
+	const redo = {}
 	for (const key in b) if (Object.hasOwn(b, key)) {
 		if (b[key] instanceof $set) {
-			a[key] = b[key].value
-			changed = true
+			// TODO: should replace with deepEqual
+			if (!Object.is(a[key], b[key].value)) {
+				changed = true
+				undo[key] = $set(a[key])
+				redo[key] = b[key]
+				if (b[key].value === undefined) {
+					delete a[key]
+				} else {
+					a[key] = b[key].value
+				}
+			}
 		} else {
-			// No short circuit!
-			changed = apply(a[key], b[key]) || changed
+			const [subUndo, subRedo] = apply(a[key], b[key])
+			if (subRedo) {
+				changed = true
+				undo[key] = subUndo
+				redo[key] = subRedo
+			}
 		}
 	}
-	return changed
+	return changed ? [undo, redo] : []
 }
 
 /** y such that a + b + y = a */
