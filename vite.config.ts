@@ -14,5 +14,8 @@ export default defineConfig({
   build: {
     target: 'esnext',
   },
-  // resolveSnapshotPath: (testPath, snapExtension) => testPath + snapExtension,
+  test: {
+    environment: 'node',
+    resolveSnapshotPath: (testPath, snapExtension) => testPath + snapExtension,
+  },
 })
