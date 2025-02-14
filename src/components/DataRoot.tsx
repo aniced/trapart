@@ -14,10 +14,10 @@ export function DataRoot<T>(props: {
 	return <div class="vbox">
 		<h1>DataRoot</h1>
 		<Chameleon type={props.type} value={value.value} selection={selection.value} state={state} onUpdate={update => {
+			if (update.selection) {
+				setSelection(selection => apply(selection, { value: update.selection }))
+			}
 			if (update.value) {
-				if (update.selection) {
-					setSelection(selection => apply(selection, { value: update.selection }))
-				}
 				setValue(value => {
 					if (update.value instanceof $set && update.value === undefined) {
 						update.value = $set(structuredClone(props.type.default))
