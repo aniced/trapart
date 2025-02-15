@@ -22,6 +22,7 @@ export function makeSpinBox<T>(options: Readonly<{
 		}
 		function increment(by: number) {
 			dirty = false
+			setValid(true)
 			update(options.add(props.value, by), false)
 			input.select()
 		}

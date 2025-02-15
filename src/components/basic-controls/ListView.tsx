@@ -22,7 +22,7 @@ export interface ListViewDescriptor<T, ColumnID extends string = string> {
 	getPlainText: (item: T) => string,
 	columns: { [id in ColumnID]: {
 		render: Component<{ item: T }>,
-		name: string,
+		title: string,
 		/** If the compare key is not passed in, the column is not sortable. */
 		compareKey?: (item: T) => number | string,
 		initialWidth: number,
@@ -126,6 +126,7 @@ export function ListView<T, ColumnID extends string>(props: {
 	})
 
 	function clickHeader(columnID: ColumnID, multipleSelection: boolean) {
+		if (!props.view.columns[columnID].compareKey) return
 		setSorting(sorting => {
 			if (multipleSelection) {
 				const clause = sortingMap()[columnID]?.clause
@@ -245,7 +246,7 @@ export function ListView<T, ColumnID extends string>(props: {
 					}} data-sort-order={sortingMap()[columnID]?.order} onClick={event =>
 						(event.target as HTMLElement).classList.contains('grip')
 						|| clickHeader(columnID, event.ctrlKey || event.metaKey)}>
-						<span class="fill ellipsis">{props.view.columns[columnID].name}</span>
+						<span class="fill ellipsis">{props.view.columns[columnID].title}</span>
 						<Grip x={columnWidth[columnID] ?? props.view.columns[columnID].initialWidth} minX={0} onUpdate={x => setColumnWidth(columnWidth => columnWidth[columnID] = x)} />
 					</th>}</For>
 				</tr>

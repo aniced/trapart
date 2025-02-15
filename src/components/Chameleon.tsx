@@ -6,8 +6,8 @@ export function Chameleon<T>(props: ViewProps<T>) {
 	return <div class="chameleon vbox" classList={{
 		selected: props.selection === true,
 	}} onMouseDown={event => {
+		if (event.target.closest('.chameleon') !== event.currentTarget) return
 		if (event.button !== 0) return
-		if (props.selection === true) return
 		props.onUpdate({
 			selection: $set(true),
 			deselect: !event.ctrlKey && !event.metaKey,

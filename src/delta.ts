@@ -21,6 +21,15 @@ export function $set<T>(value: T): $set<T> {
 /** Shorthand to $set(undefined). */
 export const $delete = $set(undefined)
 
+function isDeltaEmpty<T>(x: Delta<T>): boolean {
+	if (x === undefined) return true
+	if (x === null || typeof x !== 'object') throw new Error('isDeltaEmpty received not Delta')
+	for (const key in x) if (Object.hasOwn(x, key)) {
+		if (!isDeltaEmpty(x[key])) return false
+	}
+	return true
+}
+
 /**
  * a + b
  *
@@ -50,8 +59,12 @@ export function patch<T>(a: T, b: readonly Delta<T>): T {
  * Both return values are undefined if nothing changes.
  */
 export function apply<T extends object>(a: T, b: readonly Delta<T>): [Delta<T>, Delta<T>] {
-	if (b === undefined) return false
+	if (b === undefined) return []
 	if (b instanceof $set) throw new Error('cannot mutate a leaf')
+	if (typeof a !== 'object' && typeof a !== 'function') {
+		if (!isDeltaEmpty(b)) throw new Error('cannot mutate a primitive')
+		return []
+	}
 	let changed = false
 	const undo = {}
 	const redo = {}

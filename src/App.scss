@@ -64,6 +64,10 @@
 		display: flex;
 	}
 
+	dialog:not([open]) {
+		display: none !important;
+	}
+
 	ul,
 	ol,
 	menu,

@@ -7,7 +7,7 @@ import { ProgressBar } from './basic-controls/ProgressBar'
 import { TextBox } from './basic-controls/TextBox'
 import { ListView, type ListViewDescriptor } from './basic-controls/ListView'
 import { Enable } from './Enable'
-import { integer } from '../basic-views'
+import { integer, makeStructure, string } from '../basic-views'
 import { DataRoot } from './DataRoot'
 
 function ControlDemo() {
@@ -26,19 +26,19 @@ function ControlDemo() {
 		columns: {
 			str: {
 				render: ({ item }) => item.text,
-				name: 'Original case',
+				title: 'Original case',
 				compareKey: (item) => item.text,
 				initialWidth: 100,
 			},
 			upperStr: {
 				render: ({ item }) => item.text.toUpperCase(),
-				name: 'Upper case',
+				title: 'Upper case',
 				compareKey: (item) => item.text,
 				initialWidth: 100,
 			},
 			length: {
 				render: ({ item }) => item.text.length.toString(),
-				name: 'Length',
+				title: 'Length',
 				compareKey: (item) => item.text.length,
 				initialWidth: 50,
 			},
@@ -128,11 +128,28 @@ function ControlDemo() {
 }
 
 function DataRootDemo() {
-	return <DataRoot type={{
-		...integer,
-		title: 'Number',
-		description: () => 'A spin box control.',
-	}} />
+	const type = makeStructure({
+		num: {
+			...integer,
+			title: 'Number',
+			description: () => 'A spin box control.',
+		},
+		str: {
+			...string,
+			title: 'String',
+			description: () => 'A text control.',
+		},
+		obj: makeStructure({
+			x: { ...integer, title: 'X' },
+			y: { ...integer, title: 'Y' },
+			z: { ...integer, title: 'Z' },
+		}, {
+			title: 'Substructure',
+		}),
+	}, {
+		title: 'Structure',
+	})
+	return <DataRoot type={type} />
 }
 
 export const Demo = DataRootDemo

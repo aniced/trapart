@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { $set, $delete, patch, revert, diff } from './delta'
+import { $set, $delete, patch, revert, diff, apply } from './delta'
 
 describe('patch', () => {
 	it('ignores undefined fields', () => {
@@ -85,6 +85,17 @@ describe('patch', () => {
 		}, $delete)).toStrictEqual(undefined)
 	})
 
+	it('handles noop', () => {
+		const x = {
+			s: 'hello',
+			foo: {
+				a: false,
+			},
+		}, y = structuredClone(x)
+		expect(apply(x, { d: { g: undefined } } as any)).toMatchObject({ 0: undefined, 1: undefined })
+		expect(x).toStrictEqual(y)
+	})
+
 	it('diffs values', () => {
 		expect(diff({
 			s: 'hello',
@@ -117,24 +128,24 @@ describe('patch', () => {
 
 	it('gives optimal diff', () => {
 		expect(diff({
-			x: {y: {z: 'z', w: 'w'}},
-			foo: {bar: {baz: -1}},
+			x: { y: { z: 'z', w: 'w' } },
+			foo: { bar: { baz: -1 } },
 		}, {
-			x: {y: {z: 'z', w: 'w'}},
-			foo: {bar: {baz: -1}},
+			x: { y: { z: 'z', w: 'w' } },
+			foo: { bar: { baz: -1 } },
 		})).toStrictEqual(undefined)
 	})
 
 	it('reverts diff', () => {
 		expect(revert({
-			x: {y: {z: 'z', w: 'w'}},
-			foo: {bar: {x: 1, y: -1}},
+			x: { y: { z: 'z', w: 'w' } },
+			foo: { bar: { x: 1, y: -1 } },
 		}, {
-			x: {y: {w: $set('www')}},
-			foo: {bar: $set({x: -2, y: 2})},
+			x: { y: { w: $set('www') } },
+			foo: { bar: $set({ x: -2, y: 2 }) },
 		})).toStrictEqual({
-			x: {y: {w: $set('w')}},
-			foo: {bar: $set({x: 1, y: -1})},
+			x: { y: { w: $set('w') } },
+			foo: { bar: $set({ x: 1, y: -1 }) },
 		})
 	})
 
